@@ -1,0 +1,12 @@
+# Intellij
+.idea/
+*.iws
+*.ipr
+*.iml
+
+# Gradle
+.gradle/
+
+
+# Vim
+*.swp
