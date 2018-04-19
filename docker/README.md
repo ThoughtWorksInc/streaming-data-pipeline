@@ -23,6 +23,6 @@
   `docker exec -it docker_zookeeper_1 zkCli.sh -server localhost:2181`
 
 ## Test connection to Hadoop in containers
-  
+  `docker exec -it docker_hadoop_1 /usr/local/hadoop/bin/hadoop fs -ls /` 
   `curl http://localhost:50070`
   `curl http://localhost:8088/cluster`
