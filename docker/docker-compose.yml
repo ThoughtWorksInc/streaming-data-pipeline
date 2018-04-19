@@ -9,12 +9,15 @@ services:
         environment:
           - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
           - KAFKA_ADVERTISED_HOST_NAME=localhost
+        depends_on:
+          - zookeeper
 
     zookeeper:
         image: zookeeper:3.3.6
         networks:
           - streaming-data-internal
+        ports:
+          - "2181:2181"
 
 networks:
     streaming-data-internal:
-
