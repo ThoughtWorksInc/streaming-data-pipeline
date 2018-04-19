@@ -18,6 +18,11 @@
     0. Verify that the following command in `zkCli` works: `ls /`
     0. Type `quit` to exit the Zookeeper CLI
 
-## Connect to zookeeper in containers
+## Test connect to zookeeper in containers
 
   `docker exec -it docker_zookeeper_1 zkCli.sh -server localhost:2181`
+
+## Test connection to Hadoop in containers
+  
+  `curl http://localhost:50070`
+  `curl http://localhost:8088/cluster`
