@@ -3,13 +3,13 @@ services:
     kafka:
         image: wurstmeister/kafka:1.1.0
         networks:
-          - internal
+          - streaming-data-internal
 
     zookeeper:
         image: zookeeper:3.3.6
         networks:
-          - internal
+          - streaming-data-internal
 
 networks:
-    internal:
+    streaming-data-internal:
 
