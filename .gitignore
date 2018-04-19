@@ -10,3 +10,8 @@
 
 # Vim
 *.swp
+
+# Build
+producers/build
+consumers/project
+consumers/target
