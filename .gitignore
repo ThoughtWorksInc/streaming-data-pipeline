@@ -15,3 +15,7 @@
 producers/build
 consumers/project
 consumers/target
+producers/out/
+
+# Misc
+.DS_Store
