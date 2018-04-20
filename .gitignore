@@ -7,15 +7,17 @@
 # Gradle
 .gradle/
 
-
 # Vim
 *.swp
 
 # Build
-producers/build
-consumers/project
-consumers/target
-producers/out/
+*/build
+*/project
+*/target
+*/out/
+
+# Logs
+application.log
 
 # Misc
 .DS_Store

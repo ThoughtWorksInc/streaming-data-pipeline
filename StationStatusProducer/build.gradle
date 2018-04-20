@@ -13,9 +13,9 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 bootJar {
-  baseName = 'free2wheelers-producers'
-  version =  '0.0.1'
-  archiveName = 'free2wheelers-producers-lastest.jar'
+  baseName = 'free2wheelers-station-status-producer'
+  version =  '0.1.0'
+  archiveName = 'free2wheelers-station-status-producer-' + version + '.jar'
 }
 
 repositories {
