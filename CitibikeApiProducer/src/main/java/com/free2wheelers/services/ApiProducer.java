@@ -1,7 +1,7 @@
 package com.free2wheelers.services;
 
 import com.free2wheelers.models.MessageMetadata;
-import com.free2wheelers.models.StationStatusKafkaMessage;
+import com.free2wheelers.models.CitibikeApiKafkaMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,22 +14,25 @@ import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
 @Service
-public class StationStatusProducer {
+public class ApiProducer {
 
-    private static Logger logger = LoggerFactory.getLogger(StationStatusProducer.class);
+    private static Logger logger = LoggerFactory.getLogger(ApiProducer.class);
 
-    @Value("${producer.stationStatus.topic}")
+    @Value("${producer.topic}")
     private String writeTopic;
 
-    @Value("${producer.stationStatus.producerId}")
-    private String stationStatusProducerId;
+    @Value("${producer.producerId}")
+    private String producerId;
+
+    private final KafkaTemplate<String, String> kafkaTemplate;
+
+    private final MetadataGenerator metadataGenerator;
 
     @Autowired
-    private KafkaTemplate<String, String> stationStatusTemplate;
-
-    @Autowired
-    private MetadataGenerator metadataGenerator;
-
+    public ApiProducer(KafkaTemplate<String, String> kafkaTemplate, MetadataGenerator metadataGenerator) {
+        this.kafkaTemplate = kafkaTemplate;
+        this.metadataGenerator = metadataGenerator;
+    }
 
     public void sendMessage(final HttpEntity<String> response) {
         String message = response.getBody();
@@ -37,9 +40,9 @@ public class StationStatusProducer {
         String messageId = metadataGenerator.generateUniqueKey();
         long ingestionTime = metadataGenerator.getCurrentTimeMillis();
 
-        MessageMetadata messageMetadata = new MessageMetadata(ingestionTime, stationStatusProducerId, messageId, contentLength);
-        String kafkaMessage = new StationStatusKafkaMessage(message, messageMetadata).getMessageString();
-        ListenableFuture<SendResult<String, String>> future = this.stationStatusTemplate.send(writeTopic, messageId, kafkaMessage);
+        MessageMetadata messageMetadata = new MessageMetadata(ingestionTime, producerId, messageId, contentLength);
+        String kafkaMessage = new CitibikeApiKafkaMessage(message, messageMetadata).getMessageString();
+        ListenableFuture<SendResult<String, String>> future = this.kafkaTemplate.send(writeTopic, messageId, kafkaMessage);
         future.addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
 
             @Override

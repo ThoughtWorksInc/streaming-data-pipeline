@@ -20,13 +20,13 @@ import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(locations = "classpath:test.properties")
-public class StationStatusProducerTest {
+public class ApiProducerTest {
 
     @InjectMocks
-    private StationStatusProducer stationStatusProducer;
+    private ApiProducer apiProducer;
 
     @Mock
-    private KafkaTemplate<String, String> stationStatusTemplate;
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     @Mock
     private MetadataGenerator metadataGenerator;
@@ -34,33 +34,33 @@ public class StationStatusProducerTest {
     @Mock
     private ListenableFuture<SendResult<String, String>> future;
 
-    @Value("${producer.stationStatus.topic}")
+    @Value("${producer.topic}")
     private String testWriteTopic;
 
-    @Value("${producer.stationStatus.producerId}")
+    @Value("${producer.producerId}")
     private String testProducerId;
 
     @Test
     public void shouldAddMetadataAndSendMessage() throws NoSuchFieldException, IllegalAccessException {
 
         //cannot find another way to inject in the test values...
-        Field writeTopic = StationStatusProducer.class.getDeclaredField("writeTopic");
+        Field writeTopic = ApiProducer.class.getDeclaredField("writeTopic");
         writeTopic.setAccessible(true);
-        writeTopic.set(stationStatusProducer, testWriteTopic);
+        writeTopic.set(apiProducer, testWriteTopic);
 
-        Field producerId = StationStatusProducer.class.getDeclaredField("stationStatusProducerId");
+        Field producerId = ApiProducer.class.getDeclaredField("producerId");
         producerId.setAccessible(true);
-        producerId.set(stationStatusProducer, testProducerId);
+        producerId.set(apiProducer, testProducerId);
 
         HttpEntity<String> response = mock(HttpEntity.class, Answers.RETURNS_DEEP_STUBS);
         when(response.getBody()).thenReturn("LargeJsonMessage");
         when(response.getHeaders().getContentLength()).thenReturn(1234L);
         when(metadataGenerator.generateUniqueKey()).thenReturn("123e4567-e89b-12d3-a456-426655440001");
         when(metadataGenerator.getCurrentTimeMillis()).thenReturn(1524237281590L);
-        when(stationStatusTemplate.send(any(), any(), any())).thenReturn(future);
+        when(kafkaTemplate.send(any(), any(), any())).thenReturn(future);
 
-        stationStatusProducer.sendMessage(response);
-        verify(stationStatusTemplate).send(
+        apiProducer.sendMessage(response);
+        verify(kafkaTemplate).send(
                 "test_station_status",
                 "123e4567-e89b-12d3-a456-426655440001",
                 "{\"metadata\": {\"producer_id\": \"test_station_status_producer\", " +

@@ -6,7 +6,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class StationStatusKafkaMessageTest {
+public class CitibikeApiKafkaMessageTest {
 
     @Test
     public void shouldReturnStringWithMetadataAndPayload() {
@@ -14,7 +14,7 @@ public class StationStatusKafkaMessageTest {
         MessageMetadata metadata = mock(MessageMetadata.class);
         when(metadata.toString()).thenReturn("Test Metadata");
 
-        StationStatusKafkaMessage message = new StationStatusKafkaMessage(payload, metadata);
+        CitibikeApiKafkaMessage message = new CitibikeApiKafkaMessage(payload, metadata);
 
         assertEquals("{\"metadata\": Test Metadata, \"payload\": Test Message}",
                 message.getMessageString());

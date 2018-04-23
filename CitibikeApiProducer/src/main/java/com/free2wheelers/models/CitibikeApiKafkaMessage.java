@@ -1,12 +1,12 @@
 package com.free2wheelers.models;
 
-public class StationStatusKafkaMessage {
+public class CitibikeApiKafkaMessage {
 
     private String message;
     private MessageMetadata metadata;
 
-    public StationStatusKafkaMessage(String message,
-                                     MessageMetadata metadata) {
+    public CitibikeApiKafkaMessage(String message,
+                                   MessageMetadata metadata) {
         this.message = message;
         this.metadata = metadata;
     }
