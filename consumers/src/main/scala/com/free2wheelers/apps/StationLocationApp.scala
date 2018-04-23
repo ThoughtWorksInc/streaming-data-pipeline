@@ -20,7 +20,9 @@ object StationLocationApp {
       .writeStream
       .outputMode("append")
       .format("parquet")
+      .option("checkpointLocation", "file:///Users/alpandy/dev-eng/data/stationinformationcheck")
       .option("path", "file:///Users/alpandy/dev-eng/data/stationinformationdata")
       .start()
+      .awaitTermination()
   }
 }

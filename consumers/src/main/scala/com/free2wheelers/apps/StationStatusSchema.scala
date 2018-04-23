@@ -13,7 +13,6 @@ object StationStatusSchema {
             StructField("producer_id", StringType, true),
             StructField("size", IntegerType, true),
             StructField("message_id", StringType, true),
-            StructField("ingestion_time", LongType, true),
             StructField("ingestion_time", LongType, true)
           )),
           true
