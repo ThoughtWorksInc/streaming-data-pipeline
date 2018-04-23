@@ -9,7 +9,7 @@ lazy val root = (project in file(".")).
     inThisBuild(List(
       organization := "com.free2wheelers",
       scalaVersion := "2.12.4",
-      version      := "0.0.1"
+      version := "0.0.1"
     )),
 
     name := "free2wheelers-consumers",
@@ -17,6 +17,7 @@ lazy val root = (project in file(".")).
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "3.0.5" % "test",
       "org.apache.kafka" %% "kafka" % "0.10.0.1" % "test",
+      "org.apache.curator" % "curator-test" % "3.3.0" % "test",
       "org.apache.spark" %% "spark-core" % sparkVersion,
       "org.apache.spark" %% "spark-sql" % sparkVersion,
       "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion,
