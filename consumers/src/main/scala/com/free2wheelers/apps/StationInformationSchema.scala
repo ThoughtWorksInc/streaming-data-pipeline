@@ -2,8 +2,7 @@ package com.free2wheelers.apps
 
 import org.apache.spark.sql.types._
 
-object StationStatusSchema {
-
+object StationInformationSchema {
   val schema = StructType(
     StructType(
       List(
@@ -30,18 +29,18 @@ object StationStatusSchema {
                   ArrayType(
                     StructType(List(
                       StructField("station_id", StringType, true),
-                      StructField("num_bikes_available", IntegerType, true),
-                      StructField("num_ebikes_available", IntegerType, true),
-                      StructField("num_bikes_disabled", IntegerType, true),
-                      StructField("num_docks_available", IntegerType, true),
+                      StructField("name", StringType, true),
+                      StructField("short_name", StringType, true),
+                      StructField("lat", LongType, true),
+                      StructField("lon", LongType, true),
                       StructField("num_docks_disabled", IntegerType, true),
-                      StructField("is_installed", IntegerType, true),
-                      StructField("is_renting", IntegerType, true),
-                      StructField("is_returning", IntegerType, true),
-                      StructField("last_reported", IntegerType, true),
-                      StructField("eightd_has_available_keys",
-                                  BooleanType,
-                                  true)
+                      StructField("region_id", IntegerType, true),
+                      StructField("rental_methods", ArrayType(StringType), true),
+                      StructField("capacity", IntegerType, true),
+                      StructField("rental_url", StringType, true),
+                      StructField("eightd_has_key_dispenser",
+                        BooleanType,
+                        true)
                     ))
                   ),
                   true
@@ -52,5 +51,4 @@ object StationStatusSchema {
           ))
         )
       )))
-
 }
