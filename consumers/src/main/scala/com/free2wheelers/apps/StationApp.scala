@@ -14,7 +14,7 @@ object StationApp {
     .option("subscribe", "station_status")
     .option("startingOffsets", "latest")
     .load()
-    .transform(json2DF)
+    .transform(json2DF(StationStatusSchema.schema))
     .transform(denormalizeStream)
 
 }
