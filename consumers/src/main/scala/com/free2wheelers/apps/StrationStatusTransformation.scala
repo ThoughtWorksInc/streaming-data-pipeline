@@ -13,7 +13,7 @@ object StrationStatusTransformation {
 
   def denormalizeStations(stationStatusDF: DataFrame) = {
     stationStatusDF
-      .withColumn("stations",explode($"stations"))
+      .withColumn("stations",explode($"payload.data.stations"))
   }
 
   def denormalizeStream(stationStatusDF: DataFrame):DataFrame={
