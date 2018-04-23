@@ -8,8 +8,7 @@ object Utils {
       .format("kafka")
       .option("kafka.bootstrap.servers", kafkaBrokerConfig)
       .option("subscribe", "station_status")
-      .option("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
-      .option("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
+      .option("startingOffsets", "earliest")
       .load()
   }
 }
