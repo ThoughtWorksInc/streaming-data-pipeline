@@ -2,19 +2,16 @@ package com.free2wheelers
 
 import java.net.ServerSocket
 import java.nio.file.{Files, Path}
-import java.util
-import java.util.{Properties, UUID}
-import java.util.function.Consumer
+import java.util.Properties
 
 import kafka.server.{KafkaConfig, KafkaServerStartable}
 import org.apache.commons.io.FileUtils
 import org.apache.curator.test.TestingServer
-import org.apache.kafka.clients.consumer.{ConsumerRecord, ConsumerRecords, KafkaConsumer}
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
-import org.apache.spark.sql.streaming.Trigger
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{ForeachWriter, Row, SparkSession}
 import org.scalatest.concurrent.Eventually
-import org.scalatest.time.{Minute, Minutes, Seconds, Span}
+import org.scalatest.time.{Seconds, Span}
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 
 class UtilsTest extends FunSpec with Matchers with BeforeAndAfter with Eventually {
@@ -51,9 +48,6 @@ class UtilsTest extends FunSpec with Matchers with BeforeAndAfter with Eventuall
     producerProps.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
 
     producer = new KafkaProducer[String, String](producerProps)
-
-    kafkaTempDirectory.toFile.deleteOnExit()
-
   }
 
   after {
@@ -68,9 +62,8 @@ class UtilsTest extends FunSpec with Matchers with BeforeAndAfter with Eventuall
     it("should return a dataframe with the contents of the given Kafka topic") {
 
       val dataFrame = Utils.createDataFrameFromKafkaStationStatusTopic(testSession, brokerConfig)
-      var messagesRead = 0
 
-      val accumulator = testSession.sparkContext.longAccumulator
+      val messagesReceivedAccumulator = testSession.sparkContext.longAccumulator
 
       dataFrame
         .writeStream
@@ -82,10 +75,8 @@ class UtilsTest extends FunSpec with Matchers with BeforeAndAfter with Eventuall
           }
 
           override def process(value: Row): Unit = {
-            println(s"Processing: $value \t Accumulator is ${accumulator.value}")
-            accumulator.add(1)
-
-            messagesRead += 1
+            println(s"Processing: $value \t Accumulator is ${messagesReceivedAccumulator.value}")
+            messagesReceivedAccumulator.add(1)
           }
 
           override def close(errorOrNull: Throwable): Unit = {
@@ -100,7 +91,7 @@ class UtilsTest extends FunSpec with Matchers with BeforeAndAfter with Eventuall
       producer.send(new ProducerRecord(STATION_STATUS_TOPIC_NAME, "KEY3", "ABC"))
 
       eventually(timeout(Span(30, Seconds))) {
-        accumulator.value should be(4)
+        messagesReceivedAccumulator.value should be(4)
       }
     }
   }
