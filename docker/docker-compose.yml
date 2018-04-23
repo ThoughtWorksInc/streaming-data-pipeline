@@ -8,7 +8,7 @@ services:
           - "9092:9092"
         environment:
           - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-          - KAFKA_ADVERTISED_HOST_NAME=localhost
+          - KAFKA_ADVERTISED_HOST_NAME=kafka
         depends_on:
           - zookeeper
 
@@ -18,17 +18,33 @@ services:
           - streaming-data-internal
         ports:
           - "2181:2181"
+
     hadoop:
-      image: sequenceiq/hadoop-docker:2.7.0
-      command: "/etc/bootstrap.sh -d"
-      networks:
-        - streaming-data-internal
-      ports:
-        - "50070:50070"
-        - "50075:50075"
-        - "8088:8088"
-        - "8042:8042"
-        - "9000:9000"
-        - "50010:50010"
+        image: sequenceiq/hadoop-docker:2.7.0
+        command: "/etc/bootstrap.sh -d"
+        networks:
+          - streaming-data-internal
+        ports:
+          - "50070:50070"
+          - "50075:50075"
+          - "8088:8088"
+          - "8042:8042"
+          - "9000:9000"
+          - "50010:50010"
+
+    station-information-producer:
+        build: stationInformation
+        depends_on:
+          - kafka
+        networks:
+          - streaming-data-internal
+
+    station-status-producer:
+        build: stationStatus
+        depends_on:
+          - kafka
+        networks:
+          - streaming-data-internal
+
 networks:
     streaming-data-internal:

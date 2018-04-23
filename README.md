@@ -5,4 +5,4 @@ See producers and consumers set up README in their respective directories.
 
 # local environment setup
 
-See `docker/README.md`
+Run `./sbin/buildAndRunLocal.sh` to create Docker containers for running the setup on your local machine
