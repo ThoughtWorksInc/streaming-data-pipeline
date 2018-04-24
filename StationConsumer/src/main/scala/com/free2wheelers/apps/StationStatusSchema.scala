@@ -10,17 +10,17 @@ object StationStatusSchema {
           "metadata",
           StructType(List(
             StructField("producer_id", StringType, false),
-            StructField("size", LongType, false),
+            StructField("size", IntegerType, false),
             StructField("message_id", StringType, false),
             StructField("ingestion_time", LongType, false)
           )),
-          true
+          false
         ),
         StructField(
           "payload",
           StructType(List(
-            StructField("last_updated", LongType, true),
-            StructField("ttl", LongType, true),
+            StructField("last_updated", LongType, false),
+            StructField("ttl", IntegerType, false),
             StructField(
               "data",
               StructType(List(

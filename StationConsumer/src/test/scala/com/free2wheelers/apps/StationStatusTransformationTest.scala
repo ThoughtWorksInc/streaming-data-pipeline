@@ -1,12 +1,15 @@
 package com.free2wheelers.apps
 
-import org.scalatest._
+import com.free2wheelers.apps.StationStatusTransformation.{informationJson2DF, statusJson2DF}
 import org.apache.spark.sql.SparkSession
-import com.free2wheelers.apps.StationStatusTransformation.json2DF
+import org.scalatest._
 
-class StationStatusTransformationTest extends FeatureSpec with Matchers with GivenWhenThen{
+class StationStatusTransformationTest extends FeatureSpec with Matchers with GivenWhenThen {
   feature("Apply transformations to data frame") {
-    scenario("Transform data frame and extract useful fields") {
+    val spark = SparkSession.builder.appName("Test App").master("local").getOrCreate()
+    import spark.implicits._
+
+    scenario("Transform station_status data frame and extract useful fields") {
 
       val testStationStatusData =
         """{
@@ -53,28 +56,26 @@ class StationStatusTransformationTest extends FeatureSpec with Matchers with Giv
       }"""
 
       Given("Sample data for station_status")
-      val spark = SparkSession.builder.appName("Test App").master("local").getOrCreate()
-      import spark.implicits._
-      val testDF = Seq(testStationStatusData).toDF("raw_payload")
+      val testDF1 = Seq(testStationStatusData).toDF("raw_payload")
 
       When("Transformations are applied")
-      val resultDF = json2DF(testDF)
+      val resultDF1 = statusJson2DF(testDF1)
 
       Then("Useful columns are extracted")
-      resultDF.schema.fields(0).name should be("station_id")
-      resultDF.schema.fields(0).dataType.typeName should be("string")
-      resultDF.schema.fields(1).name should be("bikes_available")
-      resultDF.schema.fields(1).dataType.typeName should be("integer")
-      resultDF.schema.fields(2).name should be("docks_available")
-      resultDF.schema.fields(2).dataType.typeName should be("integer")
-      resultDF.schema.fields(3).name should be("is_renting")
-      resultDF.schema.fields(3).dataType.typeName should be("boolean")
-      resultDF.schema.fields(4).name should be("is_returning")
-      resultDF.schema.fields(4).dataType.typeName should be("boolean")
-      resultDF.schema.fields(5).name should be("last_updated")
-      resultDF.schema.fields(5).dataType.typeName should be("long")
+      resultDF1.schema.fields(0).name should be("station_id")
+      resultDF1.schema.fields(0).dataType.typeName should be("string")
+      resultDF1.schema.fields(1).name should be("bikes_available")
+      resultDF1.schema.fields(1).dataType.typeName should be("integer")
+      resultDF1.schema.fields(2).name should be("docks_available")
+      resultDF1.schema.fields(2).dataType.typeName should be("integer")
+      resultDF1.schema.fields(3).name should be("is_renting")
+      resultDF1.schema.fields(3).dataType.typeName should be("boolean")
+      resultDF1.schema.fields(4).name should be("is_returning")
+      resultDF1.schema.fields(4).dataType.typeName should be("boolean")
+      resultDF1.schema.fields(5).name should be("last_updated")
+      resultDF1.schema.fields(5).dataType.typeName should be("long")
 
-      val row1 = resultDF.where("station_id = 72").head()
+      val row1 = resultDF1.where("station_id = 72").head()
       row1.get(0) should be("72")
       row1.get(1) should be(1)
       row1.get(2) should be(33)
@@ -82,13 +83,93 @@ class StationStatusTransformationTest extends FeatureSpec with Matchers with Giv
       row1.get(4) shouldBe true
       row1.get(5) should be(1524170881)
 
-      val row2 = resultDF.where("station_id = 73").head()
+      val row2 = resultDF1.where("station_id = 73").head()
       row2.get(0) should be("73")
       row2.get(1) should be(3)
       row2.get(2) should be(50)
       row2.get(3) shouldBe true
       row2.get(4) shouldBe false
       row2.get(5) should be(1524170881)
+    }
+
+    scenario("Transform station_information data frame and extract useful fields") {
+
+      val testStationInformationData =
+        """{
+        "metadata": {
+          "producer_id": "producer_station_information",
+          "size": 1323,
+          "message_id": "1234-3224-2444242-fm2kf23",
+          "ingestion_time": 1524493544235
+        },
+        "payload": {
+            "last_updated":1524600463,
+            "ttl":10,
+            "data":{
+              "stations":[
+              {
+                "station_id":"72",
+                "name":"W 52 St & 11 Ave",
+                "short_name":"6926.01",
+                "lat":40.76727216,
+                "lon":-73.99392888,
+                "region_id":71,
+                "rental_methods":[
+                  "KEY",
+                  "CREDITCARD"
+                ],
+                "capacity":39,
+                "rental_url":"http://app.citibikenyc.com/S6Lr/IBV092JufD?station_id=72",
+                "eightd_has_key_dispenser":false
+              },
+              {
+                "station_id":"79",
+                "name":"Franklin St & W Broadway",
+                "short_name":"5430.08",
+                "lat":40.71911552,
+                "lon":-74.00666661,
+                "region_id":71,
+                "rental_methods":[
+                  "KEY",
+                  "CREDITCARD"
+                ],
+                "capacity":33,
+                "rental_url":"http://app.citibikenyc.com/S6Lr/IBV092JufD?station_id=79",
+                "eightd_has_key_dispenser":false
+              }
+            ]
+          }
+        }
+      }"""
+
+      Given("Sample data for station_information")
+      val testDF2 = Seq(testStationInformationData).toDF("raw_payload")
+      println(testDF2.show(2, false))
+
+      When("Transformations are applied")
+      val resultDF2 = informationJson2DF(testDF2)
+
+      Then("Useful columns are extracted")
+      resultDF2.schema.fields(0).name should be("station_id")
+      resultDF2.schema.fields(0).dataType.typeName should be("string")
+      resultDF2.schema.fields(1).name should be("name")
+      resultDF2.schema.fields(1).dataType.typeName should be("string")
+      resultDF2.schema.fields(2).name should be("latitude")
+      resultDF2.schema.fields(2).dataType.typeName should be("double")
+      resultDF2.schema.fields(3).name should be("longitude")
+      resultDF2.schema.fields(3).dataType.typeName should be("double")
+
+      val row1 = resultDF2.where("station_id = 72").head()
+      row1.get(0) should be("72")
+      row1.get(1) should be("W 52 St & 11 Ave")
+      row1.get(2) should be(40.76727216)
+      row1.get(3) should be(-73.99392888)
+
+      val row2 = resultDF2.where("station_id = 79").head()
+      row2.get(0) should be("79")
+      row2.get(1) should be("Franklin St & W Broadway")
+      row2.get(2) should be(40.71911552)
+      row2.get(3) should be(-74.00666661)
     }
   }
 }
