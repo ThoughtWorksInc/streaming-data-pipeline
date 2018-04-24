@@ -20,6 +20,8 @@ docker/*/*.jar
 # Logs
 application.log
 derby.log
+project/
+target/
 
 # Misc
 .DS_Store
