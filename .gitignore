@@ -19,6 +19,10 @@ docker/*/*.jar
 
 # Logs
 application.log
+derby.log
 
 # Misc
 .DS_Store
+
+# Derby
+metastore_db/
