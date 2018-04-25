@@ -12,15 +12,15 @@ object StationLocationApp {
 
     zkClient.start
 
-    val kafkaBrokers = new String(zkClient.getData.forPath("/free2wheelers/statusinformation/kafka-brokers"))
+    val kafkaBrokers = new String(zkClient.getData.forPath("/free2wheelers/stationInformation/kafka-brokers"))
 
-    val topic = new String(zkClient.getData.watched.forPath("/free2wheelers/statusinformation/topic"))
+    val topic = new String(zkClient.getData.watched.forPath("/free2wheelers/stationInformation/topic"))
 
     val checkpointLocation = new String(
-      zkClient.getData.watched.forPath("/free2wheelers/statusinformation/checkpointLocation"))
+      zkClient.getData.watched.forPath("/free2wheelers/stationInformation/checkpointLocation"))
 
     val dataLocation = new String(
-      zkClient.getData.watched.forPath("/free2wheelers/statusinformation/dataLocation"))
+      zkClient.getData.watched.forPath("/free2wheelers/stationInformation/dataLocation"))
 
     val spark = SparkSession.builder
       .appName("RawDataSaver")
