@@ -26,6 +26,14 @@ services:
           - "9000:9000"
           - "50010:50010"
 
+    hadoop-seed:
+        build:
+           context: ../hdfs
+        networks:
+          - streaming-data-internal
+        depends_on:
+          - hadoop
+
     zookeeper:
         image: zookeeper:3.3.6
         networks:
