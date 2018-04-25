@@ -34,14 +34,18 @@ services:
           - "50010:50010"
 
     station-information-producer:
-        build: stationInformation
+        build:
+            context: ../CitibikeApiProducer
+            dockerfile: Dockerfile-station-information
         depends_on:
           - kafka
         networks:
           - streaming-data-internal
 
     station-status-producer:
-        build: stationStatus
+        build:
+            context: ../CitibikeApiProducer
+            dockerfile: Dockerfile-station-status
         depends_on:
           - kafka
         networks:
