@@ -13,13 +13,6 @@ services:
         depends_on:
           - zookeeper
 
-    zookeeper:
-        image: zookeeper:3.3.6
-        networks:
-          - streaming-data-internal
-        ports:
-          - "2181:2181"
-
     hadoop:
         image: sequenceiq/hadoop-docker:2.7.0
         command: "/etc/bootstrap.sh -d"
@@ -32,6 +25,21 @@ services:
           - "8042:8042"
           - "9000:9000"
           - "50010:50010"
+
+    zookeeper:
+        image: zookeeper:3.3.6
+        networks:
+          - streaming-data-internal
+        ports:
+          - "2181:2181"
+
+    zookeeper-seed:
+        build:
+            context: ../zookeeper
+        networks:
+          - streaming-data-internal
+        depends_on:
+          - zookeeper
 
     station-information-producer:
         build:

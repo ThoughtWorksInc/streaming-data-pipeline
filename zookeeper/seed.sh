@@ -1,4 +1,5 @@
-zk_command="docker exec -it streamingdatapipeline_zookeeper_1 zkCli.sh -server localhost:2181"
+#!/bin/sh
+zk_command="zkCli.sh -server zookeeper:2181"
 echo $zk_command
 $zk_command create /free2wheelers ''
 $zk_command create /free2wheelers/statusinformation ''
