@@ -51,5 +51,25 @@ services:
         networks:
           - streaming-data-internal
 
+    raw-data-saver:
+        build:
+          context: ../RawDataSaver
+        depends_on:
+          - kafka
+          - station-information-producer
+          - station-status-producer
+        networks:
+          - streaming-data-internal
+
+    station-consumer:
+        build:
+          context: ../StationConsumer
+        depends_on:
+          - kafka
+          - station-status-producer
+          - raw-data-saver
+        networks:
+          - streaming-data-internal
+
 networks:
     streaming-data-internal:

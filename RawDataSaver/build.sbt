@@ -1,14 +1,11 @@
-scalaVersion := "2.11.8"
-
 val sparkVersion = "2.2.0"
-
 
 lazy val root = (project in file(".")).
 
   settings(
     inThisBuild(List(
       organization := "com.free2wheelers",
-      scalaVersion := "2.12.4",
+      scalaVersion := "2.11.8",
       version := "0.0.1"
     )),
 
