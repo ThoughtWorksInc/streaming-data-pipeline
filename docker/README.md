@@ -15,10 +15,35 @@
         - one for the station status producer
         - one for the station information producer
         - one for HDFS
-0. Verify that Kafka is up and running by connecting (from your Mac) to the broker and verifying that you can send and receive a message (this assumes you have a local Kafka installation)
-    0. Use `/usr/local/Cellar/kafka/1.0.0/libexec/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic foo` to consume the topic `foo`
-    0. In another terminal window, use `/usr/local/Cellar/kafka/1.0.0/libexec/bin/kafka-console-producer.sh --broker-list localhost:9092 --topic foo` to produce to topic `foo` on the Kafka instance
-    0. In the producer window, send a message. Verify that the consumer receives it.
+0. Verify that Kafka is up and running by connecting to the broker and verifying that you can receive a messages on the `station_status` topic
+    0. Method one -- remote into the Kafka Docker container
+        0. Find the ID of the container running Kafka
+        0. Remote in to that machine
+        
+            ```
+            docker exec -it <CONTAINER_ID> /bin/bash
+            ```
+        0. Use the container's `kafka-console-consumer.sh` to consume from the `station_status` topic
+        
+            ```
+            kafka-console-consumer.sh --zookeeper zookeeper:2181 --topic station_status
+            ```
+        
+    0. Method two -- configure your Mac to be able to connect to the Docker Kafka instance
+        0. Edit `/etc/hosts` and add the following two lines
+        
+           ```
+           127.0.0.1 kafka
+           127.0.0.1 zookeeper
+           ```
+           This will let your machine know that it can reach Kafka and Zookeeper on localhost (127.0.0.1) when Kafka advertises its hostname as `kafka`
+        0. Use your local `kafka-console-consumer` to consume from the `station_status` topic
+            
+            ```
+            kafka-console-consumer --bootstrap-server localhost:9092 --topic station_status
+            
+            ```
+
 0. Verify that the Zookeeper port is available (this assumes you have a local Zookeeper installation
     0. Run `zkCli -server localhost:2181` to connect to the Zookeeper instance
     0. Verify that the following command in `zkCli` works: `ls /`
