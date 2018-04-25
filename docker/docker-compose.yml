@@ -69,7 +69,7 @@ services:
 
     raw-data-saver:
         build:
-          context: ../RawDataSaver
+            context: ../RawDataSaver
         depends_on:
           - kafka
           - station-information-producer
@@ -79,7 +79,7 @@ services:
 
     station-consumer:
         build:
-          context: ../StationConsumer
+            context: ../StationConsumer
         depends_on:
           - kafka
           - station-status-producer
