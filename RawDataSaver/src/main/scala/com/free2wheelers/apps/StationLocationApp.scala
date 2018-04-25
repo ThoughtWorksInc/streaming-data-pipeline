@@ -8,7 +8,7 @@ object StationLocationApp {
   def main(args: Array[String]): Unit = {
 
     val retryPolicy = new ExponentialBackoffRetry(1000, 3)
-    val zkClient = CuratorFrameworkFactory.newClient("localhost:2181", retryPolicy)
+    val zkClient = CuratorFrameworkFactory.newClient("zookeeper:2181", retryPolicy)
 
     zkClient.start
 
