@@ -8,6 +8,9 @@ class SanityTest extends FunSpec with Matchers {
     it("should be true when true") {
       1 should be (1)
     }
+    it("should not be true when false") {
+      1 should not be (0)
+    }
   }
 
 }
