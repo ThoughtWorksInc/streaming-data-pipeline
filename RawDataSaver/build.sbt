@@ -12,7 +12,7 @@ lazy val root = (project in file(".")).
       version := "0.0.1"
     )),
 
-    name := "free2wheelers-consumers",
+    name := "free2wheelers-raw-data-saver",
 
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "3.0.5" % "test",
