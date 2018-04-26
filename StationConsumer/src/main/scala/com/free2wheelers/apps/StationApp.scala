@@ -33,11 +33,6 @@ object StationApp {
       .appName("StationConsumer")
       .getOrCreate()
 
-    while (!File(latestStationInfoLocation).exists) {
-      println(s"Waiting for $latestStationInfoLocation")
-      Thread.sleep(10000)
-    }
-
     val stationInformationDF = spark
       .read
       .parquet(latestStationInfoLocation)

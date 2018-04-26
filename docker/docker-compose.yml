@@ -89,6 +89,7 @@ services:
           - raw-data-saver
         networks:
           - streaming-data-internal
+        restart: on-failure
 
 networks:
     streaming-data-internal:
