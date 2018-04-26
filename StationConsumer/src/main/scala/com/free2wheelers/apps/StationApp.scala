@@ -5,8 +5,6 @@ import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.spark.sql.SparkSession
 
-import scala.reflect.io.File
-
 object StationApp {
   def main(args: Array[String]): Unit = {
 
@@ -37,7 +35,6 @@ object StationApp {
       .read
       .parquet(latestStationInfoLocation)
       .transform(informationJson2DF)
-      .cache()
 
     val dataframe = spark.readStream
       .format("kafka")
