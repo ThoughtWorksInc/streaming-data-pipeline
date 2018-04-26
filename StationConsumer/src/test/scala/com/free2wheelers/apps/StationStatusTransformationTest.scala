@@ -144,7 +144,6 @@ class StationStatusTransformationTest extends FeatureSpec with Matchers with Giv
 
       Given("Sample data for station_information")
       val testDF2 = Seq(testStationInformationData).toDF("raw_payload")
-      println(testDF2.show(2, false))
 
       When("Transformations are applied")
       val resultDF2 = informationJson2DF(testDF2)
