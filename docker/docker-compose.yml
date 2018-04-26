@@ -33,6 +33,7 @@ services:
           - streaming-data-internal
         depends_on:
           - hadoop
+        restart: on-failure
 
     zookeeper:
         image: zookeeper:3.3.6
@@ -77,6 +78,7 @@ services:
           - hadoop-seed
         networks:
           - streaming-data-internal
+        restart: on-failure
 
     station-consumer:
         build:
