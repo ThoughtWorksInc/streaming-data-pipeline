@@ -45,6 +45,7 @@ object StationApp {
       .selectExpr("CAST(value AS STRING) as raw_payload")
       .transform(statusJson2DF)
       .join(stationInformationDF, "station_id")
+      .repartition(1)
       .writeStream
       .outputMode("append")
       .format("csv")
