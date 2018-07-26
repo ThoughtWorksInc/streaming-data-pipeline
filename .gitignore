@@ -18,7 +18,8 @@
 docker/*/*.jar
 
 # Logs
-application.log
+*/application.log.*
+*/application.log
 derby.log
 project/
 target/
