@@ -11,7 +11,7 @@ echo "
 	DynamicForward 6789
   StrictHostKeyChecking no
 
-Host ec2-13-229-103-178.ap-southeast-1.compute.amazonaws.com
+Host *.xian-summer-2018.training
 	ForwardAgent yes
   StrictHostKeyChecking no
 	ProxyCommand ssh 13.251.252.122 -W %h:%p 2>/dev/null
@@ -19,6 +19,6 @@ Host ec2-13-229-103-178.ap-southeast-1.compute.amazonaws.com
   StrictHostKeyChecking no
 " >> ~/.ssh/config
 
-scp CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar ec2-13-229-103-178.ap-southeast-1.compute.amazonaws.com:/tmp/
-ssh ec2-13-229-103-178.ap-southeast-1.compute.amazonaws.com 'nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar 1>/dev/null 2>/dev/null &'
+scp CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar ingester.xian-summer-2018.training:/tmp/
+ssh ingester.xian-summer-2018.training 'nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar 1>/dev/null 2>/dev/null &'
 
