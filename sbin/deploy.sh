@@ -3,5 +3,20 @@
 set -e
 
 echo "====Deploying Producers===="
-scp CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar ec2-user@13.251.252.122:/tmp
-ssh ec2-user@ec2-user@13.251.252.122 'scp /tmp/free2wheelers-citibike-apis-producer0.1.0.jar hadoop@emr_master.xian-summer-2018.training:/tmp'
+
+echo "
+	User ec2-user
+	IdentitiesOnly yes
+	ForwardAgent yes
+	DynamicForward 6789
+
+Host *.xian-summer-2018.training
+	User ec2-user
+	ForwardAgent yes
+	ProxyCommand ssh 13.251.252.122 -W %h:%p 2>/dev/null
+
+Host emr-master.xian-summer-2018.training
+	User hadoop
+" >> ~/.ssh/config
+
+scp -o StrictHostKeyChecking=no CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar emr-master.xian-summer-2018.training:/tmp/
