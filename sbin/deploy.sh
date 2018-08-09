@@ -15,7 +15,7 @@ Host *.xian-summer-2018.training
 	ForwardAgent yes
   StrictHostKeyChecking no
 	ProxyCommand ssh 13.251.252.122 -W %h:%p 2>/dev/null
-	User hadoop
+	User ec2-user
   StrictHostKeyChecking no
 " >> ~/.ssh/config
 
