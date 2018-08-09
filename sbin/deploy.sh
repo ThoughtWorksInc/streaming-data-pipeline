@@ -19,4 +19,4 @@ Host emr-master.xian-summer-2018.training
 	User hadoop
 " >> ~/.ssh/config
 
-scp -o StrictHostKeyChecking=no CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar emr-master.xian-summer-2018.training:/tmp/
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar emr-master.xian-summer-2018.training:/tmp/
