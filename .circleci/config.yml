@@ -14,7 +14,7 @@ jobs:
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # - image: circleci/postgres:9.4
 
-    working_directory: ~/streaming-data-pipeline/RawDataSaver
+    working_directory: ~/streaming-data-pipeline/
 
     environment:
       # Customize the JVM maximum heap limit
@@ -24,19 +24,6 @@ jobs:
     steps:
       - checkout
 
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "build.sbt" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-
-      - run: cat /dev/null | sbt test:compile
-
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies--{{ checksum "build.sbt" }}
  test:
     docker:
       - image: circleci/openjdk:8-jdk
@@ -44,9 +31,22 @@ jobs:
       - checkout
       - run: cat /dev/null | sbt test:test
 
+ deploy-job:
+     docker:
+         - image: circleci/openjdk:8-jdk
+     steps:
+         - checkout
+         - run:
+             command: ./sbin/buildAll.sh
+         - add_ssh_keys:
+             fingerprints:
+                 - "03:b4:c1:08:ff:85:31:b8:6f:e6:a5:cf:5b:54:b4:23"
+         - run:
+             command: ./sbin/deploy.sh
 workflows:
   version: 2
   build_and_test:
     jobs:
       - build
       - test
+      - deploy-job
