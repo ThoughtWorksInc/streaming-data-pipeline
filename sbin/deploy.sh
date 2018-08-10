@@ -21,14 +21,17 @@ Host *.xian-summer-2018.training
 
 echo "====SSH Config Updated===="
 
+echo "====Copy jar to ingester server===="
+scp CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar ingester.xian-summer-2018.training:/tmp/
+echo "====Jar copied to ingester server===="
 
-station_information='station-information'
-station_status='station-status'
-echo "====Kill running producers===="
+
+ssh ingester.xian-summer-2018.training '
+set -e
 
 function kill_process {
     query=$1
-    pid=`ps aux | grep $query | grep -v "grep" |  awk '{print \$2}'`
+    pid=`ps aux | grep $query | grep -v "grep" |  awk \'{print \$2}\'`
 
     echo $pid
     if [ -z "$pid" ];
@@ -39,16 +42,21 @@ function kill_process {
     fi
 }
 
+station_information="station-information"
+station_status="station-status"
+
+echo "====Kill running producers===="
+
 kill_process ${station_information}
 kill_process ${station_status}
-
 
 echo "====Runing Producers Killed===="
 
 echo "====Deploy Producers===="
 
-scp CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar ingester.xian-summer-2018.training:/tmp/
-ssh ingester.xian-summer-2018.training 'nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=${station_information} --kafka.brokers=kafka.xian-summer-2018.training:9092 1>/dev/null 2>/dev/null &'
-ssh ingester.xian-summer-2018.training 'nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=${station_status} --kafka.brokers=kafka.xian-summer-2018.training:9092 1>/dev/null 2>/dev/null &'
+nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=${station_information} --kafka.brokers=kafka.xian-summer-2018.training:9092 1>/dev/null 2>/dev/null &
+nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=${station_status} --kafka.brokers=kafka.xian-summer-2018.training:9092 1>/dev/null 2>/dev/null &
 
 echo "====Producers Deployed===="
+'
+
