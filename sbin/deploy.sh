@@ -59,3 +59,40 @@ nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.prof
 echo "====Producers Deployed===="
 '
 
+
+echo "====Copy Raw Data Saver Jar to EMR===="
+scp RawDataSaver/target/scala-2.11/free2wheelers-raw-data-saver_2.11-0.0.1.jar emr-master.xian-summer-2018.training:/tmp/
+echo "====Raw Data Saver Jar Copied to EMR===="
+
+
+ssh emr-master.xian-summer-2018.training '
+set -e
+
+function kill_process {
+    query=$1
+    pid=`ps aux | grep $query | grep -v "grep" |  awk "{print \\$2}"`
+
+    if [ -z "$pid" ];
+    then
+        echo "no ${query} process running"
+    else
+        kill -SIGTERM $pid
+    fi
+}
+
+raw_data_saver="free2wheelers-raw-data-saver"
+
+echo "====Kill Old Raw Data Saver===="
+
+kill_process ${raw_data_saver}
+
+echo "====Old Raw Data Saver Killed===="
+
+echo "====Deploy Raw Data Saver===="
+
+nohup spark-submit  --class com.free2wheelers.apps.StationLocationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar 1 1>/dev/null 2>/dev/null &
+
+echo "====Raw Data Saver Deployed===="
+'
+
+
