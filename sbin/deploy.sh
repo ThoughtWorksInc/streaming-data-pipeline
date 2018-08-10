@@ -92,9 +92,43 @@ echo "====Old Raw Data Saver Killed===="
 
 echo "====Deploy Raw Data Saver===="
 
-nohup spark-submit --class com.free2wheelers.apps.StationLocationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar 1 1>/dev/null 2>/dev/null &
+nohup spark-submit --class com.free2wheelers.apps.StationLocationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar 1>/dev/null 2>/dev/null &
 
 echo "====Raw Data Saver Deployed===="
 '
 
 
+echo "====Copy Station Consumer Jar to EMR===="
+scp StationConsumer/target/scala-2.11/free2wheelers-station-consumer_2.11-0.0.1.jar emr-master.xian-summer-2018.training:/tmp/
+echo "====Station Consumer Jar Copied to EMR===="
+
+
+ssh emr-master.xian-summer-2018.training '
+set -e
+
+function kill_process {
+    query=$1
+    pid=`ps aux | grep $query | grep -v "grep" |  awk "{print \\$2}"`
+
+    if [ -z "$pid" ];
+    then
+        echo "no ${query} process running"
+    else
+        kill -SIGTERM $pid
+    fi
+}
+
+station_consumer="free2wheelers-station-consumer"
+
+echo "====Kill Old Station Consumer===="
+
+kill_process ${station_consumer}
+
+echo "====Old Station Consumer Killed===="
+
+echo "====Deploy Station Consumer===="
+
+nohup spark-submit --class com.free2wheelers.apps.StationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  /tmp/free2wheelers-station-consumer_2.11-0.0.1.jar 1>/dev/null 2>/dev/null &
+
+echo "====Station Consumer Deployed===="
+'
