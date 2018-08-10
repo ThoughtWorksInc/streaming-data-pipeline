@@ -17,6 +17,10 @@ Host *.xian-summer-2018.training
 	ProxyCommand ssh 13.251.252.122 -W %h:%p 2>/dev/null
 	User ec2-user
     StrictHostKeyChecking no
+
+Host emr-master.xian-summer-2018.training
+    User hadoop
+
 " >> ~/.ssh/config
 
 echo "====SSH Config Updated===="
@@ -90,7 +94,7 @@ echo "====Old Raw Data Saver Killed===="
 
 echo "====Deploy Raw Data Saver===="
 
-nohup spark-submit  --class com.free2wheelers.apps.StationLocationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar 1 1>/dev/null 2>/dev/null &
+nohup spark-submit --class com.free2wheelers.apps.StationLocationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar 1 1>/dev/null 2>/dev/null &
 
 echo "====Raw Data Saver Deployed===="
 '
