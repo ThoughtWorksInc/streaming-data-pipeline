@@ -11,16 +11,14 @@ echo "
 	DynamicForward 6789
     StrictHostKeyChecking no
 
-Host *.xian-summer-2018.training
-	ForwardAgent yes
-    StrictHostKeyChecking no
-	ProxyCommand ssh 13.251.252.122 -W %h:%p 2>/dev/null
-	User ec2-user
-    StrictHostKeyChecking no
-
 Host emr-master.xian-summer-2018.training
     User hadoop
 
+Host *.xian-summer-2018.training
+	ForwardAgent yes
+	ProxyCommand ssh 13.251.252.122 -W %h:%p 2>/dev/null
+	User ec2-user
+    StrictHostKeyChecking no
 " >> ~/.ssh/config
 
 echo "====SSH Config Updated===="
