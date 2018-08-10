@@ -7,22 +7,21 @@ jobs:
          - checkout
          - restore_cache:
              keys:
-                 - producer-dependencies-{{ checksum "./CitibikeApiProducer/build.gradle" }}
-                 - producer-dependencies-
+                 - java-dependencies-{{ checksum "./CitibikeApiProducer/build.gradle" }}
+                 - java-dependencies-
          - restore_cache:
              keys:
-                 - rawDataSaver-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}
-                 - rawDataSaver-dependencies-
+                 - scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt"}}
+                 - scala-dependencies-{{ checksum "./RawDataSaver/build.sbt"}}
+                 - scala-dependencies-
          - run:
              command: ./sbin/buildAll.sh
-
          - save_cache:
-             key: rawDataSaver-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}
+             key: scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt" }}
              paths:
                 - "~/.ivy2/cache"
- 
          - save_cache:
-             key: producer-dependencies-{{ checksum "./CitibikeApiProducer/build.gradle" }}
+             key: java-dependencies-{{ checksum "./CitibikeApiProducer/build.gradle" }}
              paths:
                 - "~/.gradle"
          - add_ssh_keys:
