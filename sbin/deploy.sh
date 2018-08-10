@@ -33,7 +33,6 @@ function kill_process {
     query=$1
     pid=`ps aux | grep $query | grep -v "grep" |  awk "{print \\$2}"`
 
-    echo $pid
     if [ -z "$pid" ];
     then
         echo "no ${query} process running"
