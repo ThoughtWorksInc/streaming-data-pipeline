@@ -9,9 +9,18 @@ jobs:
              keys:
                  - producer-dependencies-{{ checksum "./CitibikeApiProducer/build.gradle" }}
                  - producer-dependencies-
+         - restore_cache:
+             keys:
+                 - rawDataSaver-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}
+                 - rawDataSaver-dependencies-
          - run:
              command: ./sbin/buildAll.sh
 
+         - save_cache:
+             key: rawDataSaver-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}
+             paths:
+                - "~/.ivy2/cache"
+ 
          - save_cache:
              key: producer-dependencies-{{ checksum "./CitibikeApiProducer/build.gradle" }}
              paths:
