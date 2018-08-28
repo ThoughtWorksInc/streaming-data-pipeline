@@ -128,7 +128,7 @@ echo "====Old Station Consumer Killed===="
 
 echo "====Deploy Station Consumer===="
 
-nohup spark-submit --class com.free2wheelers.apps.StationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  /tmp/free2wheelers-station-consumer_2.11-0.0.1.jar 1>/dev/null 2>/dev/null &
+nohup spark-submit --class com.free2wheelers.apps.StationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  /tmp/free2wheelers-station-consumer_2.11-0.0.1.jar kafka.xian-summer-2018.training:2181 1>/dev/null 2>/dev/null &
 
 echo "====Station Consumer Deployed===="
 '
