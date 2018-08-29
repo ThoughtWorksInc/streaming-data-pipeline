@@ -1,9 +1,15 @@
 package com.free2wheelers.apps
 
+import java.sql.Timestamp
+
 import com.free2wheelers.apps.StationStatusTransformation.{informationJson2DF, statusJson2DF}
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.expressions.Window
+import org.apache.spark.sql.{DataFrame, RelationalGroupedDataset, SparkSession}
+//import org.apache.spark.sql.functions.{row_number}
+//import org.apache.spark.sql.expressions.Window
+import org.apache.spark.sql.functions._
 
 object StationApp {
   def main(args: Array[String]): Unit = {
@@ -48,7 +54,7 @@ object StationApp {
       .selectExpr("CAST(value AS STRING) as raw_payload")
       .transform(statusJson2DF)
 
-    val dataframe = transform(stationStatusDF, stationInformationDF)
+    val dataframe = transformWithTimeWindow(spark, stationStatusDF, stationInformationDF)
       .repartition(1)
       .writeStream
       .outputMode("append")
@@ -61,7 +67,30 @@ object StationApp {
       .awaitTermination()
   }
 
-  def transform(stationStatusDF:DataFrame, stationInformationDF :DataFrame): DataFrame = {
-    stationStatusDF.join(stationInformationDF, "station_id")
+  def transformWithWindowSpec(spark: SparkSession, stationStatusDF: DataFrame, stationInformationDF: DataFrame): DataFrame = {
+    import spark.implicits._
+    val windowSpec = Window.partitionBy($"station_id").orderBy($"last_updated".desc)
+
+    stationStatusDF.withColumn("rn", row_number.over(windowSpec))
+      .where($"rn" === 1)
+      .drop("rn")
+      .join(stationInformationDF, "station_id")
+  }
+
+  def transformWithTimeWindow(spark: SparkSession, stationStatusDF: DataFrame, stationInformationDF: DataFrame): DataFrame = {
+    import spark.implicits._
+
+    val stationStatusWindowDF = stationStatusDF
+      .withColumn("timestamp", to_timestamp(from_unixtime(($"last_updated"))))
+      .withWatermark("timestamp", "10 minutes")
+      .groupBy(
+        window($"timestamp", "10 minutes", "6 minutes"),
+        $"station_id")
+      .agg(max("last_updated") as "last_updated")
+      .join(stationStatusDF, Seq("station_id", "last_updated"))
+
+    stationStatusWindowDF.join(stationStatusDF, Seq("station_id", "last_updated"))
+      .join(stationInformationDF, "station_id")
+      .drop("window")
   }
 }
