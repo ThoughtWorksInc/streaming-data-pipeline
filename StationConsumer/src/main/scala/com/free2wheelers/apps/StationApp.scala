@@ -3,7 +3,7 @@ package com.free2wheelers.apps
 import com.free2wheelers.apps.StationStatusTransformation.{informationJson2DF, statusJson2DF}
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{Dataset, SparkSession}
 
 object StationApp {
   def main(args: Array[String]): Unit = {
@@ -29,7 +29,6 @@ object StationApp {
 
     val outputLocation = new String(
       zkClient.getData.watched.forPath("/free2wheelers/output/dataLocation"))
-
     val spark = SparkSession.builder
       .appName("StationConsumer")
       .getOrCreate()
@@ -37,7 +36,7 @@ object StationApp {
     val stationInformationDF = spark
       .read
       .parquet(latestStationInfoLocation)
-      .transform(informationJson2DF)
+      .transform( df => informationJson2DF(df, spark) )
 
     val dataframe = spark.readStream
       .format("kafka")

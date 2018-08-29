@@ -146,7 +146,134 @@ class StationStatusTransformationTest extends FeatureSpec with Matchers with Giv
       val testDF2 = Seq(testStationInformationData).toDF("raw_payload")
 
       When("Transformations are applied")
-      val resultDF2 = informationJson2DF(testDF2)
+      val resultDF2 = informationJson2DF(testDF2, spark)
+
+      Then("Useful columns are extracted")
+      resultDF2.schema.fields(0).name should be("station_id")
+      resultDF2.schema.fields(0).dataType.typeName should be("string")
+      resultDF2.schema.fields(1).name should be("name")
+      resultDF2.schema.fields(1).dataType.typeName should be("string")
+      resultDF2.schema.fields(2).name should be("latitude")
+      resultDF2.schema.fields(2).dataType.typeName should be("double")
+      resultDF2.schema.fields(3).name should be("longitude")
+      resultDF2.schema.fields(3).dataType.typeName should be("double")
+
+      val row1 = resultDF2.where("station_id = 72").head()
+      row1.get(0) should be("72")
+      row1.get(1) should be("W 52 St & 11 Ave")
+      row1.get(2) should be(40.76727216)
+      row1.get(3) should be(-73.99392888)
+
+      val row2 = resultDF2.where("station_id = 79").head()
+      row2.get(0) should be("79")
+      row2.get(1) should be("Franklin St & W Broadway")
+      row2.get(2) should be(40.71911552)
+      row2.get(3) should be(-74.00666661)
+    }
+
+    ignore("Transform station_information data frame of different schema") {
+
+      val nycStationInformationData =
+        """{
+        "metadata": {
+          "producer_id": "producer_station_information",
+          "size": 1323,
+          "message_id": "1234-3224-2444242-fm2kf23",
+          "ingestion_time": 1524493544235
+        },
+        "payload": {
+            "last_updated":1524600463,
+            "ttl":10,
+            "data":{
+              "stations":[
+              {
+                "station_id":"72",
+                "name":"W 52 St & 11 Ave",
+                "short_name":"6926.01",
+                "lat":40.76727216,
+                "lon":-73.99392888,
+                "region_id":71,
+                "rental_methods":[
+                  "KEY",
+                  "CREDITCARD"
+                ],
+                "capacity":39,
+                "rental_url":"http://app.citibikenyc.com/S6Lr/IBV092JufD?station_id=72",
+                "eightd_has_key_dispenser":false
+              },
+              {
+                "station_id":"79",
+                "name":"Franklin St & W Broadway",
+                "short_name":"5430.08",
+                "lat":40.71911552,
+                "lon":-74.00666661,
+                "region_id":71,
+                "rental_methods":[
+                  "KEY",
+                  "CREDITCARD"
+                ],
+                "capacity":33,
+                "rental_url":"http://app.citibikenyc.com/S6Lr/IBV092JufD?station_id=79",
+                "eightd_has_key_dispenser":false
+              }
+            ]
+          }
+        }
+      }"""
+
+      val sfStationInformationData =
+        """{
+        "metadata": {
+          "producer_id": "sf_producer_station_information",
+          "size": 1323,
+          "message_id": "1234-3224-2444242-fm2kf23",
+          "ingestion_time": 1524493544235
+        },
+        "payload": {
+            "last_updated":1524600463,
+            "ttl":10,
+            "data":{
+              "stations":[
+              {
+                "station_id":"72",
+                "name":"W 52 St & 11 Ave",
+                "short_name":"6926.01",
+                "lat":40.76727216,
+                "lon":-73.99392888,
+                "region_id":71,
+                "rental_methods":[
+                  "KEY",
+                  "CREDITCARD"
+                ],
+                "capacity":39,
+                "rental_url":"http://app.citibikenyc.com/S6Lr/IBV092JufD?station_id=72",
+                "eightd_has_key_dispenser":false
+              },
+              {
+                "station_id":"79",
+                "name":"Franklin St & W Broadway",
+                "short_name":"5430.08",
+                "lat":40.71911552,
+                "lon":-74.00666661,
+                "region_id":71,
+                "rental_methods":[
+                  "KEY",
+                  "CREDITCARD"
+                ],
+                "capacity":33,
+                "rental_url":"http://app.citibikenyc.com/S6Lr/IBV092JufD?station_id=79",
+                "eightd_has_key_dispenser":false
+              }
+            ]
+          }
+        }
+      }"""
+
+      Given("Sample data for station_information")
+      val testDF2 = Seq(nycStationInformationData, sfStationInformationData).toDF("raw_payload")
+
+      When("Transformations are applied")
+      val resultDF2 = informationJson2DF(testDF2, spark)
 
       Then("Useful columns are extracted")
       resultDF2.schema.fields(0).name should be("station_id")
