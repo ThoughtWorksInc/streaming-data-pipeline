@@ -34,7 +34,4 @@ workflows:
     build_and_test:
         jobs:
             - deploy-job
-                filters:
-                    branches:
-                        only: master
 
