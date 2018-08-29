@@ -3,7 +3,7 @@ package com.free2wheelers.apps
 import com.free2wheelers.apps.StationStatusTransformation.{informationJson2DF, statusJson2DF}
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
 object StationApp {
   def main(args: Array[String]): Unit = {
@@ -39,7 +39,7 @@ object StationApp {
       .parquet(latestStationInfoLocation)
       .transform(informationJson2DF)
 
-    val dataframe = spark.readStream
+    val stationStatusDF = spark.readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", kafkaBrokers)
       .option("subscribe", topic)
@@ -47,7 +47,8 @@ object StationApp {
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
       .transform(statusJson2DF)
-      .join(stationInformationDF, "station_id")
+
+    val dataframe = transform(stationStatusDF, stationInformationDF)
       .repartition(1)
       .writeStream
       .outputMode("append")
@@ -58,5 +59,9 @@ object StationApp {
       .option("path", outputLocation)
       .start()
       .awaitTermination()
+  }
+
+  def transform(stationStatusDF:DataFrame, stationInformationDF :DataFrame): DataFrame = {
+    stationStatusDF.join(stationInformationDF, "station_id")
   }
 }
