@@ -3,6 +3,9 @@ jobs:
  deploy-job:
      docker:
          - image: circleci/openjdk:8-jdk
+     branches:
+        only:
+            - master
      steps:
          - checkout
          - restore_cache:
