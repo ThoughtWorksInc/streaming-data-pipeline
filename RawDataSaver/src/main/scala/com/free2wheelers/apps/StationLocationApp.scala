@@ -8,7 +8,8 @@ object StationLocationApp {
   def main(args: Array[String]): Unit = {
 
     val retryPolicy = new ExponentialBackoffRetry(1000, 3)
-    val zkClient = CuratorFrameworkFactory.newClient("kafka.xian-summer-2018.training:2181", retryPolicy)
+    val zookeeperConnectionString = if (args.isEmpty) "zookeeper:2181" else args(0)
+    val zkClient = CuratorFrameworkFactory.newClient(zookeeperConnectionString, retryPolicy)
 
     zkClient.start
 
