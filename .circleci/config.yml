@@ -1,40 +1,40 @@
 version: 2
 jobs:
- deploy-job:
-     docker:
-         - image: circleci/openjdk:8-jdk
-     steps:
-         - checkout
-         - restore_cache:
-             keys:
-                 - java-dependencies-{{ checksum "./CitibikeApiProducer/build.gradle" }}
-                 - java-dependencies-
-         - restore_cache:
-             keys:
-                 - scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt"}}
-                 - scala-dependencies-{{ checksum "./RawDataSaver/build.sbt"}}
-                 - scala-dependencies-
-         - run:
-             command: ./sbin/buildAll.sh
-         - save_cache:
-             key: scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt" }}
-             paths:
-                - "~/.ivy2/cache"
-         - save_cache:
-             key: java-dependencies-{{ checksum "./CitibikeApiProducer/build.gradle" }}
-             paths:
-                - "~/.gradle"
-         - add_ssh_keys:
-             fingerprints:
-                 - "03:b4:c1:08:ff:85:31:b8:6f:e6:a5:cf:5b:54:b4:23"
-         - run:
-             command: ./sbin/deploy.sh
+    deploy-job:
+        docker:
+            - image: circleci/openjdk:8-jdk
+        steps:
+            - checkout
+            - restore_cache:
+                keys:
+                    - java-dependencies-{{ checksum "./CitibikeApiProducer/build.gradle" }}
+                    - java-dependencies-
+            - restore_cache:
+                keys:
+                    - scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt"}}
+                    - scala-dependencies-{{ checksum "./RawDataSaver/build.sbt"}}
+                    - scala-dependencies-
+            - run:
+                command: ./sbin/buildAll.sh
+            - save_cache:
+                key: scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt" }}
+                paths:
+                    - "~/.ivy2/cache"
+            - save_cache:
+                key: java-dependencies-{{ checksum "./CitibikeApiProducer/build.gradle" }}
+                paths:
+                    - "~/.gradle"
+            - add_ssh_keys:
+                fingerprints:
+                    - "03:b4:c1:08:ff:85:31:b8:6f:e6:a5:cf:5b:54:b4:23"
+            - run:
+                command: ./sbin/deploy.sh
 workflows:
-  version: 2
-  build_and_test:
-    jobs:
-      - deploy-job
-            filters:
-                branches:
-                    only: master
+    version: 2
+    build_and_test:
+        jobs:
+            - deploy-job
+                filters:
+                    branches:
+                        only: master
 
