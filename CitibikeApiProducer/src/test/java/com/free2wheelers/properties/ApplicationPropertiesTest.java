@@ -20,8 +20,8 @@ public class ApplicationPropertiesTest {
         props.load(is);
         assertEquals("https://api.citybik.es/v2/networks/ford-gobike", props.getProperty("producer.url"));
         assertEquals("station_information", props.getProperty("producer.topic"));
-        assertEquals("producer_sanfrancisco-station_information", props.getProperty("producer.producerId"));
-        assertEquals("0 * * * * *", props.getProperty("producer.cron"));
+        assertEquals("producer_station_information-san_francisco", props.getProperty("producer.producerId"));
+        assertEquals("5 * * * * *", props.getProperty("producer.cron"));
     }
 
 }
