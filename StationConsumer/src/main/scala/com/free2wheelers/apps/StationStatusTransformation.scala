@@ -1,5 +1,7 @@
 package com.free2wheelers.apps
 
+import java.text.SimpleDateFormat
+
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{udf, _}
 import org.apache.spark.sql.{DataFrame, SparkSession}
@@ -64,6 +66,8 @@ object StationStatusTransformation {
   private def extractNycStationStatus(payload: Any) = {
     val data = payload.asInstanceOf[Map[String, Any]]("data")
 
+    val lastUpdated = payload.asInstanceOf[Map[String, Any]]("last_updated").asInstanceOf[Double].toLong
+
     val stations: Any = data.asInstanceOf[Map[String, Any]]("stations")
 
     stations.asInstanceOf[Seq[Map[String, Any]]]
@@ -73,7 +77,7 @@ object StationStatusTransformation {
           x("num_docks_available").asInstanceOf[Double].toInt,
           x("is_renting").asInstanceOf[Double]==1,
           x("is_returning").asInstanceOf[Double]==1,
-          x("last_reported").asInstanceOf[Double].toLong,
+          lastUpdated,
           x("station_id").asInstanceOf[String]
         )
       })
@@ -87,12 +91,21 @@ object StationStatusTransformation {
 
     stations.asInstanceOf[Seq[Map[String, Any]]]
       .map(x => {
+        val str = x("timestamp").asInstanceOf[String]
+
+
+
+
+        val dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSSSSS'Z'")
+        val parsedDate = dateFormat.parse(str)
+
+
         Status(
           x("free_bikes").asInstanceOf[Double].toInt,
           x("empty_slots").asInstanceOf[Double].toInt,
           x("extra").asInstanceOf[Map[String, Any]]("renting").asInstanceOf[Double] == 1,
           x("extra").asInstanceOf[Map[String, Any]]("returning").asInstanceOf[Double] == 1,
-          x("extra").asInstanceOf[Map[String, Any]]("last_updated").asInstanceOf[Double].toLong,
+          parsedDate.getTime/1000,
           x("id").asInstanceOf[String]
         )
       })
