@@ -45,17 +45,21 @@ function kill_process {
 
 station_information="station-information"
 station_status="station-status"
+station_information-san_francisco = "producer_station_information-san_francisco"
+
 
 echo "====Kill running producers===="
 
 kill_process ${station_information}
 kill_process ${station_status}
+kill_process ${station_information-san_francisco}
 
 echo "====Runing Producers Killed===="
 
 echo "====Deploy Producers===="
 
 nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=${station_information} --kafka.brokers=kafka.xian-summer-2018.training:9092 1>/dev/null 2>/dev/null &
+nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=${station_information-san_francisco} --kafka.brokers=kafka.xian-summer-2018.training:9092 1>/dev/null 2>/dev/null &
 nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=${station_status} --kafka.brokers=kafka.xian-summer-2018.training:9092 1>/dev/null 2>/dev/null &
 
 echo "====Producers Deployed===="
