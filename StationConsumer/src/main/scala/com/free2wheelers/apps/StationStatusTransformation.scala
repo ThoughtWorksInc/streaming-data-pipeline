@@ -28,7 +28,7 @@ object StationStatusTransformation {
                       longitude: Double
                      )
 
-  val toStation: String => Seq[Station] = (raw_payload) => {
+  val toStation: String => Seq[Station] = raw_payload => {
     val json = JSON.parseFull(raw_payload)
     val metadata = json.get.asInstanceOf[Map[String, Any]]("metadata").asInstanceOf[Map[String, String]]
     val producerId = metadata("producer_id")
@@ -38,6 +38,64 @@ object StationStatusTransformation {
       case "producer_station_information" => extractNycStation(payload)
       case "sf_producer_station_information" => extractSFStation(payload)
     }
+  }
+
+  case class Status(
+                     bike_available: Integer,
+                     docks_available: Integer,
+                     is_rending: Boolean,
+                     is_returning: Boolean,
+                     last_updated: Long,
+                     station_id: String
+                   )
+
+  val toStatus: String => Seq[Status] = raw_payload => {
+    val json = JSON.parseFull(raw_payload)
+    val metadata = json.get.asInstanceOf[Map[String, Any]]("metadata").asInstanceOf[Map[String, String]]
+    val producerId = metadata("producer_id")
+
+    val payload = json.get.asInstanceOf[Map[String, Any]]("payload")
+    producerId match {
+      case "sf_producer_station_information" => extractSFStationStatus(payload)
+      case "producer_station_status" => extractNycStationStatus(payload)
+    }
+  }
+
+  private def extractNycStationStatus(payload: Any) = {
+    val data = payload.asInstanceOf[Map[String, Any]]("data")
+
+    val stations: Any = data.asInstanceOf[Map[String, Any]]("stations")
+
+    stations.asInstanceOf[Seq[Map[String, Any]]]
+      .map(x => {
+        Status(
+          x("num_bikes_available").asInstanceOf[Double].toInt,
+          x("num_docks_available").asInstanceOf[Double].toInt,
+          x("is_renting").asInstanceOf[Double]==1,
+          x("is_returning").asInstanceOf[Double]==1,
+          x("last_reported").asInstanceOf[Double].toLong,
+          x("station_id").asInstanceOf[String]
+        )
+      })
+  }
+
+  private def extractSFStationStatus(payload: Any) = {
+
+    val network: Any = payload.asInstanceOf[Map[String, Any]]("network")
+
+    val stations: Any = network.asInstanceOf[Map[String, Any]]("stations")
+
+    stations.asInstanceOf[Seq[Map[String, Any]]]
+      .map(x => {
+        Status(
+          x("free_bikes").asInstanceOf[Double].toInt,
+          x("empty_slots").asInstanceOf[Double].toInt,
+          x("extra").asInstanceOf[Map[String, Any]]("renting").asInstanceOf[Double] == 1,
+          x("extra").asInstanceOf[Map[String, Any]]("returning").asInstanceOf[Double] == 1,
+          x("extra").asInstanceOf[Map[String, Any]]("last_updated").asInstanceOf[Double].toLong,
+          x("id").asInstanceOf[String]
+        )
+      })
   }
 
   private def extractNycStation(payload: Any) = {
@@ -56,7 +114,7 @@ object StationStatusTransformation {
       })
   }
 
-  private def extractSFStation(payload: Any) = {
+  private def extractSFStation(payload: Any): Seq[Station] = {
     val network = payload.asInstanceOf[Map[String, Any]]("network")
 
     val stations = network.asInstanceOf[Map[String, Any]]("stations")
@@ -81,5 +139,14 @@ object StationStatusTransformation {
         .select($"station.*")
 
     return frame
+  }
+
+  def statusInformationJson2DF(jsonDF: DataFrame, spark: SparkSession): DataFrame = {
+    val toStatusFn: UserDefinedFunction = udf(toStatus)
+
+    import spark.implicits._
+
+    jsonDF.select(explode(toStatusFn(jsonDF("raw_payload"))) as "status")
+      .select($"status.*")
   }
 }
