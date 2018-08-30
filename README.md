@@ -7,4 +7,4 @@ See producers and consumers set up README in their respective directories.
 Make sure you have sbt installed.
 Make sure you have docker installed.
 
-Run `./sbin/buildAndRunLocal.sh` to create Docker containers for running the setup on your local machine
+Run `./sbin/buildAndRunLocal.sh` to create Docker containers for running and testing this setup on your local machine
