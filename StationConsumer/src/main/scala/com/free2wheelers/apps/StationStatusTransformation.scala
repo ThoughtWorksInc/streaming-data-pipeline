@@ -1,6 +1,7 @@
 package com.free2wheelers.apps
 
 import java.text.SimpleDateFormat
+import java.util.TimeZone
 
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{udf, _}
@@ -97,6 +98,7 @@ object StationStatusTransformation {
 
 
         val dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSSSSS'Z'")
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"))
         val parsedDate = dateFormat.parse(str)
 
 
