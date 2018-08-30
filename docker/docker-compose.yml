@@ -84,6 +84,7 @@ services:
         build:
             context: ../StationConsumer
         depends_on:
+          - zookeeper-seed
           - kafka
           - station-status-producer
           - raw-data-saver
