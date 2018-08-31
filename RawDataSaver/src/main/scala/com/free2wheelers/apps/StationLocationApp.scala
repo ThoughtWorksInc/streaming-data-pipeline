@@ -30,7 +30,7 @@ object StationLocationApp {
     val savedStream = spark.readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", kafkaBrokers)
-      .option("subscribe", "station_information")
+      .option("subscribe", topic)
       .option("startingOffsets", "latest")
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
