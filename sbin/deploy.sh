@@ -23,6 +23,15 @@ Host *.xian-summer-2018.training
 
 echo "====SSH Config Updated===="
 
+echo "====Insert app config in zookeeper===="
+scp ../zookeeper/seed.sh kafka.xian-summer-2018.training:~/
+ssh kafka.xian-summer-2018.training '
+export hdfs_server="emr-master.xian-summer-2018.training:8020"
+export zk_command="zookeeper-shell localhost:2181"
+sh ~/seed.sh
+'
+echo "====Inserted app config in zookeeper===="
+
 echo "====Copy jar to ingester server===="
 scp CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar ingester.xian-summer-2018.training:/tmp/
 echo "====Jar copied to ingester server===="
