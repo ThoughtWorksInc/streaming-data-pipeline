@@ -79,6 +79,8 @@ services:
           - station-status-producer
           - hadoop-seed
           - zookeeper-seed
+        volumes:
+          - /Users/cchuang/.ivy2:/root/.ivy2:rw
         networks:
           - streaming-data-internal
         restart: on-failure
@@ -91,6 +93,8 @@ services:
           - kafka
           - station-status-producer
           - raw-data-saver
+        volumes:
+          - /Users/cchuang/.ivy2:/root/.ivy2:rw
         command: ["./wait-for.sh", "zookeeper:2181", "-t", "30"]
         networks:
           - streaming-data-internal
