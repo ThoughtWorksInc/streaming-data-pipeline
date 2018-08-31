@@ -44,9 +44,9 @@ object StationStatusTransformation {
   }
 
   case class Status(
-                     bike_available: Integer,
+                     bikes_available: Integer,
                      docks_available: Integer,
-                     is_rending: Boolean,
+                     is_renting: Boolean,
                      is_returning: Boolean,
                      last_updated: Long,
                      station_id: String
