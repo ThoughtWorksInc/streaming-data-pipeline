@@ -1,7 +1,7 @@
 package com.free2wheelers.apps
 
 import java.text.SimpleDateFormat
-import java.util.TimeZone
+import java.util.{Date, TimeZone}
 
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{udf, _}
@@ -95,11 +95,7 @@ object StationStatusTransformation {
         val str = x("timestamp").asInstanceOf[String]
 
 
-
-
-        val dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSSSSS'Z'")
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"))
-        val parsedDate = dateFormat.parse(str)
+        val parsedDate: Date = parseTime(str)
 
 
         Status(
@@ -111,6 +107,15 @@ object StationStatusTransformation {
           x("id").asInstanceOf[String]
         )
       })
+  }
+
+  def parseTime(str: String) = {
+
+    val subStr = str.substring(0, 18)
+    val dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss")
+    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"))
+    val parsedDate = dateFormat.parse(subStr)
+    parsedDate
   }
 
   private def extractNycStation(payload: Any) = {
