@@ -29,3 +29,5 @@ target/
 
 # Derby
 metastore_db/
+
+*.log
