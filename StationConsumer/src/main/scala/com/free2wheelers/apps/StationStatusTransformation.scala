@@ -39,7 +39,7 @@ object StationStatusTransformation {
     val payload = json.get.asInstanceOf[Map[String, Any]]("payload")
     producerId match {
       case "producer_station_information" => extractNycStation(payload)
-      case "producer_station_information-san_francisco" => extractSFStation(payload)
+      case "producer_station-san_francisco" => extractSFStation(payload)
     }
   }
 
@@ -59,7 +59,7 @@ object StationStatusTransformation {
 
     val payload = json.get.asInstanceOf[Map[String, Any]]("payload")
     producerId match {
-      case "producer_station_information-san_francisco" => extractSFStationStatus(payload)
+      case "producer_station-san_francisco" => extractSFStationStatus(payload)
       case "producer_station_status" => extractNycStationStatus(payload)
     }
   }

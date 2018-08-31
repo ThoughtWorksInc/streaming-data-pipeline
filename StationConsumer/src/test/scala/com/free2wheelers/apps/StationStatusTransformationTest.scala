@@ -177,7 +177,7 @@ class StationStatusTransformationTest extends FeatureSpec with Matchers with Giv
       val sfStationInformationData =
         """{
         "metadata": {
-          "producer_id": "producer_station_information-san_francisco",
+          "producer_id": "producer_station-san_francisco",
           "size": 1323,
           "message_id": "1234-3224-2444242-fm2kf23",
           "ingestion_time": 1524493544235
@@ -269,7 +269,7 @@ class StationStatusTransformationTest extends FeatureSpec with Matchers with Giv
       val sfInformationData =
         """{
         "metadata": {
-          "producer_id": "producer_station_information-san_francisco",
+          "producer_id": "producer_station-san_francisco",
           "size": 1323,
           "message_id": "1234-3224-2444242-fm2kf23",
           "ingestion_time": 1524493544235
