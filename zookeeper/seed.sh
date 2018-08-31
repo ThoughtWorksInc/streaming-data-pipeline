@@ -13,7 +13,7 @@ $zk_command create /free2wheelers/stationInformation/dataLocation hdfs://$hdfs_s
 
 $zk_command create /free2wheelers/stationStatus ''
 $zk_command create /free2wheelers/stationStatus/kafkaBrokers kafka:9092
-$zk_command create /free2wheelers/stationStatus/topic station_status
+$zk_command create /free2wheelers/stationStatus/topic station_status,station_san_francisco
 $zk_command create /free2wheelers/stationStatus/checkpointLocation hdfs://$hdfs_server/free2wheelers/rawData/stationStatus/checkpoints
 $zk_command create /free2wheelers/stationStatus/dataLocation hdfs://$hdfs_server/free2wheelers/rawData/stationStatus/data
 

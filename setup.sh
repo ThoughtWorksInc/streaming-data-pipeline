@@ -34,7 +34,7 @@ $zk_command create /free2wheelers/stationInformation/dataLocation /tmp/free2whee
 
 $zk_command create /free2wheelers/stationStatus ''
 $zk_command create /free2wheelers/stationStatus/kafkaBrokers 127.0.0.1:9092
-$zk_command create /free2wheelers/stationStatus/topic station_status
+$zk_command create /free2wheelers/stationStatus/topic station_status,station_san_francisco
 $zk_command create /free2wheelers/stationStatus/checkpointLocation /tmp/free2wheelers/rawData/stationStatus/checkpoints
 $zk_command create /free2wheelers/stationStatus/dataLocation /tmp/free2wheelers/rawData/stationStatus/data
 
