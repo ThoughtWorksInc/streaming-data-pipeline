@@ -28,6 +28,7 @@ scp ./zookeeper/seed.sh kafka.xian-summer-2018.training:~/
 ssh kafka.xian-summer-2018.training '
 set -e
 export hdfs_server="emr-master.xian-summer-2018.training:8020"
+export kafka_server="kafka.xian-summer-2018.training:9092"
 export zk_command="zookeeper-shell localhost:2181"
 sh ~/seed.sh
 '
