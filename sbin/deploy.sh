@@ -24,7 +24,7 @@ Host *.xian-summer-2018.training
 echo "====SSH Config Updated===="
 
 echo "====Insert app config in zookeeper===="
-scp ../zookeeper/seed.sh kafka.xian-summer-2018.training:~/
+scp ./zookeeper/seed.sh kafka.xian-summer-2018.training:~/
 ssh kafka.xian-summer-2018.training '
 export hdfs_server="emr-master.xian-summer-2018.training:8020"
 export zk_command="zookeeper-shell localhost:2181"
