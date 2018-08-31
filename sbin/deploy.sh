@@ -29,8 +29,6 @@ ssh kafka.xian-summer-2018.training '
 set -e
 export hdfs_server="emr-master.xian-summer-2018.training:8020"
 export zk_command="zookeeper-shell localhost:2181"
-$zk_command set /free2wheelers/stationStatus/topic station_status,station_san_francisco
-$zk_command set /free2wheelers/stationInformation/topic station_information,station_san_francisco
 sh ~/seed.sh
 '
 echo "====Inserted app config in zookeeper===="
