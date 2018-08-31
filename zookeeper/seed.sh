@@ -4,15 +4,11 @@ echo $zk_command
 $zk_command create /free2wheelers ''
 $zk_command create /free2wheelers/stationInformation ''
 $zk_command create /free2wheelers/stationInformation/kafkaBrokers kafka:9092
-<<<<<<< HEAD
+
 $zk_command create /free2wheelers/stationInformation/topic station_information,station_san_francisco
-$zk_command create /free2wheelers/stationInformation/checkpointLocation hdfs://hadoop:9000/free2wheelers/rawData/stationInformation/checkpoints
-$zk_command create /free2wheelers/stationInformation/dataLocation hdfs://hadoop:9000/free2wheelers/rawData/stationInformation/data
-=======
-$zk_command create /free2wheelers/stationInformation/topic station_information
 $zk_command create /free2wheelers/stationInformation/checkpointLocation hdfs://$hdfs_server/free2wheelers/rawData/stationInformation/checkpoints
 $zk_command create /free2wheelers/stationInformation/dataLocation hdfs://$hdfs_server/free2wheelers/rawData/stationInformation/data
->>>>>>> [tli/xqyu] update docker and ci to init app config inside zookeeper
+
 
 $zk_command create /free2wheelers/stationStatus ''
 $zk_command create /free2wheelers/stationStatus/kafkaBrokers kafka:9092
