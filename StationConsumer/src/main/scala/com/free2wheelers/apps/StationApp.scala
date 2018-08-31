@@ -1,6 +1,6 @@
 package com.free2wheelers.apps
 
-import com.free2wheelers.apps.StationStatusTransformation.{informationJson2DF, statusJson2DF}
+import com.free2wheelers.apps.StationStatusTransformation.{informationJson2DF, statusInformationJson2DF}
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.spark.sql.SparkSession
@@ -45,7 +45,7 @@ object StationApp {
       .option("startingOffsets", "latest")
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
-      .transform(statusJson2DF)
+      .transform(t => statusInformationJson2DF(t, spark))
       .join(stationInformationDF, "station_id")
       .repartition(1)
       .writeStream
