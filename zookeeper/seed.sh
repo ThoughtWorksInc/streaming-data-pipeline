@@ -1,5 +1,6 @@
 #!/bin/sh
 echo $zk_command
+$zk_command rmr /free2wheelers
 
 $zk_command create /free2wheelers ''
 $zk_command create /free2wheelers/stationInformation ''
