@@ -24,33 +24,14 @@ object StationStatusTransformation {
         , col("last_updated"))
   }
 
-  case class StationInformation(
-                      station_id: String,
-                      name: String,
-                      latitude: Double,
-                      longitude: Double
-                    )
-
-  val toStation: String => Seq[StationInformation] = raw_payload => {
-    val json = JSON.parseFull(raw_payload)
-    val metadata = json.get.asInstanceOf[Map[String, Any]]("metadata").asInstanceOf[Map[String, String]]
-    val producerId = metadata("producer_id")
-
-    val payload = json.get.asInstanceOf[Map[String, Any]]("payload")
-    producerId match {
-      case "producer_station_information" => extractNycStationInformation(payload)
-      case "producer_station-san_francisco" => extractSFStationInformation(payload)
-    }
-  }
-
   case class StationStatus(
-                     bikes_available: Integer,
-                     docks_available: Integer,
-                     is_renting: Boolean,
-                     is_returning: Boolean,
-                     last_updated: Long,
-                     station_id: String
-                   )
+                            bikes_available: Integer,
+                            docks_available: Integer,
+                            is_renting: Boolean,
+                            is_returning: Boolean,
+                            last_updated: Long,
+                            station_id: String
+                          )
 
   val toStationStatus: String => Seq[StationStatus] = raw_payload => {
     val json = JSON.parseFull(raw_payload)
@@ -94,9 +75,7 @@ object StationStatusTransformation {
       .map(x => {
         val str = x("timestamp").asInstanceOf[String]
 
-
         val parsedDate: Date = parseTime(str)
-
 
         StationStatus(
           x("free_bikes").asInstanceOf[Double].toInt,
@@ -116,46 +95,6 @@ object StationStatusTransformation {
     dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"))
     val parsedDate = dateFormat.parse(subStr)
     parsedDate
-  }
-
-  private def extractNycStationInformation(payload: Any) = {
-    val data = payload.asInstanceOf[Map[String, Any]]("data")
-
-    val stations: Any = data.asInstanceOf[Map[String, Any]]("stations")
-
-    stations.asInstanceOf[Seq[Map[String, Any]]]
-      .map(x => {
-        StationInformation(
-          x("station_id").asInstanceOf[String],
-          x("name").asInstanceOf[String],
-          x("lat").asInstanceOf[Double],
-          x("lon").asInstanceOf[Double]
-        )
-      })
-  }
-
-  private def extractSFStationInformation(payload: Any): Seq[StationInformation] = {
-    val network = payload.asInstanceOf[Map[String, Any]]("network")
-
-    val stations = network.asInstanceOf[Map[String, Any]]("stations")
-
-    stations.asInstanceOf[Seq[Map[String, Any]]]
-      .map(x => {
-        StationInformation(
-          x("id").asInstanceOf[String],
-          x("name").asInstanceOf[String],
-          x("latitude").asInstanceOf[Double],
-          x("longitude").asInstanceOf[Double]
-        )
-      })
-  }
-
-  def stationInformationJson2DF(jsonDF: DataFrame, spark: SparkSession): DataFrame = {
-    val toStationFn: UserDefinedFunction = udf(toStation)
-
-    import spark.implicits._
-    jsonDF.select(explode(toStationFn(jsonDF("raw_payload"))) as "station")
-      .select($"station.*")
   }
 
   def stationStatusJson2DF(jsonDF: DataFrame, spark: SparkSession): DataFrame = {

@@ -1,6 +1,7 @@
 package com.free2wheelers.apps
 
-import com.free2wheelers.apps.StationStatusTransformation.{stationInformationJson2DF, stationStatusJson2DF}
+import com.free2wheelers.apps.StationInformationTransformation.stationInformationJson2DF
+import com.free2wheelers.apps.StationStatusTransformation.stationStatusJson2DF
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.spark.sql.SparkSession
