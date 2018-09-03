@@ -1,6 +1,6 @@
 package com.free2wheelers.apps
 
-import com.free2wheelers.apps.StationStatusTransformation.{informationJson2DF, statusInformationJson2DF}
+import com.free2wheelers.apps.StationStatusTransformation.{stationInformationJson2DF, stationStatusJson2DF}
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.spark.sql.SparkSession
@@ -36,7 +36,7 @@ object StationApp {
     val stationInformationDF = spark
       .read
       .parquet(latestStationInfoLocation)
-      .transform(df => informationJson2DF(df, spark))
+      .transform(df => stationInformationJson2DF(df, spark))
 
     if (stationInformationDF.count() == 0) throw new RuntimeException("No station information for now.")
 
@@ -47,7 +47,7 @@ object StationApp {
       .option("startingOffsets", "latest")
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
-      .transform(t => statusInformationJson2DF(t, spark))
+      .transform(t => stationStatusJson2DF(t, spark))
       .join(stationInformationDF, "station_id")
       .repartition(1)
       .writeStream

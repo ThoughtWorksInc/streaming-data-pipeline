@@ -61,7 +61,7 @@ class StationStatusTransformationTest extends FeatureSpec with Matchers with Giv
       val testDF1 = Seq(testStationStatusData).toDF("raw_payload")
 
       When("Transformations are applied")
-      val resultDF1 = statusInformationJson2DF(testDF1, spark)
+      val resultDF1 = stationStatusJson2DF(testDF1, spark)
 
       Then("Useful columns are extracted")
       resultDF1.schema.fields(0).name should be("bikes_available")
@@ -148,7 +148,7 @@ class StationStatusTransformationTest extends FeatureSpec with Matchers with Giv
       val testDF2 = Seq(testStationInformationData).toDF("raw_payload")
 
       When("Transformations are applied")
-      val resultDF2 = informationJson2DF(testDF2, spark)
+      val resultDF2 = stationInformationJson2DF(testDF2, spark)
 
       Then("Useful columns are extracted")
       resultDF2.schema.fields(0).name should be("station_id")
@@ -239,7 +239,7 @@ class StationStatusTransformationTest extends FeatureSpec with Matchers with Giv
       val testDF2 = Seq(sfStationInformationData).toDF("raw_payload")
 
       When("Transformations are applied")
-      val resultDF2 = informationJson2DF(testDF2, spark)
+      val resultDF2 = stationInformationJson2DF(testDF2, spark)
 
       Then("Useful columns are extracted")
       resultDF2.schema.fields(0).name should be("station_id")
@@ -332,7 +332,7 @@ class StationStatusTransformationTest extends FeatureSpec with Matchers with Giv
       val testDF2 = Seq(sfInformationData).toDF("raw_payload")
 
       When("Transformations are applied")
-      val resultDF2 = statusInformationJson2DF(testDF2, spark)
+      val resultDF2 = stationStatusJson2DF(testDF2, spark)
 
       Then("Useful columns are extracted")
       resultDF2.schema.fields(0).name should be("bikes_available")
