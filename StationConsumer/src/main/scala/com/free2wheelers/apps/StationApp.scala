@@ -38,6 +38,7 @@ object StationApp {
       .read
       .parquet(latestStationInfoLocation)
       .transform(df => stationInformationJson2DF(df, spark))
+      .cache()
 
     if (stationInformationDF.count() == 0) throw new RuntimeException("No station information for now.")
 
