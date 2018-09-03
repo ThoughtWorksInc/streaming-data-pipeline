@@ -45,8 +45,9 @@ object StationApp {
     val dataframe = spark.readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", kafkaBrokers)
-      .option("subscribe", topic)
+      .option("subscribe", "station_status")
       .option("startingOffsets", "latest")
+      .option("failOnDataLoss", false)
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
       .transform(t => stationStatusJson2DF(t, spark))
