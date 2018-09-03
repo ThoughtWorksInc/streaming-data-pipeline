@@ -74,18 +74,22 @@ class StationInformationTransformationTest extends FeatureSpec with Matchers wit
       resultDF2.schema.fields(2).dataType.typeName should be("double")
       resultDF2.schema.fields(3).name should be("longitude")
       resultDF2.schema.fields(3).dataType.typeName should be("double")
+      resultDF2.schema.fields(4).name should be("last_updated")
+      resultDF2.schema.fields(4).dataType.typeName should be("long")
 
       val row1 = resultDF2.where("station_id = 72").head()
       row1.get(0) should be("72")
       row1.get(1) should be("W 52 St & 11 Ave")
       row1.get(2) should be(40.76727216)
       row1.get(3) should be(-73.99392888)
+      row1.get(4) should be(1524600463)
 
       val row2 = resultDF2.where("station_id = 79").head()
       row2.get(0) should be("79")
       row2.get(1) should be("Franklin St & W Broadway")
       row2.get(2) should be(40.71911552)
       row2.get(3) should be(-74.00666661)
+      row1.get(4) should be(1524600463)
     }
 
     scenario("Transform station_information data frame and extract useful fields of SF") {
@@ -165,18 +169,22 @@ class StationInformationTransformationTest extends FeatureSpec with Matchers wit
       resultDF2.schema.fields(2).dataType.typeName should be("double")
       resultDF2.schema.fields(3).name should be("longitude")
       resultDF2.schema.fields(3).dataType.typeName should be("double")
+      resultDF2.schema.fields(4).name should be("last_updated")
+      resultDF2.schema.fields(4).dataType.typeName should be("long")
 
       val row1 = resultDF2.where("station_id = '0d1cc38593e42fd252223058f5e2a1e3'").head()
       row1.get(0) should be("0d1cc38593e42fd252223058f5e2a1e3")
       row1.get(1) should be("Koshland Park")
       row1.get(2) should be(37.77341396997343)
       row1.get(3) should be(-122.42731690406801)
+      row1.get(4) should be(1535551085)
 
       val row2 = resultDF2.where("station_id = '744a78dbf1295803e62b64fd7579ddef'").head()
       row2.get(0) should be("744a78dbf1295803e62b64fd7579ddef")
       row2.get(1) should be("47th St at San Pablo Ave")
       row2.get(2) should be(37.83563220458518)
       row2.get(3) should be(-122.28105068206787)
+      row2.get(4) should be(1535551085)
     }
 
   }

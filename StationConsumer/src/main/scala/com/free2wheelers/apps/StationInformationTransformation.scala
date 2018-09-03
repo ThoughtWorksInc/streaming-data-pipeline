@@ -1,5 +1,8 @@
 package com.free2wheelers.apps
 
+import java.util.Date
+
+import com.free2wheelers.apps.StationStatusTransformation.parseTime
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{explode, udf}
 import org.apache.spark.sql.{DataFrame, SparkSession}
@@ -12,7 +15,8 @@ object StationInformationTransformation {
                                  station_id: String,
                                  name: String,
                                  latitude: Double,
-                                 longitude: Double
+                                 longitude: Double,
+                                 last_updated: Long
                                )
 
   val toStationInformation: String => Seq[StationInformation] = raw_payload => {
@@ -29,7 +33,7 @@ object StationInformationTransformation {
 
   private def extractNycStationInformation(payload: Any) = {
     val data = payload.asInstanceOf[Map[String, Any]]("data")
-
+    val lastUpdated = payload.asInstanceOf[Map[String, Any]]("last_updated").asInstanceOf[Double].toLong
     val stations: Any = data.asInstanceOf[Map[String, Any]]("stations")
 
     stations.asInstanceOf[Seq[Map[String, Any]]]
@@ -38,7 +42,8 @@ object StationInformationTransformation {
           x("station_id").asInstanceOf[String],
           x("name").asInstanceOf[String],
           x("lat").asInstanceOf[Double],
-          x("lon").asInstanceOf[Double]
+          x("lon").asInstanceOf[Double],
+          lastUpdated
         )
       })
   }
@@ -50,11 +55,15 @@ object StationInformationTransformation {
 
     stations.asInstanceOf[Seq[Map[String, Any]]]
       .map(x => {
+        val str = x("timestamp").asInstanceOf[String]
+        val parsedDate: Date = parseTime(str)
+
         StationInformation(
           x("id").asInstanceOf[String],
           x("name").asInstanceOf[String],
           x("latitude").asInstanceOf[Double],
-          x("longitude").asInstanceOf[Double]
+          x("longitude").asInstanceOf[Double],
+          parsedDate.getTime / 1000
         )
       })
   }
