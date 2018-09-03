@@ -34,13 +34,13 @@ object StationApp {
       .appName("StationConsumer")
       .getOrCreate()
 
-    val stationInformationDF = spark
-      .read
-      .parquet(latestStationInfoLocation)
-      .transform(df => stationInformationJson2DF(df, spark))
-      .cache()
+//    val stationInformationDF = spark
+//      .read
+//      .parquet(latestStationInfoLocation)
+//      .transform(df => stationInformationJson2DF(df, spark))
+//      .cache()
 
-    if (stationInformationDF.count() == 0) throw new RuntimeException("No station information for now.")
+//    if (stationInformationDF.count() == 0) throw new RuntimeException("No station information for now.")
 
     val dataframe = spark.readStream
       .format("kafka")
@@ -50,7 +50,7 @@ object StationApp {
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
       .transform(t => stationStatusJson2DF(t, spark))
-      .join(stationInformationDF, "station_id")
+//      .join(stationInformationDF, "station_id")
       .repartition(1)
       .writeStream
       .outputMode("append")
@@ -58,7 +58,7 @@ object StationApp {
       .option("header", true)
       .option("truncate", false)
       .option("checkpointLocation", checkpointLocation)
-      .option("path", outputLocation)
+      .option("path", outputLocation + "-debug")
       .start()
       .awaitTermination()
   }
