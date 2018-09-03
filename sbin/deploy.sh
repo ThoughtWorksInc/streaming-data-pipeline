@@ -107,7 +107,7 @@ echo "====Old Raw Data Saver Killed===="
 
 echo "====Deploy Raw Data Saver===="
 
-nohup spark-submit --class com.free2wheelers.apps.StationLocationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar kafka.xian-summer-2018.training:2181 1>/tmp/raw-data-saver.log 2>/tmp/raw-data-saver.error.log &
+nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar kafka.xian-summer-2018.training:2181 1>/tmp/raw-data-saver.log 2>/tmp/raw-data-saver.error.log &
 
 echo "====Raw Data Saver Deployed===="
 '
@@ -143,7 +143,7 @@ echo "====Old Station Consumer Killed===="
 
 echo "====Deploy Station Consumer===="
 
-nohup spark-submit --class com.free2wheelers.apps.StationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  /tmp/free2wheelers-station-consumer_2.11-0.0.1.jar kafka.xian-summer-2018.training:2181 1>/tmp/station-consumer.log 2>/tmp/station-consumer.error.log &
+nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  /tmp/free2wheelers-station-consumer_2.11-0.0.1.jar kafka.xian-summer-2018.training:2181 1>/tmp/station-consumer.log 2>/tmp/station-consumer.error.log &
 
 echo "====Station Consumer Deployed===="
 '
