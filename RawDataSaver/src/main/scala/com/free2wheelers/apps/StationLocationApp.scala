@@ -32,6 +32,7 @@ object StationLocationApp {
       .option("kafka.bootstrap.servers", kafkaBrokers)
       .option("subscribe", topic)
       .option("startingOffsets", "latest")
+      .option("failOnDataLoss", false)
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
       .writeStream

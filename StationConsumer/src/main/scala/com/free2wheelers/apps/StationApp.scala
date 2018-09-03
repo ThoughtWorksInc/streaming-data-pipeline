@@ -1,15 +1,13 @@
 package com.free2wheelers.apps
 
-import com.free2wheelers.apps.StationInformationTransformation.stationInformationJson2DF
 import com.free2wheelers.apps.StationStatusTransformation.stationStatusJson2DF
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.expressions.Window
-import org.apache.spark.sql.functions._
 
 object StationApp {
   def main(args: Array[String]): Unit = {
+
     val retryPolicy = new ExponentialBackoffRetry(1000, 3)
 
     val zookeeperConnectionString = if (args.isEmpty) "zookeeper:2181" else args(0)
@@ -35,17 +33,17 @@ object StationApp {
       .appName("StationConsumer")
       .getOrCreate()
 
-    import spark.implicits._
-    val windowSpec = Window.partitionBy($"station_id").orderBy($"last_updated".desc)
-    val stationInformationDF = spark
-      .read
-      .parquet(latestStationInfoLocation)
-      .transform(df => stationInformationJson2DF(df, spark))
-      .withColumn("rn", row_number.over(windowSpec))
-      .where($"rn" === 1)
-      .drop("rn", "last_updated")
-
-    if (stationInformationDF.count() == 0) throw new RuntimeException("No station information for now.")
+    //    import spark.implicits._
+    //    val windowSpec = Window.partitionBy($"station_id").orderBy($"last_updated".desc)
+    //    val stationInformationDF = spark
+    //      .read
+    //      .parquet(latestStationInfoLocation)
+    //      .transform(df => stationInformationJson2DF(df, spark))
+    //      .withColumn("rn", row_number.over(windowSpec))
+    //      .where($"rn" === 1)
+    //      .drop("rn", "last_updated")
+    //
+    //    if (stationInformationDF.count() == 0) throw new RuntimeException("No station information for now.")
 
     val dataframe = spark.readStream
       .format("kafka")
@@ -55,7 +53,7 @@ object StationApp {
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
       .transform(t => stationStatusJson2DF(t, spark))
-      .join(stationInformationDF, "station_id")
+      //    .join(stationInformationDF, "station_id")
       .repartition(1)
       .writeStream
       .outputMode("append")
