@@ -17,11 +17,11 @@ object StationStatusTransformation {
       .select(col("station_status.payload.data.stations") as "stations", col("station_status.payload.last_updated") as "last_updated")
       .select(explode(col("stations")) as "station", col("last_updated"))
       .select(col("station.station_id") as "station_id"
-        ,col("station.num_bikes_available") + col("station.num_ebikes_available") as "bikes_available"
-        ,col("station.num_docks_available") as "docks_available"
-        ,col("station.is_renting") === 1 as "is_renting"
-        ,col("station.is_returning") === 1 as "is_returning"
-        ,col("last_updated"))
+        , col("station.num_bikes_available") + col("station.num_ebikes_available") as "bikes_available"
+        , col("station.num_docks_available") as "docks_available"
+        , col("station.is_renting") === 1 as "is_renting"
+        , col("station.is_returning") === 1 as "is_returning"
+        , col("last_updated"))
   }
 
   case class Station(
@@ -29,7 +29,7 @@ object StationStatusTransformation {
                       name: String,
                       latitude: Double,
                       longitude: Double
-                     )
+                    )
 
   val toStation: String => Seq[Station] = raw_payload => {
     val json = JSON.parseFull(raw_payload)
@@ -76,8 +76,8 @@ object StationStatusTransformation {
         Status(
           x("num_bikes_available").asInstanceOf[Double].toInt,
           x("num_docks_available").asInstanceOf[Double].toInt,
-          x("is_renting").asInstanceOf[Double]==1,
-          x("is_returning").asInstanceOf[Double]==1,
+          x("is_renting").asInstanceOf[Double] == 1,
+          x("is_returning").asInstanceOf[Double] == 1,
           lastUpdated,
           x("station_id").asInstanceOf[String]
         )
@@ -103,7 +103,7 @@ object StationStatusTransformation {
           x("empty_slots").asInstanceOf[Double].toInt,
           x("extra").asInstanceOf[Map[String, Any]]("renting").asInstanceOf[Double] == 1,
           x("extra").asInstanceOf[Map[String, Any]]("returning").asInstanceOf[Double] == 1,
-          parsedDate.getTime/1000,
+          parsedDate.getTime / 1000,
           x("id").asInstanceOf[String]
         )
       })
@@ -155,7 +155,7 @@ object StationStatusTransformation {
 
     import spark.implicits._
     jsonDF.select(explode(toStationFn(jsonDF("raw_payload"))) as "station")
-        .select($"station.*")
+      .select($"station.*")
   }
 
   def statusInformationJson2DF(jsonDF: DataFrame, spark: SparkSession): DataFrame = {

@@ -1,8 +1,5 @@
 package com.free2wheelers.apps
 
-import java.text.SimpleDateFormat
-import java.util.TimeZone
-
 import org.scalatest.{FeatureSpec, Matchers}
 
 class SimpleTimeFormatterTest extends FeatureSpec with Matchers {

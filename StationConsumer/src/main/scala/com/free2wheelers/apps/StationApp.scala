@@ -38,6 +38,8 @@ object StationApp {
       .parquet(latestStationInfoLocation)
       .transform(df => informationJson2DF(df, spark))
 
+    if (stationInformationDF.count() == 0) throw new RuntimeException("No station information for now.")
+
     val dataframe = spark.readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", kafkaBrokers)
