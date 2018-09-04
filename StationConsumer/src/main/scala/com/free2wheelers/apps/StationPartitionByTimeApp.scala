@@ -5,8 +5,11 @@ import com.free2wheelers.apps.StationStatusTransformation.stationStatusJson2DF
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.expressions.Window
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types.TimestampType
 
-object StationApp {
+object StationPartitionByTimeApp {
   def main(args: Array[String]): Unit = {
 
     val retryPolicy = new ExponentialBackoffRetry(1000, 3)
@@ -34,12 +37,16 @@ object StationApp {
       .appName("StationConsumer")
       .getOrCreate()
 
+    import spark.implicits._
+    val windowSpec = Window.partitionBy($"station_id").orderBy($"last_updated".desc)
     val stationInformationDF = spark
       .read
       .parquet(latestStationInfoLocation)
       .transform(df => stationInformationJson2DF(df, spark))
       .dropDuplicates("station_id", "last_updated")
-      .drop("last_updated")
+      .withColumn("rn", row_number.over(windowSpec))
+      .where($"rn" === 1)
+      .drop("rn", "last_updated")
 
     if (stationInformationDF.count() == 0) throw new RuntimeException("No station information for now.")
 
@@ -51,9 +58,14 @@ object StationApp {
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
       .transform(t => stationStatusJson2DF(t, spark))
+      .withColumn("timestamp", $"last_updated" cast TimestampType)
+      .withWatermark("timestamp", "60 seconds")
+      .dropDuplicates("station_id", "timestamp")
+      .drop("timestamp")
       .join(stationInformationDF, "station_id")
       .repartition(1)
       .writeStream
+      .partitionBy("last_updated")
       .outputMode("append")
       .format("csv")
       .option("header", true)
