@@ -81,27 +81,16 @@ echo "====Copy Raw Data Saver Jar to EMR===="
 scp RawDataSaver/target/scala-2.11/free2wheelers-raw-data-saver_2.11-0.0.1.jar emr-master.xian-summer-2018.training:/tmp/
 echo "====Raw Data Saver Jar Copied to EMR===="
 
+scp sbin/go.sh emr-master.xian-summer-2018.training:/tmp/go.sh
 
 ssh emr-master.xian-summer-2018.training '
 set -e
 
-function kill_process {
-    query=$1
-    pid=`ps aux | grep $query | grep -v "grep" |  awk "{print \\$2}"`
-
-    if [ -z "$pid" ];
-    then
-        echo "no ${query} process running"
-    else
-        kill -SIGTERM $pid
-    fi
-}
-
-raw_data_saver="free2wheelers-raw-data-saver"
+sourch /tmp/go.sh
 
 echo "====Kill Old Raw Data Saver===="
 
-kill_process ${raw_data_saver}
+kill_application "com.free2wheelers.apps.StationLocationApp"
 
 echo "====Old Raw Data Saver Killed===="
 
@@ -117,27 +106,17 @@ echo "====Copy Station Consumer Jar to EMR===="
 scp StationConsumer/target/scala-2.11/free2wheelers-station-consumer_2.11-0.0.1.jar emr-master.xian-summer-2018.training:/tmp/
 echo "====Station Consumer Jar Copied to EMR===="
 
+scp sbin/go.sh emr-master.xian-summer-2018.training:/tmp/go.sh
 
 ssh emr-master.xian-summer-2018.training '
 set -e
 
-function kill_process {
-    query=$1
-    pid=`ps aux | grep $query | grep -v "grep" |  awk "{print \\$2}"`
+sourch /tmp/go.sh
 
-    if [ -z "$pid" ];
-    then
-        echo "no ${query} process running"
-    else
-        kill -SIGTERM $pid
-    fi
-}
-
-station_consumer="free2wheelers-station-consumer"
 
 echo "====Kill Old Station Consumer===="
 
-kill_process ${station_consumer}
+kill_application "com.free2wheelers.apps.StationApp"
 
 echo "====Old Station Consumer Killed===="
 
