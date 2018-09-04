@@ -85,7 +85,7 @@ scp sbin/go.sh emr-master.xian-summer-2018.training:/tmp/go.sh
 ssh emr-master.xian-summer-2018.training '
 set -e
 
-sourch /tmp/go.sh
+source /tmp/go.sh
 
 echo "====Kill Old Raw Data Saver===="
 
@@ -110,7 +110,7 @@ scp sbin/go.sh emr-master.xian-summer-2018.training:/tmp/go.sh
 ssh emr-master.xian-summer-2018.training '
 set -e
 
-sourch /tmp/go.sh
+source /tmp/go.sh
 
 
 echo "====Kill Old Station Consumer===="
