@@ -33,6 +33,7 @@ object StationPartitionByTimeApp {
 
     val outputLocation = new String(
       zkClient.getData.watched.forPath("/free2wheelers/output/dataLocation"))
+
     val spark = SparkSession.builder
       .appName("StationConsumer")
       .getOrCreate()
