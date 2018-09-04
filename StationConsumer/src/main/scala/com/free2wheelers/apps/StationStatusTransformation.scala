@@ -1,7 +1,7 @@
 package com.free2wheelers.apps
 
-import java.text.SimpleDateFormat
-import java.util.{Date, TimeZone}
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{udf, _}
@@ -73,28 +73,19 @@ object StationStatusTransformation {
 
     stations.asInstanceOf[Seq[Map[String, Any]]]
       .map(x => {
-        val str = x("timestamp").asInstanceOf[String]
-
-        val parsedDate: Date = parseTime(str)
-
         StationStatus(
           x("free_bikes").asInstanceOf[Double].toInt,
           x("empty_slots").asInstanceOf[Double].toInt,
           x("extra").asInstanceOf[Map[String, Any]]("renting").asInstanceOf[Double] == 1,
           x("extra").asInstanceOf[Map[String, Any]]("returning").asInstanceOf[Double] == 1,
-          parsedDate.getTime / 1000,
+          Instant.from(DateTimeFormatter.ISO_INSTANT.parse(x("timestamp").asInstanceOf[String])).getEpochSecond,
           x("id").asInstanceOf[String]
         )
       })
   }
 
   def parseTime(str: String) = {
-
-    val subStr = str.substring(0, 18)
-    val dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss")
-    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"))
-    val parsedDate = dateFormat.parse(subStr)
-    parsedDate
+    Instant.from(DateTimeFormatter.ISO_INSTANT.parse(str)).getEpochSecond
   }
 
   def stationStatusJson2DF(jsonDF: DataFrame, spark: SparkSession): DataFrame = {

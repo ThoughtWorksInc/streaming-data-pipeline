@@ -1,8 +1,8 @@
 package com.free2wheelers.apps
 
-import java.util.Date
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 
-import com.free2wheelers.apps.StationStatusTransformation.parseTime
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{explode, udf}
 import org.apache.spark.sql.{DataFrame, SparkSession}
@@ -55,15 +55,12 @@ object StationInformationTransformation {
 
     stations.asInstanceOf[Seq[Map[String, Any]]]
       .map(x => {
-        val str = x("timestamp").asInstanceOf[String]
-        val parsedDate: Date = parseTime(str)
-
         StationInformation(
           x("id").asInstanceOf[String],
           x("name").asInstanceOf[String],
           x("latitude").asInstanceOf[Double],
           x("longitude").asInstanceOf[Double],
-          parsedDate.getTime / 1000
+          Instant.from(DateTimeFormatter.ISO_INSTANT.parse(x("timestamp").asInstanceOf[String])).getEpochSecond
         )
       })
   }

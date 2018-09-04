@@ -177,14 +177,14 @@ class StationInformationTransformationTest extends FeatureSpec with Matchers wit
       row1.get(1) should be("Koshland Park")
       row1.get(2) should be(37.77341396997343)
       row1.get(3) should be(-122.42731690406801)
-      row1.get(4) should be(1535551085)
+      row1.get(4) should be(1535551137)
 
       val row2 = resultDF2.where("station_id = '744a78dbf1295803e62b64fd7579ddef'").head()
       row2.get(0) should be("744a78dbf1295803e62b64fd7579ddef")
       row2.get(1) should be("47th St at San Pablo Ave")
       row2.get(2) should be(37.83563220458518)
       row2.get(3) should be(-122.28105068206787)
-      row2.get(4) should be(1535551085)
+      row2.get(4) should be(1535551137)
     }
 
   }

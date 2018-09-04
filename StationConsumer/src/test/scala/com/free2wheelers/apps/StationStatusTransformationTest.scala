@@ -181,14 +181,14 @@ class StationStatusTransformationTest extends FeatureSpec with Matchers with Giv
       row1.get(1) should be(26)
       row1.get(2) shouldBe true
       row1.get(3) shouldBe true
-      row1.get(4) should be(1535551085)
+      row1.get(4) should be(1535551137)
 
       val row2 = resultDF2.where("station_id = '744a78dbf1295803e62b64fd7579ddef'").head()
       row2.get(0) should be(10)
       row2.get(1) should be(9)
       row2.get(2) shouldBe true
       row2.get(3) shouldBe true
-      row2.get(4) should be(1535551085)
+      row2.get(4) should be(1535551137)
 
     }
 
