@@ -17,7 +17,7 @@ case class StationData(station_id: String, bikes_available: Int, docks_available
 
 
 object StationStreamingApp {
-  
+
   def main(args: Array[String]): Unit = {
 
     val zookeeperConnectionString = if (args.isEmpty) "zookeeper:2181" else args(0)

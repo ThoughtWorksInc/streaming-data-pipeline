@@ -17,7 +17,7 @@ function rawDataSaver {
 }
 
 function StationConsumer {
-	spark-submit --class com.free2wheelers.apps.StationStreamingApp \
+	spark-submit --class com.free2wheelers.apps.StationPartitionByTimeApp \
 		--packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 \
 		${DIR}/StationConsumer/target/scala-2.11/free2wheelers-station-consumer_2.11-0.0.1.jar \
 		127.0.0.1:2181
