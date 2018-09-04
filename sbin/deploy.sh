@@ -115,7 +115,7 @@ source /tmp/go.sh
 
 echo "====Kill Old Station Consumer===="
 
-kill_application "com.free2wheelers.apps.StationApp"
+kill_application "com.free2wheelers.apps.StationStreamingApp"
 
 echo "====Old Station Consumer Killed===="
 
