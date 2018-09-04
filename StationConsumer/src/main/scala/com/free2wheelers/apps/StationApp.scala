@@ -41,7 +41,7 @@ object StationApp {
       .dropDuplicates("station_id", "last_updated")
       .drop("last_updated")
 
-    if (stationInformationDF.count() == 0) throw new RuntimeException("No station information for now.")
+    if (stationInformationDF.take(1).isEmpty) throw new RuntimeException("No station information for now.")
 
     val dataframe = spark.readStream
       .format("kafka")
