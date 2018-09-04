@@ -38,7 +38,6 @@ echo "====Copy jar to ingester server===="
 scp CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar ingester.xian-summer-2018.training:/tmp/
 echo "====Jar copied to ingester server===="
 
-
 ssh ingester.xian-summer-2018.training '
 set -e
 
