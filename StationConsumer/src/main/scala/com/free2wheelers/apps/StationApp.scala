@@ -59,7 +59,7 @@ object StationApp {
       .option("header", true)
       .option("truncate", false)
       .option("checkpointLocation", checkpointLocation)
-      .option("path", outputLocation + "-debug")
+      .option("path", outputLocation)
       .start()
       .awaitTermination()
   }
