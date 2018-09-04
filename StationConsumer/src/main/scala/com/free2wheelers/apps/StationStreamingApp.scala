@@ -6,19 +6,18 @@ import com.free2wheelers.apps.StationInformationTransformation.stationInformatio
 import com.free2wheelers.apps.StationStatusTransformation._
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.TimestampType
-import org.apache.spark.sql.{DataFrame, SparkSession}
 
 
 case class StationData(station_id: String, bikes_available: Int, docks_available: Int,
-                       is_renting: Boolean, is_returning: Boolean, last_updated: Timestamp,
+                       is_renting: Boolean, is_returning: Boolean, last_updated: Long, timestamp: Timestamp,
                        name: String, latitude: Double, longitude: Double)
 
 
 object StationStreamingApp {
-
-
+  
   def main(args: Array[String]): Unit = {
 
     val zookeeperConnectionString = if (args.isEmpty) "zookeeper:2181" else args(0)
@@ -54,10 +53,11 @@ object StationStreamingApp {
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
       .transform(stationInformationJson2DF(_, spark))
-      .transform(castTimestamp(_, spark))
-      .withWatermark("last_updated", "90 seconds")
+      .withColumn("timestamp", $"last_updated" cast TimestampType)
+      .drop("last_updated")
+      .withWatermark("timestamp", "90 seconds")
 
-    val status = spark.readStream
+    val stationStatusDF = spark.readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", kafkaBrokers)
       .option("subscribe", stationStatusTopic)
@@ -65,27 +65,29 @@ object StationStreamingApp {
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
       .transform(stationStatusJson2DF(_, spark))
-      .transform(castTimestamp(_, spark))
-      .withWatermark("last_updated", "30 seconds")
+      .withColumn("timestamp", $"last_updated" cast TimestampType)
+      .withWatermark("timestamp", "30 seconds")
 
-    val stationData = status
-      .join(stationInformationDF.withColumnRenamed("station_id", "i_station_id")
-        .withColumnRenamed("last_updated", "i_last_updated"), expr(
+    val stationDataDF = stationStatusDF
+      .join(stationInformationDF
+        .withColumnRenamed("station_id", "i_station_id")
+        .withColumnRenamed("timestamp", "i_timestamp")
+        , expr(
         """
           |station_id=i_station_id AND
-          |last_updated <= i_last_updated + interval 90 seconds  AND
-          |last_updated >= i_last_updated
+          |timestamp <= i_timestamp + interval 90 seconds  AND
+          |timestamp >= i_timestamp
         """.stripMargin),
         "left_outer")
       .filter($"name".isNotNull)
       .as[StationData]
-      .withWatermark("last_updated", "30 seconds")
       .groupByKey(r => r.station_id)
-      .reduceGroups((r1, r2) => if (r1.last_updated.after(r2.last_updated)) r1 else r2)
+      .reduceGroups((r1, r2) => if (r1.timestamp.after(r2.timestamp)) r1 else r2)
       .map(_._2)
+      .drop("timestamp")
       .orderBy($"station_id")
 
-    stationData
+    stationDataDF
       .writeStream
       .format("overwriteCSV")
       .outputMode("complete")
@@ -97,12 +99,4 @@ object StationStreamingApp {
       .awaitTermination()
 
   }
-
-  def castTimestamp(df: DataFrame, spark: SparkSession): DataFrame = {
-    import spark.implicits._
-    df.withColumn("last_updated_x", $"last_updated".cast(TimestampType))
-      .drop("last_updated")
-      .withColumnRenamed("last_updated_x", "last_updated")
-  }
-
 }
