@@ -9,18 +9,12 @@ import org.apache.spark.sql.types.TimestampType
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 
-case class statusType(station_id: String, bikes_available: Int, docks_available: Int, is_renting: Boolean,
-                      is_returning: Boolean, last_updated: java.sql.Timestamp)
-
-case class infoType(station_id: String, name: String, latitude: Double, longitude: Double, last_updated: java.sql.Timestamp)
-
-
 case class statusInfoType(station_id: String, bikes_available: Int, docks_available: Int, is_renting: Boolean,
                           is_returning: Boolean, last_updated: java.sql.Timestamp,
                           name: String, latitude: Double, longitude: Double)
 
 
-object StationApp {
+object StationStreamingApp {
 
 
   def main(args: Array[String]): Unit = {
@@ -77,7 +71,7 @@ object StationApp {
       .drop("last_updated")
       .withColumnRenamed("last_updated_x", "last_updated")
       .withWatermark("last_updated", "30 seconds")
-      .as[statusType]
+
 
 
     val infoStatus = status
