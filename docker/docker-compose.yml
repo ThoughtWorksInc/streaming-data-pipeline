@@ -80,9 +80,29 @@ services:
         networks:
           - streaming-data-internal
 
-    raw-data-saver:
+    raw-station-information-data-saver:
         build:
             context: ../RawDataSaver
+            dockerfile: Dockerfile-station-information
+        volumes:
+          - ~/.ivy2:/root/.ivy2
+        depends_on:
+          - kafka
+          - station-information-producer
+          - station-status-producer
+          - station-san-francisco-producer
+          - hadoop-seed
+          - zookeeper-seed
+        volumes:
+          - ~/.ivy2:/root/.ivy2:rw
+        networks:
+          - streaming-data-internal
+        restart: on-failure
+
+    raw-station-status-data-saver:
+        build:
+            context: ../RawDataSaver
+            dockerfile: Dockerfile-station-status
         volumes:
           - ~/.ivy2:/root/.ivy2
         depends_on:
@@ -108,7 +128,7 @@ services:
           - kafka
           - station-status-producer
           - station-san-francisco-producer
-          - raw-data-saver
+          - raw-station-status-data-saver
         volumes:
           - ~/.ivy2:/root/.ivy2:rw
         command: ["./wait-for.sh", "zookeeper:2181", "-t", "30"]

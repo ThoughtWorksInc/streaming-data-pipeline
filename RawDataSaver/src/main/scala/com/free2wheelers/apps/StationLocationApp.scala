@@ -8,20 +8,27 @@ object StationLocationApp {
   def main(args: Array[String]): Unit = {
 
     val retryPolicy = new ExponentialBackoffRetry(1000, 3)
-    val zookeeperConnectionString = if (args.isEmpty) "zookeeper:2181" else args(0)
+    if (args.length != 2) {
+      val message = "Two arguments are required: \"zookeeper server\" and \"application folder in zookeeper\"!"
+      throw new IllegalArgumentException(message)
+    }
+    val zookeeperConnectionString = args(0)
+
+    val zookeeperFolder = args(1)
+
     val zkClient = CuratorFrameworkFactory.newClient(zookeeperConnectionString, retryPolicy)
 
     zkClient.start
 
-    val kafkaBrokers = new String(zkClient.getData.forPath("/free2wheelers/stationInformation/kafkaBrokers"))
+    val kafkaBrokers = new String(zkClient.getData.forPath(s"$zookeeperFolder/kafkaBrokers"))
 
-    val topic = new String(zkClient.getData.watched.forPath("/free2wheelers/stationInformation/topic"))
+    val topic = new String(zkClient.getData.watched.forPath(s"$zookeeperFolder/topic"))
 
     val checkpointLocation = new String(
-      zkClient.getData.watched.forPath("/free2wheelers/stationInformation/checkpointLocation"))
+      zkClient.getData.watched.forPath(s"$zookeeperFolder/checkpointLocation"))
 
     val dataLocation = new String(
-      zkClient.getData.watched.forPath("/free2wheelers/stationInformation/dataLocation"))
+      zkClient.getData.watched.forPath(s"$zookeeperFolder/dataLocation"))
 
     val spark = SparkSession.builder
       .appName("RawDataSaver")
