@@ -1,7 +1,5 @@
 package com.free2wheelers.apps
 
-import java.sql.Timestamp
-
 import com.free2wheelers.apps.StationInformationTransformation.stationInformationJson2DF
 import com.free2wheelers.apps.StationStatusTransformation._
 import org.apache.curator.framework.CuratorFrameworkFactory
@@ -10,18 +8,12 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.TimestampType
 
-
-case class StationData(station_id: String, bikes_available: Int, docks_available: Int,
-                       is_renting: Boolean, is_returning: Boolean, last_updated: Long, timestamp: Timestamp,
-                       name: String, latitude: Double, longitude: Double)
-
-
 object StationStreamingApp {
-  
+
   def main(args: Array[String]): Unit = {
 
     val zookeeperConnectionString = if (args.isEmpty) "zookeeper:2181" else args(0)
-    
+
     val retryPolicy = new ExponentialBackoffRetry(1000, 3)
 
     val zkClient = CuratorFrameworkFactory.newClient(zookeeperConnectionString, retryPolicy)
@@ -74,11 +66,11 @@ object StationStreamingApp {
         .withColumnRenamed("station_id", "i_station_id")
         .withColumnRenamed("timestamp", "i_timestamp")
         , expr(
-        """
-          |station_id=i_station_id AND
-          |timestamp <= i_timestamp + interval 90 seconds  AND
-          |timestamp >= i_timestamp
-        """.stripMargin),
+          """
+            |station_id=i_station_id AND
+            |timestamp <= i_timestamp + interval 90 seconds  AND
+            |timestamp >= i_timestamp
+          """.stripMargin),
         "left_outer")
       .filter($"name".isNotNull)
       .as[StationData]
