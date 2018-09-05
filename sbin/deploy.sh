@@ -80,6 +80,7 @@ echo "====Configure HDFS paths===="
 scp ./hdfs/seed.sh emr-master.xian-summer-2018.training:/tmp/hdfs-seed.sh
 
 ssh emr-master.xian-summer-2018.training '
+set -e
 export hdfs_server="emr-master.xian-summer-2018.training:8020"
 sh /tmp/hdfs-seed.sh
 '
