@@ -89,13 +89,13 @@ source /tmp/go.sh
 
 echo "====Kill Old Raw Data Saver===="
 
-kill_application "com.free2wheelers.apps.StationLocationApp"
+kill_application "StationLocationApp"
 
 echo "====Old Raw Data Saver Killed===="
 
 echo "====Deploy Raw Data Saver===="
 
-nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=2g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar kafka.xian-summer-2018.training:2181 1>/tmp/raw-data-saver.log 2>/tmp/raw-data-saver.error.log &
+nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --name StationLocationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=2g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar kafka.xian-summer-2018.training:2181 1>/tmp/raw-data-saver.log 2>/tmp/raw-data-saver.error.log &
 
 echo "====Raw Data Saver Deployed===="
 '
@@ -115,13 +115,13 @@ source /tmp/go.sh
 
 echo "====Kill Old Station Consumer===="
 
-kill_application "com.free2wheelers.apps.StationApp"
+kill_application "StationApp"
 
 echo "====Old Station Consumer Killed===="
 
 echo "====Deploy Station Consumer===="
 
-nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --conf spark.executor.memory=2g --conf spark.cores.max=1 /tmp/free2wheelers-station-consumer_2.11-0.0.1.jar kafka.xian-summer-2018.training:2181 1>/tmp/station-consumer.log 2>/tmp/station-consumer.error.log &
+nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationApp --name StationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --conf spark.executor.memory=2g --conf spark.cores.max=1 /tmp/free2wheelers-station-consumer_2.11-0.0.1.jar kafka.xian-summer-2018.training:2181 1>/tmp/station-consumer.log 2>/tmp/station-consumer.error.log &
 
 echo "====Station Consumer Deployed===="
 '
