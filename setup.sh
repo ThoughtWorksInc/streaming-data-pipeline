@@ -15,9 +15,12 @@ start-slave.sh 127.0.0.1:7077
 
 mkdir -p /tmp/spark-events && start-history-server.sh
 
+mkdir -p /tmp/free2wheelers/rawData/stationInformation/checkpoints
 mkdir -p /tmp/free2wheelers/rawData/stationInformation/data
 mkdir -p /tmp/free2wheelers/rawData/stationStatus/checkpoints
 mkdir -p /tmp/free2wheelers/rawData/stationStatus/data
+mkdir -p /tmp/free2wheelers/rawData/stationSanFrancisco/checkpoints
+mkdir -p /tmp/free2wheelers/rawData/stationSanFrancisco/data
 mkdir -p /tmp/free2wheelers/stationMart/checkpoints
 mkdir -p /tmp/free2wheelers/stationMart/data
 
