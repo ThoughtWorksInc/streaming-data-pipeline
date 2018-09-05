@@ -1,8 +1,11 @@
+defaults: &defaults
+    docker:
+        - image: circleci/openjdk:8-jdk    
+
 version: 2
 jobs:
-    deploy:
-        docker:
-            - image: circleci/openjdk:8-jdk
+    build:
+        <<: *defaults
         steps:
             - checkout
             - restore_cache:
@@ -16,12 +19,14 @@ jobs:
                     - scala-dependencies-
             - run:
                 command: ./sbin/buildAll.sh
-            - store_artifacts:
-                path: CitibikeApiProducer/build/libs/
-            - store_artifacts:
-                path: RawDataSaver/target/scala-2.11/
-            - store_artifacts:
-                path: StationConsumer/target/scala-2.11/
+            - persist_to_workspace:
+                root: artifacts/
+                paths:
+                    - CitibikeApiProducer/build/
+                    - RawDataSaver/target/
+                    - StationConsumer/target/
+            - run:
+                command: ls artifacts/
             - save_cache:
                 key: scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt" }}
                 paths:
@@ -30,18 +35,33 @@ jobs:
                 key: java-dependencies-{{ checksum "./CitibikeApiProducer/build.gradle" }}
                 paths:
                     - "~/.gradle"
+
+    deploy:
+        <<: *defaults
+        steps:
+            - checkout
+            - attach_workspace:
+                at: ./artifacts
             - add_ssh_keys:
                 fingerprints:
-                    - "03:b4:c1:08:ff:85:31:b8:6f:e6:a5:cf:5b:54:b4:23"
+                    - "03:b4:c1:08:ff:85:31:b8:6f:e6:a5:cf:5b:54:b4:23"                
             - run:
                 command: ./sbin/deploy.sh
+
 workflows:
     version: 2
     build_and_deploy:
         jobs:
-            - deploy:
+            - build:
                 filters:
                     branches:
                         only: 
                             - master
+            - approve-deploy:
+                type: approval
+                requires: 
+                    - build
+            - deploy:
+                requires:
+                    - approve-deploy
 
