@@ -70,6 +70,16 @@ services:
         networks:
           - streaming-data-internal
 
+    station-san-francisco-producer:
+        build:
+            context: ../CitibikeApiProducer
+            dockerfile: Dockerfile-station-san-francisco
+        depends_on:
+          - kafka
+          - zookeeper-seed
+        networks:
+          - streaming-data-internal
+
     raw-data-saver:
         build:
             context: ../RawDataSaver
@@ -77,6 +87,7 @@ services:
           - kafka
           - station-information-producer
           - station-status-producer
+          - station-san-francisco-producer
           - hadoop-seed
           - zookeeper-seed
         volumes:
@@ -92,6 +103,7 @@ services:
           - zookeeper-seed
           - kafka
           - station-status-producer
+          - station-san-francisco-producer
           - raw-data-saver
         volumes:
           - ~/.ivy2:/root/.ivy2:rw
