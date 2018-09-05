@@ -21,6 +21,7 @@ object StationStreamingApp {
   def main(args: Array[String]): Unit = {
 
     val zookeeperConnectionString = if (args.isEmpty) "zookeeper:2181" else args(0)
+    
     val retryPolicy = new ExponentialBackoffRetry(1000, 3)
 
     val zkClient = CuratorFrameworkFactory.newClient(zookeeperConnectionString, retryPolicy)
