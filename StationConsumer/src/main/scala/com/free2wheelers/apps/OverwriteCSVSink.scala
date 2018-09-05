@@ -7,9 +7,9 @@ import org.apache.spark.sql.{DataFrame, SQLContext, SaveMode}
 
 
 class OverwriteCSVSink(sqlContext: SQLContext,
-                 parameters: Map[String, String],
-                 partitionColumns: Seq[String],
-                 outputMode: OutputMode) extends Sink {
+                       parameters: Map[String, String],
+                       partitionColumns: Seq[String],
+                       outputMode: OutputMode) extends Sink {
 
   override def addBatch(batchId: Long, data: DataFrame): Unit = {
 
