@@ -1,6 +1,7 @@
 defaults: &defaults
     docker:
-        - image: circleci/openjdk:8-jdk    
+        - image: circleci/openjdk:8-jdk
+    working_directory: /home/circleci/project
 
 version: 2
 jobs:
@@ -18,15 +19,15 @@ jobs:
                     - scala-dependencies-{{ checksum "./RawDataSaver/build.sbt"}}
                     - scala-dependencies-
             - run:
-                command: ./sbin/buildAll.sh
+                command: ./sbin/buildAll.sh               
             - persist_to_workspace:
-                root: artifacts/
+                root: /home/circleci/project
                 paths:
                     - CitibikeApiProducer/build/
                     - RawDataSaver/target/
                     - StationConsumer/target/
             - run:
-                command: ls artifacts/
+                command: ls /home/circleci/project/
             - save_cache:
                 key: scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt" }}
                 paths:
@@ -41,7 +42,7 @@ jobs:
         steps:
             - checkout
             - attach_workspace:
-                at: ./artifacts
+                at: /home/circleci/project
             - add_ssh_keys:
                 fingerprints:
                     - "03:b4:c1:08:ff:85:31:b8:6f:e6:a5:cf:5b:54:b4:23"                
