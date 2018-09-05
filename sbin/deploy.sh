@@ -24,13 +24,13 @@ Host *.xian-summer-2018.training
 echo "====SSH Config Updated===="
 
 echo "====Insert app config in zookeeper===="
-scp ./zookeeper/seed.sh kafka.xian-summer-2018.training:~/
+scp ./zookeeper/seed.sh kafka.xian-summer-2018.training:/tmp/zookeeper-seed.sh
 ssh kafka.xian-summer-2018.training '
 set -e
 export hdfs_server="emr-master.xian-summer-2018.training:8020"
 export kafka_server="kafka.xian-summer-2018.training:9092"
 export zk_command="zookeeper-shell localhost:2181"
-sh ~/seed.sh
+sh /tmp/zookeeper-seed.sh
 '
 echo "====Inserted app config in zookeeper===="
 
@@ -74,6 +74,17 @@ nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.prof
 
 echo "====Producers Deployed===="
 '
+
+
+echo "====Configure HDFS paths===="
+scp ./hdfs/seed.sh emr-master.xian-summer-2018.training:/tmp/hdfs-seed.sh
+
+ssh emr-master.xian-summer-2018.training '
+export hdfs_server="emr-master.xian-summer-2018.training:8020"
+sh /tmp/hdfs-seed.sh
+'
+
+echo "====HDFS paths configured==="
 
 
 echo "====Copy Raw Data Saver Jar to EMR===="
