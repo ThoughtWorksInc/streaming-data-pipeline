@@ -16,6 +16,12 @@ jobs:
                     - scala-dependencies-
             - run:
                 command: ./sbin/buildAll.sh
+            - store_artifacts:
+                path: CitibikeApiProducer/build/libs/
+            - store_artifacts:
+                path: RawDataSaver/target/scala-2.11/
+            - store_artifacts:
+                path: StationConsumer/target/scala-2.11/
             - save_cache:
                 key: scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt" }}
                 paths:
