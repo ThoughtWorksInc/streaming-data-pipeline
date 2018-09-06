@@ -97,7 +97,7 @@ object StationStatusTransformation {
 
     import spark.implicits._
 
-    jsonDF.select(explode(toStatusFn(jsonDF("value"))) as "status")
+    jsonDF.select(explode(toStatusFn(jsonDF("raw_payload"))) as "status")
       .select($"status.*")
   }
 }
