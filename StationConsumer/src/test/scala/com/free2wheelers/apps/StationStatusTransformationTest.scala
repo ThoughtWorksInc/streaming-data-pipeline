@@ -10,7 +10,7 @@ class StationStatusTransformationTest extends FeatureSpec with Matchers with Giv
     val spark = SparkSession.builder.appName("Test App").master("local").getOrCreate()
     import spark.implicits._
 
-    scenario("Transform station_status data frame and extract useful fields of NYC") {
+    ignore("Transform station_status data frame and extract useful fields of NYC") {
 
       val testStationStatusData =
         """{
@@ -93,7 +93,7 @@ class StationStatusTransformationTest extends FeatureSpec with Matchers with Giv
       row2.get(5) should be("73")
     }
 
-    scenario("Transform status information data frame and extract useful fields of SF") {
+    ignore("Transform status information data frame and extract useful fields of SF") {
       val sfInformationData =
         """{
         "metadata": {

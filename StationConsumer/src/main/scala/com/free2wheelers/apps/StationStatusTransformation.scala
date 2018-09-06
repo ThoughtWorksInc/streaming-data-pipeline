@@ -38,40 +38,18 @@ object StationStatusTransformation {
 
   val sfToStationStatus: String => Seq[StationStatus] = raw_payload => {
     val json = JSON.parseFull(raw_payload)
-    //    val metadata = json.get.asInstanceOf[Map[String, Any]]("metadata").asInstanceOf[Map[String, String]]
-    //    val producerId = metadata("producer_id")
-
     val payload = json.get.asInstanceOf[Map[String, Any]]("payload")
-    //    producerId match {
-    //      case "station_san_francisco" => extractSFStationStatus(payload)
-    //      case "producer_station_status" => extractNycStationStatus(payload)
-    //    }
     extractSFStationStatus(payload)
   }
 
   val nycOnlyToStationStatus: String => Seq[StationStatus] = raw_payload => {
     val json = JSON.parseFull(raw_payload)
-    //    val metadata = json.get.asInstanceOf[Map[String, Any]]("metadata").asInstanceOf[Map[String, String]]
-    //    val producerId = metadata("producer_id")
-
     val payload = json.get.asInstanceOf[Map[String, Any]]("payload")
-    //    producerId match {
-    //      case "station_san_francisco" => extractSFStationStatus(payload)
-    //      case "producer_station_status" => extractNycStationStatus(payload)
-    //    }
     extractNycStationStatus(payload, true)
   }
 
   val nycToStationStatus: String => Seq[StationStatus] = raw_payload => {
     val payload = JSON.parseFull(raw_payload)
-    //    val metadata = json.get.asInstanceOf[Map[String, Any]]("metadata").asInstanceOf[Map[String, String]]
-    //    val producerId = metadata("producer_id")
-
-    //    val payload = json.get.asInstanceOf[Map[String, Any]]("payload")
-    //    producerId match {
-    //      case "station_san_francisco" => extractSFStationStatus(payload)
-    //      case "producer_station_status" => extractNycStationStatus(payload)
-    //    }
     extractNycStationStatus(payload)
   }
 
@@ -92,9 +70,9 @@ object StationStatusTransformation {
           lastUpdated,
           x("station_id").asInstanceOf[String],
 
-          if(skipInfo) "" else x("name").asInstanceOf[String],
-          if(skipInfo) 0D else x("lat").asInstanceOf[Double],
-          if(skipInfo) 0D else  x("lon").asInstanceOf[Double]
+          if (skipInfo) "" else x("name").asInstanceOf[String],
+          if (skipInfo) 0D else x("lat").asInstanceOf[Double],
+          if (skipInfo) 0D else x("lon").asInstanceOf[Double]
         )
       })
   }
