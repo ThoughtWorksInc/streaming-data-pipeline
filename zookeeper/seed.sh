@@ -25,7 +25,6 @@ $zk_command create /free2wheelers/stationDataSF/topic station_data_sf
 $zk_command create /free2wheelers/stationDataSF/checkpointLocation hdfs://$hdfs_server/free2wheelers/rawData/stationDataSF/checkpoints
 $zk_command create /free2wheelers/stationDataSF/dataLocation hdfs://$hdfs_server/free2wheelers/rawData/stationDataSF/data
 
-
 $zk_command create /free2wheelers/output ''
 $zk_command create /free2wheelers/output/checkpointLocation hdfs://$hdfs_server/free2wheelers/stationMart/checkpoints
 $zk_command create /free2wheelers/output/dataLocation hdfs://$hdfs_server/free2wheelers/stationMart/data

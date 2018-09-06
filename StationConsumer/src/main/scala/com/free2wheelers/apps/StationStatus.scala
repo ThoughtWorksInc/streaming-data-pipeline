@@ -5,5 +5,5 @@ case class StationStatus(
                           is_renting: Boolean, is_returning: Boolean,
                           last_updated: Long,
                           station_id: String, name: String,
-                          lat: Double, lon: Double
+                          latitude: Double, longitude: Double
                         )

@@ -32,6 +32,7 @@ object StationApp {
       .appName("StationConsumer")
       .getOrCreate()
 
+    import spark.implicits._
 
     val nycStationDF = spark.readStream
       .format("kafka")
@@ -50,8 +51,6 @@ object StationApp {
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
       .transform(sfStationStatusJson2DF(_, spark))
-
-    import spark.implicits._
 
     nycStationDF
       .union(sfStationDF)
