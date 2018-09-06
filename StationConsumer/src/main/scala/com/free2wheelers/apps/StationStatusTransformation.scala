@@ -24,7 +24,7 @@ object StationStatusTransformation {
   }
 
   val nycToStationStatus: String => Seq[StationStatus] = raw_payload => {
-    val payload = JSON.parseFull(raw_payload)
+    val payload = JSON.parseFull(raw_payload).get
     extractNycStationStatus(payload)
   }
 
