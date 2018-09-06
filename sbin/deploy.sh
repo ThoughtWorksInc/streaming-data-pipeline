@@ -123,7 +123,7 @@ echo "====Raw Data Saver Deployed===="
 echo "====Copy Station Consumers Jar to EMR===="
 scp StationConsumer/target/scala-2.11/free2wheelers-station-consumer_2.11-0.0.1.jar emr-master.xian-summer-2018.training:/tmp/
 
-scp StationTranformerNYC/target/scala-2.11/free2wheelers-station-transformer-nyc_2.11-0.0.1.jar emr-master.xian-summer-2018.training:/tmp/
+scp StationTransformerNYC/target/scala-2.11/free2wheelers-station-transformer-nyc_2.11-0.0.1.jar emr-master.xian-summer-2018.training:/tmp/
 echo "====Station Consumers Jar Copied to EMR===="
 
 scp sbin/go.sh emr-master.xian-summer-2018.training:/tmp/go.sh

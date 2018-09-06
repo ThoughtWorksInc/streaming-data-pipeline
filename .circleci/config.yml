@@ -12,12 +12,9 @@ jobs:
             - restore_cache:
                 keys:
                     - java-dependencies-{{ checksum "./CitibikeApiProducer/build.gradle" }}
-                    - java-dependencies-
             - restore_cache:
                 keys:
-                    - scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt"}}
-                    - scala-dependencies-{{ checksum "./RawDataSaver/build.sbt"}}
-                    - scala-dependencies-
+                    - scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt"}}-{{ checksum "./StationTransformerNYC/build.sbt"}}
             - run:
                 command: ./sbin/buildAll.sh               
             - persist_to_workspace:
@@ -26,10 +23,11 @@ jobs:
                     - CitibikeApiProducer/build/
                     - RawDataSaver/target/
                     - StationConsumer/target/
+                    - StationTransformerNYC/target/
             - run:
                 command: ls /home/circleci/project/
             - save_cache:
-                key: scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt" }}
+                key: scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt"}}-{{ checksum "./StationTransformerNYC/build.sbt"}}
                 paths:
                     - "~/.ivy2/cache"
             - save_cache:

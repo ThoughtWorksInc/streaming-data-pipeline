@@ -5,6 +5,7 @@ $zk_command create /free2wheelers ''
 
 $zk_command create /free2wheelers/stationDataNYC ''
 $zk_command create /free2wheelers/stationDataNYC/topic station_data_nyc
+$zk_command create /free2wheelers/stationDataNYC/checkpointLocation hdfs://$hdfs_server/free2wheelers/rawData/stationDataNYC/checkpoints
 
 $zk_command create /free2wheelers/stationInformation ''
 $zk_command create /free2wheelers/stationInformation/kafkaBrokers $kafka_server
