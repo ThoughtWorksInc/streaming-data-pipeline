@@ -57,7 +57,7 @@ object StationStreamingApp {
       .option("startingOffsets", "latest")
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
-      .transform(stationStatusJson2DF(_, spark))
+      .transform(nycOnlyStationStatusJson2DF(_, spark))
       .withColumn("timestamp", $"last_updated" cast TimestampType)
       .withWatermark("timestamp", "30 seconds")
 
