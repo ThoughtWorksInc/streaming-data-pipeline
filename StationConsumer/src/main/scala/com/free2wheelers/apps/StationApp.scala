@@ -26,6 +26,8 @@ object StationApp {
 
     val stationInformationTopic = new String(zkClient.getData.watched.forPath("/free2wheelers/stationInformation/topic"))
 
+    val stationDataNYC = new String(zkClient.getData.watched.forPath("/free2wheelers/stationDataNYC/topic"))
+
     val checkpointLocation = new String(
       zkClient.getData.watched.forPath("/free2wheelers/output/checkpointLocation"))
 
@@ -33,7 +35,7 @@ object StationApp {
       zkClient.getData.watched.forPath("/free2wheelers/output/dataLocation"))
 
     val spark = SparkSession.builder
-      .appName("StationConsumer")
+      .appName("NewYorkStationTransformer")
       .getOrCreate()
 
     import spark.implicits._
@@ -81,15 +83,15 @@ object StationApp {
       .orderBy($"station_id")
 
     stationDataDF
+      .toJSON
+      .selectExpr("CAST(value AS STRING)")
       .writeStream
-      .format("overwriteCSV")
+      .format("kafka")
       .outputMode("complete")
-      .option("header", true)
-      .option("truncate", false)
       .option("checkpointLocation", checkpointLocation)
-      .option("path", outputLocation)
+      .option("topic", stationDataNYC)
+      .option("kafka.bootstrap.servers", kafkaBrokers)
       .start()
       .awaitTermination()
-
   }
 }
