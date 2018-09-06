@@ -84,8 +84,6 @@ services:
         build:
             context: ../RawDataSaver
             dockerfile: Dockerfile-station-information
-        volumes:
-          - ~/.ivy2:/root/.ivy2
         depends_on:
           - kafka
           - station-information-producer
@@ -103,8 +101,23 @@ services:
         build:
             context: ../RawDataSaver
             dockerfile: Dockerfile-station-status
+        depends_on:
+          - kafka
+          - station-information-producer
+          - station-status-producer
+          - station-san-francisco-producer
+          - hadoop-seed
+          - zookeeper-seed
         volumes:
-          - ~/.ivy2:/root/.ivy2
+          - ~/.ivy2:/root/.ivy2:rw
+        networks:
+          - streaming-data-internal
+        restart: on-failure
+
+    raw-station-data-san-francisco-saver:
+        build:
+            context: ../RawDataSaver
+            dockerfile: Dockerfile-station-data-SF
         depends_on:
           - kafka
           - station-information-producer
@@ -121,8 +134,6 @@ services:
     station-consumer:
         build:
             context: ../StationConsumer
-        volumes:
-          - ~/.ivy2:/root/.ivy2
         depends_on:
           - zookeeper-seed
           - kafka

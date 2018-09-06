@@ -31,15 +31,22 @@ zk_command="zookeeper-shell.sh 127.0.0.1:2181"
 $zk_command create /free2wheelers ''
 $zk_command create /free2wheelers/stationInformation ''
 $zk_command create /free2wheelers/stationInformation/kafkaBrokers 127.0.0.1:9092
-$zk_command create /free2wheelers/stationInformation/topic station_information,station_san_francisco
+$zk_command create /free2wheelers/stationInformation/topic station_information
 $zk_command create /free2wheelers/stationInformation/checkpointLocation /tmp/free2wheelers/rawData/stationInformation/checkpoints
 $zk_command create /free2wheelers/stationInformation/dataLocation /tmp/free2wheelers/rawData/stationInformation/data
 
 $zk_command create /free2wheelers/stationStatus ''
 $zk_command create /free2wheelers/stationStatus/kafkaBrokers 127.0.0.1:9092
-$zk_command create /free2wheelers/stationStatus/topic station_status,station_san_francisco
+$zk_command create /free2wheelers/stationStatus/topic station_status
 $zk_command create /free2wheelers/stationStatus/checkpointLocation /tmp/free2wheelers/rawData/stationStatus/checkpoints
 $zk_command create /free2wheelers/stationStatus/dataLocation /tmp/free2wheelers/rawData/stationStatus/data
+
+$zk_command create /free2wheelers/stationDataSF ''
+$zk_command create /free2wheelers/stationDataSF/kafkaBrokers 127.0.0.1:9092
+$zk_command create /free2wheelers/stationDataSF/topic station_data_sf
+$zk_command create /free2wheelers/stationDataSF/checkpointLocation /tmp/free2wheelers/rawData/stationDataSF/checkpoints
+$zk_command create /free2wheelers/stationDataSF/dataLocation /tmp/free2wheelers/rawData/stationDataSF/data
+
 
 $zk_command create /free2wheelers/output ''
 $zk_command create /free2wheelers/output/checkpointLocation /tmp/free2wheelers/stationMart/checkpoints
