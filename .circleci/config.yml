@@ -26,6 +26,7 @@ jobs:
                     - CitibikeApiProducer/build/
                     - RawDataSaver/target/
                     - StationConsumer/target/
+                    - StationTransformerNYC/target/
             - run:
                 command: ls /home/circleci/project/
             - save_cache:
