@@ -11,31 +11,6 @@ import scala.util.parsing.json.JSON
 
 object StationStatusTransformation {
 
-  def statusJson2DF(jsonDF: DataFrame): DataFrame = {
-    jsonDF
-      .select(from_json(col("raw_payload"), StationStatusSchema.schema).as("station_status"))
-      .select(col("station_status.payload.data.stations") as "stations", col("station_status.payload.last_updated") as "last_updated")
-      .select(explode(col("stations")) as "station", col("last_updated"))
-      .select(col("station.station_id") as "station_id"
-        , col("station.num_bikes_available") + col("station.num_ebikes_available") as "bikes_available"
-        , col("station.num_docks_available") as "docks_available"
-        , col("station.is_renting") === 1 as "is_renting"
-        , col("station.is_returning") === 1 as "is_returning"
-        , col("last_updated"))
-  }
-
-  case class StationStatus(
-                            bikes_available: Integer,
-                            docks_available: Integer,
-                            is_renting: Boolean,
-                            is_returning: Boolean,
-                            last_updated: Long,
-                            station_id: String,
-                            name: String,
-                            lat: Double,
-                            lon: Double
-                          )
-
   val sfToStationStatus: String => Seq[StationStatus] = raw_payload => {
     val json = JSON.parseFull(raw_payload)
     val payload = json.get.asInstanceOf[Map[String, Any]]("payload")
@@ -97,10 +72,6 @@ object StationStatusTransformation {
           x("longitude").asInstanceOf[Double]
         )
       })
-  }
-
-  def parseTime(str: String) = {
-    Instant.from(DateTimeFormatter.ISO_INSTANT.parse(str)).getEpochSecond
   }
 
   def sfStationStatusJson2DF(jsonDF: DataFrame, spark: SparkSession): DataFrame = {

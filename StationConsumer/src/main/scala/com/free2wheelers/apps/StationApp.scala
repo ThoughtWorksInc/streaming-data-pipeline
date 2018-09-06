@@ -1,12 +1,9 @@
 package com.free2wheelers.apps
 
-import com.free2wheelers.apps.StationInformationTransformation.stationInformationJson2DF
 import com.free2wheelers.apps.StationStatusTransformation._
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.functions._
-import org.apache.spark.sql.types.TimestampType
 
 object StationApp {
 
@@ -58,8 +55,8 @@ object StationApp {
 
     nycStationDF
       .union(sfStationDF)
-      .groupByKey(r=>r.getAs[String]("station_id"))
-      .reduceGroups((r1,r2)=>if (r1.getAs[Long]("last_updated") > r2.getAs[Long]("last_updated")) r1 else r2)
+      .groupByKey(r => r.getAs[String]("station_id"))
+      .reduceGroups((r1, r2) => if (r1.getAs[Long]("last_updated") > r2.getAs[Long]("last_updated")) r1 else r2)
       .writeStream
       .format("overwriteCSV")
       .outputMode("complete")
