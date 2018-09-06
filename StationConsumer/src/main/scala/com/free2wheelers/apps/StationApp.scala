@@ -33,18 +33,14 @@ object StationApp {
       .appName("StationConsumer")
       .getOrCreate()
 
-    import spark.implicits._
-
-
     val nycStationDF = spark.readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", stationKafkaBrokers)
       .option("subscribe", nycStationTopic)
       .option("startingOffsets", "latest")
-      .schema(StationStatusSchemaNew.schema)
       .load()
-      .withColumn("lan", $"latitude")
-      .withColumn("lon", $"longitude")
+      .selectExpr("CAST(value AS STRING) as raw_payload")
+      .transform(nycStationStatusJson2DF(_, spark))
 
     val sfStationDF = spark.readStream
       .format("kafka")

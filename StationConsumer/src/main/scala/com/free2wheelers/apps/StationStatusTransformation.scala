@@ -29,27 +29,28 @@ object StationStatusTransformation {
   }
 
   private def extractNycStationStatus(payload: Any, skipInfo: Boolean = false) = {
-    val data = payload.asInstanceOf[Map[String, Any]]("data")
+    val data = payload.asInstanceOf[Map[String, Any]]
 
     val lastUpdated = payload.asInstanceOf[Map[String, Any]]("last_updated").asInstanceOf[Double].toLong
 
-    val stations: Any = data.asInstanceOf[Map[String, Any]]("stations")
+    //    val stations: Any = data.asInstanceOf[Map[String, Any]]("stations")
 
-    stations.asInstanceOf[Seq[Map[String, Any]]]
-      .map(x => {
-        StationStatus(
-          x("num_bikes_available").asInstanceOf[Double].toInt,
-          x("num_docks_available").asInstanceOf[Double].toInt,
-          x("is_renting").asInstanceOf[Double] == 1,
-          x("is_returning").asInstanceOf[Double] == 1,
-          lastUpdated,
-          x("station_id").asInstanceOf[String],
+    //    stations.asInstanceOf[Seq[Map[String, Any]]]
 
-          if (skipInfo) "" else x("name").asInstanceOf[String],
-          if (skipInfo) 0D else x("lat").asInstanceOf[Double],
-          if (skipInfo) 0D else x("lon").asInstanceOf[Double]
-        )
-      })
+    val status = StationStatus(
+      data("bikes_available").asInstanceOf[Double].toInt,
+      data("docks_available").asInstanceOf[Double].toInt,
+      data("is_renting").asInstanceOf[Boolean],
+      data("is_returning").asInstanceOf[Boolean],
+      lastUpdated,
+      data("station_id").asInstanceOf[String],
+
+      if (skipInfo) "" else data("name").asInstanceOf[String],
+      if (skipInfo) 0D else data("latitude").asInstanceOf[Double],
+      if (skipInfo) 0D else data("longitude").asInstanceOf[Double]
+    )
+      //      })
+      Array(status)
   }
 
   private def extractSFStationStatus(payload: Any) = {
