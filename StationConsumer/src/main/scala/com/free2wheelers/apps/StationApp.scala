@@ -1,14 +1,12 @@
 package com.free2wheelers.apps
 
-import com.free2wheelers.apps.StationInformationTransformation.stationInformationJson2DF
 import com.free2wheelers.apps.StationStatusTransformation._
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.functions._
-import org.apache.spark.sql.types.TimestampType
 
 object StationApp {
+
 
   def main(args: Array[String]): Unit = {
 
@@ -35,15 +33,18 @@ object StationApp {
       .appName("StationConsumer")
       .getOrCreate()
 
+    import spark.implicits._
+
 
     val nycStationDF = spark.readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", stationKafkaBrokers)
       .option("subscribe", nycStationTopic)
       .option("startingOffsets", "latest")
+      .schema(StationStatusSchemaNew.schema)
       .load()
-      .selectExpr("CAST(value AS STRING) as raw_payload")
-      .transform(nycStationStatusJson2DF(_, spark))
+      .withColumn("lan", $"latitude")
+      .withColumn("lon", $"longitude")
 
     val sfStationDF = spark.readStream
       .format("kafka")
