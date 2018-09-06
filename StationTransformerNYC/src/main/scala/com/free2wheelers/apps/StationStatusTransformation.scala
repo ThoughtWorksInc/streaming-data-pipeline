@@ -84,10 +84,6 @@ object StationStatusTransformation {
       })
   }
 
-  def parseTime(str: String) = {
-    Instant.from(DateTimeFormatter.ISO_INSTANT.parse(str)).getEpochSecond
-  }
-
   def stationStatusJson2DF(jsonDF: DataFrame, spark: SparkSession): DataFrame = {
     val toStatusFn: UserDefinedFunction = udf(toStationStatus)
 

@@ -29,10 +29,7 @@ object StationApp {
     val stationDataNYC = new String(zkClient.getData.watched.forPath("/free2wheelers/stationDataNYC/topic"))
 
     val checkpointLocation = new String(
-      zkClient.getData.watched.forPath("/free2wheelers/output/checkpointLocation"))
-
-    val outputLocation = new String(
-      zkClient.getData.watched.forPath("/free2wheelers/output/dataLocation"))
+      zkClient.getData.watched.forPath("/free2wheelers/stationDataNYC/checkpointLocation"))
 
     val spark = SparkSession.builder
       .appName("NewYorkStationTransformer")
