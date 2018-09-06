@@ -20,13 +20,10 @@ object StationApp {
 
     zkClient.start()
 
-    val kafkaBrokers = new String(zkClient.getData.forPath("/free2wheelers/stationStatus/kafkaBrokers"))
+    val stationKafkaBrokers = new String(zkClient.getData.forPath("/free2wheelers/stationStatus/kafkaBrokers"))
 
-    val stationStatusTopic = new String(zkClient.getData.watched.forPath("/free2wheelers/stationStatus/topic"))
-
-    val stationInformationTopic = new String(zkClient.getData.watched.forPath("/free2wheelers/stationInformation/topic"))
-
-    val stationDataNYC = new String(zkClient.getData.watched.forPath("/free2wheelers/stationDataNYC/topic"))
+    val nycStationTopic = new String(zkClient.getData.watched.forPath("/free2wheelers/stationDataNYC/topic"))
+    val sfStationTopic = new String(zkClient.getData.watched.forPath("/free2wheelers/stationDataSF/topic"))
 
     val checkpointLocation = new String(
       zkClient.getData.watched.forPath("/free2wheelers/output/checkpointLocation"))
@@ -35,63 +32,39 @@ object StationApp {
       zkClient.getData.watched.forPath("/free2wheelers/output/dataLocation"))
 
     val spark = SparkSession.builder
-      .appName("NewYorkStationTransformer")
+      .appName("StationConsumer")
       .getOrCreate()
 
-    import spark.implicits._
 
-    val stationInformationDF = spark.readStream
+    val nycStationDF = spark.readStream
       .format("kafka")
-      .option("kafka.bootstrap.servers", kafkaBrokers)
-      .option("subscribe", stationInformationTopic)
+      .option("kafka.bootstrap.servers", stationKafkaBrokers)
+      .option("subscribe", nycStationTopic)
       .option("startingOffsets", "latest")
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
-      .transform(stationInformationJson2DF(_, spark))
-      .withColumn("timestamp", $"last_updated" cast TimestampType)
-      .drop("last_updated")
-      .withWatermark("timestamp", "90 seconds")
+      .transform(nycStationStatusJson2DF(_, spark))
 
-    val stationStatusDF = spark.readStream
+    val sfStationDF = spark.readStream
       .format("kafka")
-      .option("kafka.bootstrap.servers", kafkaBrokers)
-      .option("subscribe", stationStatusTopic)
+      .option("kafka.bootstrap.servers", stationKafkaBrokers)
+      .option("subscribe", sfStationTopic)
       .option("startingOffsets", "latest")
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
-      .transform(stationStatusJson2DF(_, spark))
-      .withColumn("timestamp", $"last_updated" cast TimestampType)
-      .withWatermark("timestamp", "30 seconds")
+      .transform(sfStationStatusJson2DF(_, spark))
 
-    val stationDataDF = stationStatusDF
-      .join(stationInformationDF
-        .withColumnRenamed("station_id", "i_station_id")
-        .withColumnRenamed("timestamp", "i_timestamp")
-        , expr(
-          """
-            |station_id=i_station_id AND
-            |timestamp <= i_timestamp + interval 90 seconds  AND
-            |timestamp >= i_timestamp
-          """.stripMargin),
-        "left_outer")
-      .filter($"name".isNotNull)
-      .as[StationData]
-      .groupByKey(r => r.station_id)
-      .reduceGroups((r1, r2) => if (r1.timestamp.after(r2.timestamp)) r1 else r2)
-      .map(_._2)
-      .drop("timestamp")
-      .orderBy($"station_id")
-
-    stationDataDF
-      .toJSON
-      .selectExpr("CAST(value AS STRING)")
+    nycStationDF
+      .union(sfStationDF)
       .writeStream
-      .format("kafka")
-      .outputMode("complete")
+      .format("csv")
+      .outputMode("append")
+      .option("header", true)
+      .option("truncate", false)
       .option("checkpointLocation", checkpointLocation)
-      .option("topic", stationDataNYC)
-      .option("kafka.bootstrap.servers", kafkaBrokers)
+      .option("path", outputLocation)
       .start()
       .awaitTermination()
+
   }
 }
