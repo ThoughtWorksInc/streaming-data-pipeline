@@ -10,6 +10,18 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.TimestampType
 
 object StationPartitionByTimeApp {
+  def getLatestModifiedSubPath(spark: SparkSession, path: String): String = {
+    import org.apache.hadoop.fs.{FileStatus, FileSystem, Path}
+    import java.net.URI
+
+    val configuration = spark.sparkContext.hadoopConfiguration
+    val statuses = FileSystem.get(new URI(path), configuration).listStatus(new Path(path))
+    val metadataFileName = "_spark_metadata"
+    statuses.filter(s => !s.getPath.getName.equalsIgnoreCase(metadataFileName))
+      .sorted(Ordering.by((_: FileStatus).getModificationTime).reverse)
+      .head.getPath.toString
+  }
+
   def main(args: Array[String]): Unit = {
 
     val retryPolicy = new ExponentialBackoffRetry(1000, 3)
@@ -24,8 +36,7 @@ object StationPartitionByTimeApp {
 
     val topic = new String(zkClient.getData.watched.forPath("/free2wheelers/stationStatus/topic"))
 
-    //TODO: change this to use the latest location when it's available
-    val latestStationInfoLocation = new String(
+    val stationInfoLocation = new String(
       zkClient.getData.watched.forPath("/free2wheelers/stationInformation/dataLocation"))
 
     val checkpointLocation = new String(
@@ -42,7 +53,7 @@ object StationPartitionByTimeApp {
     val windowSpec = Window.partitionBy($"station_id").orderBy($"last_updated".desc)
     val stationInformationDF = spark
       .read
-      .parquet(latestStationInfoLocation)
+      .parquet(getLatestModifiedSubPath(spark, stationInfoLocation))
       .transform(df => stationInformationJson2DF(df, spark))
       .dropDuplicates("station_id", "last_updated")
       .withColumn("rn", row_number.over(windowSpec))
