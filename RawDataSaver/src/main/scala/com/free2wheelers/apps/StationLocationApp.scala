@@ -3,6 +3,7 @@ package com.free2wheelers.apps
 import org.apache.spark.sql.SparkSession
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
+import org.apache.spark.sql.functions._
 
 object StationLocationApp {
   def main(args: Array[String]): Unit = {
@@ -42,7 +43,9 @@ object StationLocationApp {
       .option("failOnDataLoss", false)
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
+      .withColumn("date", date_format(current_date(), "yyyy-MM-dd"))
       .writeStream
+      .partitionBy("date")
       .outputMode("append")
       .format("parquet")
       .option("checkpointLocation", checkpointLocation)
