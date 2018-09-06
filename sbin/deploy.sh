@@ -120,9 +120,11 @@ echo "====Raw Data Saver Deployed===="
 '
 
 
-echo "====Copy Station Consumer Jar to EMR===="
+echo "====Copy Station Consumers Jar to EMR===="
 scp StationConsumer/target/scala-2.11/free2wheelers-station-consumer_2.11-0.0.1.jar emr-master.xian-summer-2018.training:/tmp/
-echo "====Station Consumer Jar Copied to EMR===="
+
+scp StationTranformerNYC/target/scala-2.11/free2wheelers-station-transformer-nyc_2.11-0.0.1.jar emr-master.xian-summer-2018.training:/tmp/
+echo "====Station Consumers Jar Copied to EMR===="
 
 scp sbin/go.sh emr-master.xian-summer-2018.training:/tmp/go.sh
 
@@ -132,15 +134,18 @@ set -e
 source /tmp/go.sh
 
 
-echo "====Kill Old Station Consumer===="
+echo "====Kill Old Station Consumers===="
 
 kill_application "StationApp"
+kill_application "StationTransformerNYC"
 
-echo "====Old Station Consumer Killed===="
+echo "====Old Station Consumers Killed===="
 
-echo "====Deploy Station Consumer===="
+echo "====Deploy Station Consumers===="
 
 nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationApp --name StationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --conf spark.executor.memory=2g --conf spark.cores.max=1 /tmp/free2wheelers-station-consumer_2.11-0.0.1.jar kafka.xian-summer-2018.training:2181 1>/tmp/station-consumer.log 2>/tmp/station-consumer.error.log &
 
-echo "====Station Consumer Deployed===="
+nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationApp --name StationTransformerNYC --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --conf spark.executor.memory=2g --conf spark.cores.max=1 /tmp/free2wheelers-station-transformer-nyc_2.11-0.0.1.jar kafka.xian-summer-2018.training:2181 1>/tmp/station-transformer-nyc.log 2>/tmp/station-transformer-nyc.error.log &
+
+echo "====Station Consumers Deployed===="
 '

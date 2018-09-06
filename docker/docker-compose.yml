@@ -147,5 +147,21 @@ services:
           - streaming-data-internal
         restart: on-failure
 
+    station-transformer-nyc:
+        build:
+            context: ../StationTransformerNYC
+        depends_on:
+          - zookeeper-seed
+          - hadoop-seed
+          - kafka
+          - station-status-producer
+          - station-information-producer
+        volumes:
+          - ~/.ivy2:/root/.ivy2:rw
+        command: ["./wait-for.sh", "zookeeper:2181", "-t", "30"]
+        networks:
+          - streaming-data-internal
+        restart: on-failure
+
 networks:
     streaming-data-internal:
