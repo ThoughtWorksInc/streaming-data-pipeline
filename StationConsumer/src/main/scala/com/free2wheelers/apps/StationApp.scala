@@ -54,11 +54,15 @@ object StationApp {
       .selectExpr("CAST(value AS STRING) as raw_payload")
       .transform(sfStationStatusJson2DF(_, spark))
 
+    import spark.implicits._
+
     nycStationDF
       .union(sfStationDF)
+      .groupByKey(r=>r.getAs[String]("station_id"))
+      .reduceGroups((r1,r2)=>if (r1.getAs[Long]("last_updated") > r2.getAs[Long]("last_updated")) r1 else r2)
       .writeStream
-      .format("csv")
-      .outputMode("append")
+      .format("overwriteCSV")
+      .outputMode("complete")
       .option("header", true)
       .option("truncate", false)
       .option("checkpointLocation", checkpointLocation)
