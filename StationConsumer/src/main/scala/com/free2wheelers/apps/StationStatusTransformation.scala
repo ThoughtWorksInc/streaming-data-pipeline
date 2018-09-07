@@ -53,6 +53,6 @@ object StationStatusTransformation {
     import spark.implicits._
 
     jsonDF.select(from_json($"raw_payload", ScalaReflection.schemaFor[StationStatus].dataType) as "status")
-      .select("status.*")
+      .select($"status.*")
   }
 }
