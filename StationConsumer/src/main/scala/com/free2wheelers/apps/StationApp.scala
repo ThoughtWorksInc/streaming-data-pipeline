@@ -54,8 +54,9 @@ object StationApp {
 
     nycStationDF
       .union(sfStationDF)
-      .groupByKey(r => r.getAs[String]("station_id"))
-      .reduceGroups((r1, r2) => if (r1.getAs[Long]("last_updated") > r2.getAs[Long]("last_updated")) r1 else r2)
+      .as[StationStatus]
+      .groupByKey(r=>r.station_id)
+      .reduceGroups((r1,r2)=>if (r1.last_updated > r2.last_updated) r1 else r2)
       .map(_._2)
       .writeStream
       .format("overwriteCSV")
