@@ -16,7 +16,7 @@ Host emr-master.chicago-fall-2018.training
 
 Host *.chicago-fall-2018.training
 	ForwardAgent yes
-	ProxyCommand ssh 13.229.192.72 -W %h:%p 2>/dev/null
+	ProxyCommand ssh 18.223.142.203 -W %h:%p 2>/dev/null
 	User ec2-user
     StrictHostKeyChecking no
 " >> ~/.ssh/config
