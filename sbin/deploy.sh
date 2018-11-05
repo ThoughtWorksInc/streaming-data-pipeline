@@ -121,17 +121,17 @@ echo "====Raw Data Saver Deployed===="
 
 
 echo "====Copy Station Consumers Jar to EMR===="
-scp StationConsumer/target/scala-2.11/free2wheelers-station-consumer_2.11-0.0.1.jar emr-master.chicago-fall-2018.training:/tmp/
+scp StationConsumer/target/scala-2.11/free2wheelers-station-consumer_2.11-0.0.1.jar emr-master.chicago-fall-2018.training:/home/hadoop/free2wheelers/
 
-scp StationTransformerNYC/target/scala-2.11/free2wheelers-station-transformer-nyc_2.11-0.0.1.jar emr-master.chicago-fall-2018.training:/tmp/
+scp StationTransformerNYC/target/scala-2.11/free2wheelers-station-transformer-nyc_2.11-0.0.1.jar emr-master.chicago-fall-2018.training:/home/hadoop/free2wheelers/
 echo "====Station Consumers Jar Copied to EMR===="
 
-scp sbin/go.sh emr-master.chicago-fall-2018.training:/tmp/go.sh
+scp sbin/go.sh emr-master.chicago-fall-2018.training:/home/hadoop/free2wheelers/go.sh
 
 ssh emr-master.chicago-fall-2018.training '
 set -e
 
-source /tmp/go.sh
+source /home/hadoop/free2wheelers/go.sh
 
 
 echo "====Kill Old Station Consumers===="
@@ -143,9 +143,9 @@ echo "====Old Station Consumers Killed===="
 
 echo "====Deploy Station Consumers===="
 
-nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationApp --name StationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --conf spark.executor.memory=2g --conf spark.cores.max=1 /tmp/free2wheelers-station-consumer_2.11-0.0.1.jar kafka.chicago-fall-2018.training:2181 1>/tmp/station-consumer.log 2>/tmp/station-consumer.error.log &
+nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationApp --name StationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --conf spark.executor.memory=2g --conf spark.cores.max=1 /home/hadoop/free2wheelers/free2wheelers-station-consumer_2.11-0.0.1.jar kafka.chicago-fall-2018.training:2181 1>/home/hadoop/free2wheelers/logs/station-consumer.log 2>/home/hadoop/free2wheelers/logs/station-consumer.error.log &
 
-nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationApp --name StationTransformerNYC --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --conf spark.executor.memory=2g --conf spark.cores.max=1 /tmp/free2wheelers-station-transformer-nyc_2.11-0.0.1.jar kafka.chicago-fall-2018.training:2181 1>/tmp/station-transformer-nyc.log 2>/tmp/station-transformer-nyc.error.log &
+nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationApp --name StationTransformerNYC --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --conf spark.executor.memory=2g --conf spark.cores.max=1 /home/hadoop/free2wheelers/free2wheelers-station-transformer-nyc_2.11-0.0.1.jar kafka.chicago-fall-2018.training:2181 1>/home/hadoop/free2wheelers/logs/station-transformer-nyc.log 2>/home/hadoop/free2wheelers/logs/station-transformer-nyc.error.log &
 
 echo "====Station Consumers Deployed===="
 '
