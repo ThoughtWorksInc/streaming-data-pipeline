@@ -1,6 +1,5 @@
 package com.free2wheelers.apps
 
-import java.sql.Timestamp
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
@@ -32,7 +31,7 @@ object StationStatusTransformation {
           x("empty_slots").asInstanceOf[Double].toInt,
           x("extra").asInstanceOf[Map[String, Any]]("renting").asInstanceOf[Double] == 1,
           x("extra").asInstanceOf[Map[String, Any]]("returning").asInstanceOf[Double] == 1,
-          x("timestamp").asInstanceOf[Timestamp],
+          Instant.from(DateTimeFormatter.ISO_INSTANT.parse(x("timestamp").asInstanceOf[String])).getEpochSecond,
           x("id").asInstanceOf[String],
           x("name").asInstanceOf[String],
           x("latitude").asInstanceOf[Double],

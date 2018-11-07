@@ -1,8 +1,5 @@
 package com.free2wheelers.apps
 
-import java.sql.Timestamp
-import java.time.Instant
-
 import com.free2wheelers.apps.StationStatusTransformation.nycStationStatusJson2DF
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.ScalaReflection
@@ -48,7 +45,7 @@ class StationStatusTransformationTest extends FeatureSpec with Matchers with Giv
       resultDF1.schema.fields(3).name should be("is_returning")
       resultDF1.schema.fields(3).dataType.typeName should be("boolean")
       resultDF1.schema.fields(4).name should be("last_updated")
-      resultDF1.schema.fields(4).dataType.typeName should be("timestamp")
+      resultDF1.schema.fields(4).dataType.typeName should be("long")
       resultDF1.schema.fields(5).name should be("station_id")
       resultDF1.schema.fields(5).dataType.typeName should be("string")
       resultDF1.schema.fields(6).name should be("name")
@@ -63,7 +60,7 @@ class StationStatusTransformationTest extends FeatureSpec with Matchers with Giv
       row1.get(1) should be(41)
       row1.get(2) shouldBe true
       row1.get(3) shouldBe true
-      row1.get(4) should be(Timestamp.from(Instant.ofEpochSecond(1536242527L)))
+      row1.get(4) should be(1536242527)
       row1.get(5) should be("83")
       row1.get(6) should be("Atlantic Ave & Fort Greene Pl")
       row1.get(7) should be(40.68382604)
