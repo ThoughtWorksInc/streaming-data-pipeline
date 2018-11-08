@@ -27,9 +27,14 @@ WORKDIR /root
 EXPOSE 2181
 EXPOSE 18080
 EXPOSE 8080
+EXPOSE 7077
 
 ENV PATH "$PATH:/root/spark-2.3.0-bin-hadoop2.7/sbin:/root/spark-2.3.0-bin-hadoop2.7/bin:/root/kafka_2.11-2.0.0/bin"
+
+CMD ["/bin/bash", "./sbin/buildAll.sh"]
 
 COPY setup.sh /root/
 
 CMD ["/bin/bash", "/root/setup.sh"]
+
+Volume ["./apps/CitibikeApiProducer/build/libs", "./apps/StationConsumer/target/scala-2.11", "./apps/StationTransformerNYC/target/scala-2.11", "./apps/RawDataSaver/target/scala-2.11"]
