@@ -31,7 +31,7 @@ object StationStatusTransformation {
           x("empty_slots").asInstanceOf[Double].toInt,
           x("extra").asInstanceOf[Map[String, Any]]("renting").asInstanceOf[Double] == 1,
           x("extra").asInstanceOf[Map[String, Any]]("returning").asInstanceOf[Double] == 1,
-          Instant.from(DateTimeFormatter.ISO_INSTANT.parse(x("timestamp").asInstanceOf[String])).getEpochSecond,
+          x("timestamp").asInstanceOf[String],
           x("id").asInstanceOf[String],
           x("name").asInstanceOf[String],
           x("latitude").asInstanceOf[Double],
@@ -49,10 +49,17 @@ object StationStatusTransformation {
       .select($"status.*")
   }
 
+  val epochSecondToDatetimeString: Long => String = epochSecond => {
+    DateTimeFormatter.ISO_INSTANT.format(Instant.ofEpochSecond(epochSecond))
+  }
+
   def nycStationStatusJson2DF(jsonDF: DataFrame, spark: SparkSession): DataFrame = {
     import spark.implicits._
 
+    val epochSecondToString = udf(epochSecondToDatetimeString)
+
     jsonDF.select(from_json($"raw_payload", ScalaReflection.schemaFor[StationStatus].dataType) as "status")
       .select($"status.*")
+      .withColumn("last_updated", epochSecondToString($"last_updated"))
   }
 }

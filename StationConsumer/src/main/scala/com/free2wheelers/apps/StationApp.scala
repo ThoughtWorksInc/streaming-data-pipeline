@@ -1,9 +1,11 @@
 package com.free2wheelers.apps
 
+import java.time.Instant
+
 import com.free2wheelers.apps.StationStatusTransformation._
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{Dataset, Row, SparkSession}
 
 object StationApp {
 
@@ -32,8 +34,6 @@ object StationApp {
       .appName("StationConsumer")
       .getOrCreate()
 
-    import spark.implicits._
-
     val nycStationDF = spark.readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", stationKafkaBrokers)
@@ -52,12 +52,7 @@ object StationApp {
       .selectExpr("CAST(value AS STRING) as raw_payload")
       .transform(sfStationStatusJson2DF(_, spark))
 
-    nycStationDF
-      .union(sfStationDF)
-      .as[StationStatus]
-      .groupByKey(r=>r.station_id)
-      .reduceGroups((r1,r2)=>if (r1.last_updated > r2.last_updated) r1 else r2)
-      .map(_._2)
+    unionStationData(nycStationDF, sfStationDF, spark)
       .writeStream
       .format("overwriteCSV")
       .outputMode("complete")
@@ -67,6 +62,20 @@ object StationApp {
       .option("path", outputLocation)
       .start()
       .awaitTermination()
+  }
 
+  def unionStationData(nycStationDF: Dataset[Row], sfStationDF: Dataset[Row], spark: SparkSession): Dataset[StationStatus] = {
+    import spark.implicits._
+
+    nycStationDF
+      .union(sfStationDF)
+      .as[StationStatus]
+      .groupByKey(row => row.station_id)
+      .reduceGroups((row1, row2) => {
+        val time1 = Instant.parse(row1.last_updated)
+        val time2 = Instant.parse(row2.last_updated)
+        if (time1.isAfter(time2)) row1 else row2
+      })
+      .map(_._2)
   }
 }
