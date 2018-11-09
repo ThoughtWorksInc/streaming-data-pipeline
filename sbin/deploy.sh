@@ -121,12 +121,14 @@ echo "====Raw Data Saver Deployed===="
 
 
 echo "====Copy Station Consumers Jar to EMR===="
-scp StationConsumer/target/scala-2.11/free2wheelers-station-consumer_2.11-0.0.1.jar emr-master.chicago-fall-2018.training:/home/hadoop/free2wheelers/
+export JAR_HOME=/home/hadoop/free2wheelers
+mkdir -p $JAR_HOME
+scp StationConsumer/target/scala-2.11/free2wheelers-station-consumer_2.11-0.0.1.jar emr-master.chicago-fall-2018.training:$JAR_HOME
 
-scp StationTransformerNYC/target/scala-2.11/free2wheelers-station-transformer-nyc_2.11-0.0.1.jar emr-master.chicago-fall-2018.training:/home/hadoop/free2wheelers/
+scp StationTransformerNYC/target/scala-2.11/free2wheelers-station-transformer-nyc_2.11-0.0.1.jar emr-master.chicago-fall-2018.training:$JAR_HOME
 echo "====Station Consumers Jar Copied to EMR===="
 
-scp sbin/go.sh emr-master.chicago-fall-2018.training:/home/hadoop/free2wheelers/go.sh
+scp sbin/go.sh emr-master.chicago-fall-2018.training:$JAR_HOME/go.sh
 
 ssh emr-master.chicago-fall-2018.training '
 set -e
