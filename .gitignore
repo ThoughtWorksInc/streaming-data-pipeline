@@ -12,7 +12,8 @@
 
 # Build
 */build
-*/project
+*/*/target/
+*/*/build.properties
 */target
 */out/
 docker/*/*.jar
@@ -21,7 +22,7 @@ docker/*/*.jar
 */application.log.*
 */application.log
 derby.log
-project/
+#project/
 target/
 
 # Misc
