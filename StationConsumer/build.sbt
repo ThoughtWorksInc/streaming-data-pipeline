@@ -16,7 +16,7 @@ lazy val root = (project in file(".")).
       "org.apache.kafka" %% "kafka" % "0.10.0.1" % "test",
       "org.apache.curator" % "curator-test" % "2.10.0" % "test",
       "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
-      "org.apache.spark" %% "spark-sql" % sparkVersion % "provided",
+      "org.apache.spark" %% "spark-sql" % sparkVersion ,
       "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion,
       "org.apache.spark" %% "spark-streaming" % sparkVersion  % "provided",
       "org.apache.spark" %% "spark-streaming-kafka-0-10" % sparkVersion
@@ -25,10 +25,18 @@ lazy val root = (project in file(".")).
 
 assemblyMergeStrategy in assembly := {
   case PathList("org","apache", xs @ _*) => MergeStrategy.last
+  case PathList("javax","inject", xs @ _*) => MergeStrategy.last
+  case PathList("org","glassfish", xs @ _*) => MergeStrategy.last
+  case PathList("net","jpountz", xs @ _*) => MergeStrategy.last
+  case PathList("org", "aopalliance",xs @ _*) => MergeStrategy.last
+  case PathList("net","jpountz", xs @ _*) => MergeStrategy.last
+  case "git.properties" => MergeStrategy.last
+
   case x =>
     val oldStrategy = (assemblyMergeStrategy in assembly).value
     oldStrategy(x)
 }
+
 
 test in assembly := {}
 
