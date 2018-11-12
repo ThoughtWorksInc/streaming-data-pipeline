@@ -20,7 +20,7 @@ nohup kafka-server-start.sh kafka.properties 1> /tmp/kafka.log  2>/tmp/kafka.err
 
 start-master.sh -p 7077
 
-start-slave.sh 127.0.0.1:7077
+start-slave.sh spark://$HOST_NAME:7077
 
 mkdir -p /tmp/spark-events && start-history-server.sh
 
@@ -79,19 +79,19 @@ nohup java -jar /apps/CitibikeApiProducer/build/libs/free2wheelers-citibike-apis
 
 echo "====Deploy Raw Data Saver===="
 
-nohup spark-submit --master spark://$HOST_NAME:7077 --class com.free2wheelers.apps.StationLocationApp --name StationStatusSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 1024M --conf spark.executor.memory=2g --conf spark.cores.max=1 /apps/RawDataSaver/target/scala-2.11/free2wheelers-raw-data-saver_2.11-0.0.1.jar localhost:2181 "/free2wheelers/stationStatus" 1>/tmp/apps/raw-station-status-data-saver.log 2>/tmp/apps/raw-station-status-data-saver.error.log &
+nohup spark-submit --master spark://$HOST_NAME:7077 --class com.free2wheelers.apps.StationLocationApp --name StationStatusSaverApp --driver-memory 1024M --conf spark.executor.memory=2g --conf spark.cores.max=1 /apps/RawDataSaver/target/scala-2.11/free2wheelers-raw-data-saver-assembly-0.0.1.jar localhost:2181 "/free2wheelers/stationStatus" 1>/tmp/apps/raw-station-status-data-saver.log 2>/tmp/apps/raw-station-status-data-saver.error.log &
 
-nohup spark-submit --master spark://$HOST_NAME:7077 --class com.free2wheelers.apps.StationLocationApp --name StationInformationSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 1024M --conf spark.executor.memory=2g --conf spark.cores.max=1 /apps/RawDataSaver/target/scala-2.11/free2wheelers-raw-data-saver_2.11-0.0.1.jar localhost:2181 "/free2wheelers/stationInformation" 1>/tmp/apps/raw-station-information-data-saver.log 2>/tmp/apps/raw-station-information-data-saver.error.log &
+nohup spark-submit --master spark://$HOST_NAME:7077 --class com.free2wheelers.apps.StationLocationApp --name StationInformationSaverApp --driver-memory 1024M --conf spark.executor.memory=2g --conf spark.cores.max=1 /apps/RawDataSaver/target/scala-2.11/free2wheelers-raw-data-saver-assembly-0.0.1.jar localhost:2181 "/free2wheelers/stationInformation" 1>/tmp/apps/raw-station-information-data-saver.log 2>/tmp/apps/raw-station-information-data-saver.error.log &
 
-nohup spark-submit --master spark://$HOST_NAME:7077 --class com.free2wheelers.apps.StationLocationApp --name StationDataSFSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 1024M --conf spark.executor.memory=2g --conf spark.cores.max=1 /apps/RawDataSaver/target/scala-2.11/free2wheelers-raw-data-saver_2.11-0.0.1.jar localhost:2181 "/free2wheelers/stationDataSF" 1>/tmp/apps/raw-station-data-sf-saver.log 2>/tmp/apps/raw-station-data-sf-saver.error.log &
+nohup spark-submit --master spark://$HOST_NAME:7077 --class com.free2wheelers.apps.StationLocationApp --name StationDataSFSaverApp --driver-memory 1024M --conf spark.executor.memory=2g --conf spark.cores.max=1 /apps/RawDataSaver/target/scala-2.11/free2wheelers-raw-data-saver-assembly-0.0.1.jar localhost:2181 "/free2wheelers/stationDataSF" 1>/tmp/apps/raw-station-data-sf-saver.log 2>/tmp/apps/raw-station-data-sf-saver.error.log &
 
 echo "====Raw Data Saver Deployed===="
 
 echo "====Deploy Station Consumers===="
 
-nohup spark-submit --master spark://$HOST_NAME:7077 --class com.free2wheelers.apps.StationApp --name StationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 1024M --conf spark.executor.memory=2g --conf spark.cores.max=1 /apps/StationConsumer/target/scala-2.11/free2wheelers-station-consumer_2.11-0.0.1.jar localhost:2181 1>/tmp/apps/station-consumer.log 2>/tmp/apps/station-consumer.error.log &
+nohup spark-submit --master spark://$HOST_NAME:7077 --class com.free2wheelers.apps.StationApp --name StationApp --driver-memory 1024M --conf spark.executor.memory=2g --conf spark.cores.max=1 /apps/StationConsumer/target/scala-2.11/free2wheelers-station-consumer-assembly-0.0.1.jar localhost:2181 1>/tmp/apps/station-consumer.log 2>/tmp/apps/station-consumer.error.log &
 
-nohup spark-submit --master spark://$HOST_NAME:7077 --class com.free2wheelers.apps.StationApp --name StationTransformerNYC --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 1024M --conf spark.executor.memory=2g --conf spark.cores.max=1 /apps/StationTransformerNYC/target/scala-2.11/free2wheelers-station-transformer-nyc_2.11-0.0.1.jar localhost:2181 1>/tmp/apps/station-transformer-nyc.log 2>/tmp/apps/station-transformer-nyc.error.log &
+nohup spark-submit --master spark://$HOST_NAME:7077 --class com.free2wheelers.apps.StationApp --name StationTransformerNYC --driver-memory 1024M --conf spark.executor.memory=2g --conf spark.cores.max=1 /apps/StationTransformerNYC/target/scala-2.11/free2wheelers-station-transformer-nyc-assembly-0.0.1.jar localhost:2181 1>/tmp/apps/station-transformer-nyc.log 2>/tmp/apps/station-transformer-nyc.error.log &
 
 echo "====Station Consumers Deployed===="
  
