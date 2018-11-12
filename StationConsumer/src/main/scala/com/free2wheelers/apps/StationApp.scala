@@ -37,6 +37,7 @@ object StationApp {
     val nycStationDF = spark.readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", stationKafkaBrokers)
+      .option("auto.offset.reset","latest")
       .option("subscribe", nycStationTopic)
       .option("startingOffsets", "latest")
       .option("failOnDataLoss","false")
@@ -47,6 +48,7 @@ object StationApp {
     val sfStationDF = spark.readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", stationKafkaBrokers)
+      .option("auto.offset.reset","latest")
       .option("subscribe", sfStationTopic)
       .option("startingOffsets", "latest")
       .option("failOnDataLoss","false")
