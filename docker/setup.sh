@@ -61,6 +61,10 @@ $zk_command create /free2wheelers/stationDataNYC/topic station_data_nyc
 $zk_command create /free2wheelers/stationDataNYC/checkpointLocation /tmp/free2wheelers/rawData/stationDataNYC/checkpoints
 $zk_command create /free2wheelers/stationDataNYC/dataLocation /tmp/free2wheelers/rawData/stationDataNYC/data
 
+$zk_command create /free2wheelers/stationDataMarseille ''
+$zk_command create /free2wheelers/stationDataMarseille/kafkaBrokers 127.0.0.1:9092
+$zk_command create /free2wheelers/stationDataMarseille/topic station_data_marseille
+
 $zk_command create /free2wheelers/output ''
 $zk_command create /free2wheelers/output/checkpointLocation /tmp/free2wheelers/stationMart/checkpoints
 $zk_command create /free2wheelers/output/dataLocation /tmp/free2wheelers/stationMart/data
@@ -74,7 +78,9 @@ nohup java -jar /apps/CitibikeApiProducer/build/libs/free2wheelers-citibike-apis
 nohup java -jar /apps/CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=station-san-francisco --kafka.brokers=$HOST_NAME:29092 1>/tmp/apps/station-san-francisco.log 2>/tmp/apps/station-san-francisco.error.log &
 
 nohup java -jar /apps/CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=station-status --kafka.brokers=$HOST_NAME:29092 1>/tmp/apps/station-status.log 2>/tmp/apps/station-status.error.log &
- 
+
+nohup java -jar /apps/CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=station-marseille --kafka.brokers=$HOST_NAME:29092 1>/tmp/apps/station-marseille.log 2>/tmp/apps/station-marseille.error.log &
+
  echo "====Producers Deployed===="
 
 echo "====Deploy Raw Data Saver===="
