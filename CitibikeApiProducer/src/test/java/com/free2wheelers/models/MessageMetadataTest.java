@@ -19,7 +19,7 @@ public class MessageMetadataTest {
         String expected = "{\"producer_id\": \"Producer-id\", " +
                 "\"size\": 12, " +
                 "\"message_id\": \"123e4567-e89b-12d3-a456-426655440000\", " +
-                "\"ingestion_time\": 1483246800000}";
+                "\"ingestion_time\": " + ingestionTime + "}";
 
         assertEquals(expected, metadata.toString());
     }
