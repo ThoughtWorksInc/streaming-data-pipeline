@@ -77,6 +77,8 @@ nohup java -jar /apps/CitibikeApiProducer/build/libs/free2wheelers-citibike-apis
 
 nohup java -jar /apps/CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=station-san-francisco --kafka.brokers=$HOST_NAME:29092 1>/tmp/apps/station-san-francisco.log 2>/tmp/apps/station-san-francisco.error.log &
 
+nohup java -jar /apps/CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=station-nyc --kafka.brokers=$HOST_NAME:29092 1>/tmp/apps/station-nyc.log 2>/tmp/apps/station-nyc.error.log &
+
 nohup java -jar /apps/CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=station-status --kafka.brokers=$HOST_NAME:29092 1>/tmp/apps/station-status.log 2>/tmp/apps/station-status.error.log &
 
 nohup java -jar /apps/CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=station-marseille --kafka.brokers=$HOST_NAME:29092 1>/tmp/apps/station-marseille.log 2>/tmp/apps/station-marseille.error.log &
