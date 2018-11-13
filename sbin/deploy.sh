@@ -164,4 +164,9 @@ echo "====Deploy File Checker===="
 nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.FileChecker --name FileCheckerApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-file-checker_2.11-0.0.1.jar /free2wheelers/stationMart/data 1>/tmp/file-checker.log 2>/tmp/file-checker.error.log &
 
 echo "====File Checker Deployed===="
+
 '
+
+echo "====copy dags to airflow machine===="
+scp -r ./airflow/dags airflow.chicago-fall-2018.training:~/airflow/
+echo "====dags copied to airflow machine===="
