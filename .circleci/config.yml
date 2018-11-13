@@ -14,9 +14,9 @@ jobs:
                     - java-dependencies-{{ checksum "./CitibikeApiProducer/build.gradle" }}
             - restore_cache:
                 keys:
-                    - scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt"}}-{{ checksum "./StationTransformerNYC/build.sbt"}}
+                    - scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt"}}-{{ checksum "./StationTransformerNYC/build.sbt"}}-{{ checksum "./FileChecker/build.sbt"}}
             - run:
-                command: ./sbin/buildAll.sh               
+                command: ./sbin/buildAll.sh
             - persist_to_workspace:
                 root: /home/circleci/project
                 paths:
@@ -24,10 +24,11 @@ jobs:
                     - RawDataSaver/target/
                     - StationConsumer/target/
                     - StationTransformerNYC/target/
+                    - FileChecker/target/
             - run:
                 command: ls /home/circleci/project/
             - save_cache:
-                key: scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt"}}-{{ checksum "./StationTransformerNYC/build.sbt"}}
+                key: scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt"}}-{{ checksum "./StationTransformerNYC/build.sbt"}}-{{ checksum "./FileChecker/build.sbt"}}
                 paths:
                     - "~/.ivy2/cache"
             - save_cache:
@@ -43,7 +44,7 @@ jobs:
                 at: /home/circleci/project
             - add_ssh_keys:
                 fingerprints:
-                    - "a1:70:2e:56:c5:3d:12:86:d0:4b:00:af:2c:c1:2a:c7"                
+                    - "a1:70:2e:56:c5:3d:12:86:d0:4b:00:af:2c:c1:2a:c7"
             - run:
                 command: ./sbin/deploy.sh
 
@@ -54,13 +55,12 @@ workflows:
             - build:
                 filters:
                     branches:
-                        only: 
+                        only:
                             - master
             - approve-deploy:
                 type: approval
-                requires: 
+                requires:
                     - build
             - deploy:
                 requires:
                     - approve-deploy
-

@@ -126,6 +126,10 @@ scp StationConsumer/target/scala-2.11/free2wheelers-station-consumer_2.11-0.0.1.
 scp StationTransformerNYC/target/scala-2.11/free2wheelers-station-transformer-nyc_2.11-0.0.1.jar emr-master.chicago-fall-2018.training:/tmp/
 echo "====Station Consumers Jar Copied to EMR===="
 
+echo "====Copy File Checker Jar to EMR===="
+scp FileChecker/target/scala-2.11/free2wheelers-file-checker_2.11-0.0.1.jar emr-master.chicago-fall-2018.training:/tmp/
+echo "====File Checker Jar Copied to EMR===="
+
 scp sbin/go.sh emr-master.chicago-fall-2018.training:/tmp/go.sh
 
 ssh emr-master.chicago-fall-2018.training '
@@ -141,6 +145,12 @@ kill_application "StationTransformerNYC"
 
 echo "====Old Station Consumers Killed===="
 
+echo "====Kill Old File Checker===="
+
+kill_application "FileCheckerApp"
+
+echo "====Old File Checker Killed===="
+
 echo "====Deploy Station Consumers===="
 
 nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationApp --name StationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-station-consumer_2.11-0.0.1.jar kafka.chicago-fall-2018.training:2181 1>/tmp/station-consumer.log 2>/tmp/station-consumer.error.log &
@@ -148,4 +158,10 @@ nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers
 nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationApp --name StationTransformerNYC --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-station-transformer-nyc_2.11-0.0.1.jar kafka.chicago-fall-2018.training:2181 1>/tmp/station-transformer-nyc.log 2>/tmp/station-transformer-nyc.error.log &
 
 echo "====Station Consumers Deployed===="
+
+echo "====Deploy File Checker===="
+
+nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.FileChecker --name FileCheckerApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-file-checker_2.11-0.0.1.jar /free2wheelers/stationMart/data 1>/tmp/file-checker.log 2>/tmp/file-checker.error.log &
+
+echo "====File Checker Deployed===="
 '

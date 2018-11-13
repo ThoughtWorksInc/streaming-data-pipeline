@@ -15,3 +15,6 @@ rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
 
 cd $DIR/../StationTransformerNYC && sbt test package
 rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
+
+cd $DIR/../FileChecker && sbt test package
+rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
