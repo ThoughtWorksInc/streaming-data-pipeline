@@ -23,6 +23,7 @@ object StationApp {
 
     val nycStationTopic = new String(zkClient.getData.watched.forPath("/free2wheelers/stationDataNYC/topic"))
     val sfStationTopic = new String(zkClient.getData.watched.forPath("/free2wheelers/stationDataSF/topic"))
+    val marseilleStationTopic = new String(zkClient.getData.watched.forPath("/free2wheelers/stationDataMarseille/topic"))
 
     val checkpointLocation = new String(
       zkClient.getData.watched.forPath("/free2wheelers/output/checkpointLocation"))
@@ -56,7 +57,19 @@ object StationApp {
       .selectExpr("CAST(value AS STRING) as raw_payload")
       .transform(sfStationStatusJson2DF(_, spark))
 
-    unionStationData(nycStationDF, sfStationDF, spark)
+    val marseilleStationDF = spark.readStream
+      .format("kafka")
+      .option("kafka.bootstrap.servers", stationKafkaBrokers)
+      .option("subscribe", marseilleStationTopic)
+      .option("startingOffsets", "latest")
+      .option("failOnDataLoss","false")
+      .load()
+      .selectExpr("CAST(value AS STRING) as raw_payload")
+      .transform(sfStationStatusJson2DF(_, spark))
+
+    val version2DF = sfStationDF.union(marseilleStationDF)
+
+    unionStationData(nycStationDF, version2DF, spark)
       .writeStream
       .format("overwriteCSV")
       .outputMode("complete")
@@ -68,11 +81,10 @@ object StationApp {
       .awaitTermination()
   }
 
-  def unionStationData(nycStationDF: Dataset[Row], sfStationDF: Dataset[Row], spark: SparkSession): Dataset[StationStatus] = {
+  def unionStationData(nycStationDF: Dataset[Row], version2DF: Dataset[Row], spark: SparkSession): Dataset[StationStatus] = {
     import spark.implicits._
-
     nycStationDF
-      .union(sfStationDF)
+      .union(version2DF)
       .as[StationStatus]
       .groupByKey(row => row.station_id)
       .reduceGroups((row1, row2) => {
