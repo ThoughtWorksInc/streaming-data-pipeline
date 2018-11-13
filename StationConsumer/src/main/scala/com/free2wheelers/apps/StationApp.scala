@@ -3,14 +3,11 @@ package com.free2wheelers.apps
 import java.time.Instant
 
 import com.free2wheelers.apps.StationStatusTransformation._
-import com.typesafe.scalalogging.Logger
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
 
 object StationApp {
-
-  val logger = Logger("StationConsumer")
 
   def main(args: Array[String]): Unit = {
 
@@ -40,6 +37,7 @@ object StationApp {
     val nycStationDF = spark.readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", stationKafkaBrokers)
+      .option("auto.offset.reset","latest")
       .option("subscribe", nycStationTopic)
       .option("startingOffsets", "latest")
       .option("failOnDataLoss","false")
@@ -47,19 +45,16 @@ object StationApp {
       .selectExpr("CAST(value AS STRING) as raw_payload")
       .transform(nycStationStatusJson2DF(_, spark))
 
-    logger.info("NYC")
-
     val sfStationDF = spark.readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", stationKafkaBrokers)
+      .option("auto.offset.reset","latest")
       .option("subscribe", sfStationTopic)
       .option("startingOffsets", "latest")
       .option("failOnDataLoss","false")
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
       .transform(sfStationStatusJson2DF(_, spark))
-
-    logger.info("SF")
 
     unionStationData(nycStationDF, sfStationDF, spark)
       .writeStream
@@ -71,14 +66,12 @@ object StationApp {
       .option("path", outputLocation)
       .start()
       .awaitTermination()
-
-    logger.info("File written")
   }
 
   def unionStationData(nycStationDF: Dataset[Row], sfStationDF: Dataset[Row], spark: SparkSession): Dataset[StationStatus] = {
     import spark.implicits._
 
-    val unionDF = nycStationDF
+    nycStationDF
       .union(sfStationDF)
       .as[StationStatus]
       .groupByKey(row => row.station_id)
@@ -88,9 +81,5 @@ object StationApp {
         if (time1.isAfter(time2)) row1 else row2
       })
       .map(_._2)
-
-    logger.info("Union")
-
-    return unionDF
   }
 }
