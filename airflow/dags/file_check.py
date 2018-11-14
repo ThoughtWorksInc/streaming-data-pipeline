@@ -34,7 +34,7 @@ def notify_email(contextDict, **kwargs):
 
 file_check_task = """
 export AWS_DEFAULT_REGION=us-east-2
-step=$(aws emr add-steps --cluster-id j-23A3N2OTQ6ZES --steps Type=SPARK,Name="Test File Check",ActionOnFailure=CONTINUE,Args=[--class,com.free2wheelers.apps.FileChecker,/tmp/free2wheelers-file-checker_2.11-0.0.1.jar,/free2wheelers/stationMart/data] | python -c 'import json,sys;obj=json.load(sys.stdin);print obj.get("StepIds")[0];')
+step=$(aws emr add-steps --cluster-id j-23A3N2OTQ6ZES --steps Type=SPARK,Name="Test File Check",ActionOnFailure=CONTINUE,Args=[--queue,monitoring,--class,com.free2wheelers.apps.FileChecker,/tmp/free2wheelers-file-checker_2.11-0.0.1.jar,/free2wheelers/stationMart/data] | python -c 'import json,sys;obj=json.load(sys.stdin);print obj.get("StepIds")[0];')
 echo '========='$step
 aws emr wait step-complete --cluster-id j-23A3N2OTQ6ZES --step-id $step
 """
