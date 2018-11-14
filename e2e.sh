@@ -1,6 +1,6 @@
 echo "-----------------------------"
 echo "Adding synthetic message for SyntheticBikeStation to station_data_nyc"
-ssh -tt kafka.$TRAINING_COHORT.training <<endOfKafkaCommands
+ssh -tt kafka.$TRAINING_COHORT.training <<'endOfKafkaCommands'
     updated_timestamp=$(date +%s)
     kafka-console-producer --broker-list localhost:9092 --topic station_data_nyc <<< ""{\"station_id\":\"synthetic_id\",\"bikes_available\":30,\"docks_available\":7,\"is_renting\":true,\"is_returning\":true,\"last_updated\":$updated_timestamp,\"name\":\"SyntheticBikeStation\",\"latitude\":0.00,\"longitude\":0.00}""
     logout
@@ -28,7 +28,7 @@ echo ""
 # Put message on kafka queue
 echo "-----------------------------"
 echo "Adding synthetic message for SyntheticBikeStation to station_data_nyc"
-ssh -tt kafka.$TRAINING_COHORT.training <<endOfKafkaCommands
+ssh -tt kafka.$TRAINING_COHORT.training <<'endOfKafkaCommands'
     updated_timestamp=$(date +%s)
     kafka-console-producer --broker-list localhost:9092 --topic station_data_nyc <<< ""{\"station_id\":\"synthetic_id\",\"bikes_available\":30,\"docks_available\":7,\"is_renting\":true,\"is_returning\":true,\"last_updated\":$updated_timestamp,\"name\":\"SyntheticBikeStation\",\"latitude\":0.00,\"longitude\":0.00}""
     logout
