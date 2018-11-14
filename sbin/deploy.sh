@@ -25,12 +25,14 @@ echo "====SSH Config Updated===="
 
 echo "====Insert app config in zookeeper===="
 scp ./zookeeper/seed.sh kafka.chicago-fall-2018.training:/tmp/zookeeper-seed.sh
+scp ./kafka/seed.sh kafka.chicago-fall-2018.training:/tmp/kafka-seed.sh
 ssh kafka.chicago-fall-2018.training '
 set -e
 export hdfs_server="emr-master.chicago-fall-2018.training:8020"
 export kafka_server="kafka.chicago-fall-2018.training:9092"
 export zk_command="zookeeper-shell localhost:2181"
 sh /tmp/zookeeper-seed.sh
+sh /tmp/kafka-seed.sh
 '
 echo "====Inserted app config in zookeeper===="
 
