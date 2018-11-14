@@ -1,8 +1,8 @@
 echo "-----------------------------"
-echo "Adding synthetic message for SyntheticBikeStation to station_data_nyc"
+echo "Adding synthetic message for SyntheticBikeStation to station_data_marseille"
 ssh -tt kafka.$TRAINING_COHORT.training <<'endOfKafkaCommands'
     updated_timestamp=$(date +%s)
-    kafka-console-producer --broker-list localhost:9092 --topic station_data_nyc <<< ""{\"station_id\":\"synthetic_id\",\"bikes_available\":30,\"docks_available\":7,\"is_renting\":true,\"is_returning\":true,\"last_updated\":$updated_timestamp,\"name\":\"SyntheticBikeStation\",\"latitude\":0.00,\"longitude\":0.00}""
+    kafka-console-producer --broker-list localhost:9092 --topic station_data_marseille <<< ""{\"payload\":{\"network\":{\"company\":[\"TW\"],\"href\":\"/v2/networks/le-velo\",\"id\":\"le-velo\",\"license\":{\"name\":\"OpenLicence\",\"url\":\"https://developer.jcdecaux.com/#/opendata/licence\"},\"location\":{\"city\":\"City\",\"country\":\"US\",\"latitude\":0.00,\"longitude\":0.00},\"name\":\"SyntheticBikeStation\",\"stations\":[{\"empty_slots\":20,\"extra\":{\"address\":\"FakeStreet\",\"banking\":true,\"bonus\":false,\"last_update\":1542234250000,\"slots\":21,\"status\":\"OPEN\",\"uid\":\"syntheticID\"},\"free_bikes\":1,\"id\":\"syntheticID\",\"latitude\":0.00,\"longitude\":0.00,\"name\":\"SyntheticBikeStation\",\"timestamp\":$updated_timestamp}]}}}""
     logout
 endOfKafkaCommands
 echo "-----------------------------"
@@ -17,8 +17,8 @@ echo ""
 
 echo "-----------------------------"
 echo "Retrieving Previous Timestamp"
-previous_timestamp=$(ssh -tt emr-master.$TRAINING_COHORT.training 'hadoop fs -cat /free2wheelers/stationMart/data/part*.csv | grep SyntheticBikeStation | cut -d "," -f 5')
-previous_without_trail=${previous_timestamp%$'\r'}
+previous_record=$(ssh -tt emr-master.$TRAINING_COHORT.training 'hadoop fs -cat /free2wheelers/stationMart/data/part*.csv | grep SyntheticBikeStation' )
+previous_epoch=$(echo $previous_record | cut -d ',' -f 5 | date +%s)
 echo "-----------------------------"
 echo ""
 
@@ -27,10 +27,10 @@ echo ""
 # Creates a topic on the Kafka machine. Assumes that Station Consumer will accept any topic named 'station_data_*'
 # Put message on kafka queue
 echo "-----------------------------"
-echo "Adding synthetic message for SyntheticBikeStation to station_data_nyc"
+echo "Adding synthetic message for SyntheticBikeStation to station_data_marseille"
 ssh -tt kafka.$TRAINING_COHORT.training <<'endOfKafkaCommands'
     updated_timestamp=$(date +%s)
-    kafka-console-producer --broker-list localhost:9092 --topic station_data_nyc <<< ""{\"station_id\":\"synthetic_id\",\"bikes_available\":30,\"docks_available\":7,\"is_renting\":true,\"is_returning\":true,\"last_updated\":$updated_timestamp,\"name\":\"SyntheticBikeStation\",\"latitude\":0.00,\"longitude\":0.00}""
+    kafka-console-producer --broker-list localhost:9092 --topic station_data_marseille <<< ""{\"payload\":{\"network\":{\"company\":[\"TW\"],\"href\":\"/v2/networks/le-velo\",\"id\":\"le-velo\",\"license\":{\"name\":\"OpenLicence\",\"url\":\"https://developer.jcdecaux.com/#/opendata/licence\"},\"location\":{\"city\":\"City\",\"country\":\"US\",\"latitude\":0.00,\"longitude\":0.00},\"name\":\"SyntheticBikeStation\",\"stations\":[{\"empty_slots\":20,\"extra\":{\"address\":\"FakeStreet\",\"banking\":true,\"bonus\":false,\"last_update\":1542234250000,\"slots\":21,\"status\":\"OPEN\",\"uid\":\"syntheticID\"},\"free_bikes\":1,\"id\":\"syntheticID\",\"latitude\":0.00,\"longitude\":0.00,\"name\":\"SyntheticBikeStation\",\"timestamp\":$updated_timestamp}]}}}""
     logout
 endOfKafkaCommands
 echo "-----------------------------"
@@ -45,16 +45,17 @@ echo ""
 
 echo "-----------------------------"
 echo "Retrieving Actual Timestamp"
-actual_timestamp=$(ssh -tt emr-master.$TRAINING_COHORT.training 'hadoop fs -cat /free2wheelers/stationMart/data/part*.csv | grep SyntheticBikeStation | cut -d "," -f 5');
-actual_without_trail=${actual_timestamp%$'\r'}
+actual_record=$(ssh -tt emr-master.$TRAINING_COHORT.training 'hadoop fs -cat /free2wheelers/stationMart/data/part*.csv | grep SyntheticBikeStation' )
+actual_epoch=$(echo $actual_record | cut -d ',' -f 5 | date +%s)
 echo "-----------------------------"
 echo ""
 
-if (( $actual_without_trail > $previous_without_trail ));then
+if (( $actual_epoch > $previous_epoch ));then
     echo "Actual timestamp is greater than previous timestamp; record has been updated"    
     echo "Everything is Awesome"
 else
-    echo "Previous timestamp for SyntheticBikeStation is ${previous_without_trail}, actual Timestamp is ${actual_without_trail}"
+    echo "Previous record is ${previous_record}"
+    echo "Actual record is ${actual_record}"
     echo "Shit's on fire"
     exit 1
 fi
