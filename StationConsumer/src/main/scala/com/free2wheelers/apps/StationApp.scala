@@ -86,7 +86,7 @@ object StationApp {
     nycStationDF
       .union(version2DF)
       .as[StationStatus]
-      .groupByKey(row => row.station_id)
+      .groupByKey(row => (row.latitude, row.longitude))
       .reduceGroups((row1, row2) => {
         val time1 = Instant.parse(row1.last_updated)
         val time2 = Instant.parse(row2.last_updated)
