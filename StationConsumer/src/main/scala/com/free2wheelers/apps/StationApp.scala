@@ -65,7 +65,7 @@ object StationApp {
       .option("failOnDataLoss","false")
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
-      .transform(sfStationStatusJson2DF(_, spark))
+      .transform(marseilleStationStatusJson2DF(_, spark))
 
     val version2DF = sfStationDF.union(marseilleStationDF)
 
