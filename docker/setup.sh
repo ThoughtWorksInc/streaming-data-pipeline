@@ -61,6 +61,9 @@ $zk_command create /free2wheelers/stationDataNYC/topic station_data_nyc
 $zk_command create /free2wheelers/stationDataNYC/checkpointLocation /tmp/free2wheelers/rawData/stationDataNYC/checkpoints
 $zk_command create /free2wheelers/stationDataNYC/dataLocation /tmp/free2wheelers/rawData/stationDataNYC/data
 
+$zk_command create /free2wheelers/stationDataNYCV2 ''
+$zk_command create /free2wheelers/stationDataNYCV2/topic station_data_nyc_v2
+
 $zk_command create /free2wheelers/stationDataMarseille ''
 $zk_command create /free2wheelers/stationDataMarseille/kafkaBrokers 127.0.0.1:9092
 $zk_command create /free2wheelers/stationDataMarseille/topic station_data_marseille
