@@ -1,7 +1,8 @@
 echo "-----------------------------"
 echo "Adding synthetic message for SyntheticBikeStation to station_data_marseille"
+# The nested updated_timestamp will only work on Linux distributions, it wont work locally.
 ssh -tt kafka.$TRAINING_COHORT.training <<'endOfKafkaCommands'
-    updated_timestamp=$(date +"%FT%T")
+    updated_timestamp=$(date +"%FT%T.%6NZ")
     kafka-console-producer --broker-list localhost:9092 --topic station_data_marseille <<< ""{\"payload\":{\"network\":{\"company\":[\"TW\"],\"href\":\"/v2/networks/le-velo\",\"id\":\"le-velo\",\"license\":{\"name\":\"OpenLicence\",\"url\":\"https://developer.jcdecaux.com/#/opendata/licence\"},\"location\":{\"city\":\"City\",\"country\":\"US\",\"latitude\":0.00,\"longitude\":0.00},\"name\":\"SyntheticBikeStation\",\"stations\":[{\"empty_slots\":20,\"extra\":{\"address\":\"FakeStreet\",\"banking\":true,\"bonus\":false,\"last_update\":1542234250000,\"slots\":21,\"status\":\"OPEN\",\"uid\":\"syntheticID\"},\"free_bikes\":1,\"id\":\"syntheticID\",\"latitude\":0.00,\"longitude\":0.00,\"name\":\"SyntheticBikeStation\",\"timestamp\":\"$updated_timestamp\"}]}}}""
     logout
 endOfKafkaCommands
@@ -29,7 +30,7 @@ echo ""
 echo "-----------------------------"
 echo "Adding synthetic message for SyntheticBikeStation to station_data_marseille"
 ssh -tt kafka.$TRAINING_COHORT.training <<'endOfKafkaCommands'
-    updated_timestamp=$(date +"%FT%T")
+    updated_timestamp=$(date +"%FT%T.%6NZ")
     kafka-console-producer --broker-list localhost:9092 --topic station_data_marseille <<< ""{\"payload\":{\"network\":{\"company\":[\"TW\"],\"href\":\"/v2/networks/le-velo\",\"id\":\"le-velo\",\"license\":{\"name\":\"OpenLicence\",\"url\":\"https://developer.jcdecaux.com/#/opendata/licence\"},\"location\":{\"city\":\"City\",\"country\":\"US\",\"latitude\":0.00,\"longitude\":0.00},\"name\":\"SyntheticBikeStation\",\"stations\":[{\"empty_slots\":20,\"extra\":{\"address\":\"FakeStreet\",\"banking\":true,\"bonus\":false,\"last_update\":1542234250000,\"slots\":21,\"status\":\"OPEN\",\"uid\":\"syntheticID\"},\"free_bikes\":1,\"id\":\"syntheticID\",\"latitude\":0.00,\"longitude\":0.00,\"name\":\"SyntheticBikeStation\",\"timestamp\":\"$updated_timestamp\"}]}}}""
     logout
 endOfKafkaCommands
