@@ -50,26 +50,6 @@ services:
         depends_on:
           - zookeeper
 
-    station-information-producer:
-        build:
-            context: ../CitibikeApiProducer
-            dockerfile: Dockerfile-station-information
-        depends_on:
-          - kafka
-          - zookeeper-seed
-        networks:
-          - streaming-data-internal
-
-    station-status-producer:
-        build:
-            context: ../CitibikeApiProducer
-            dockerfile: Dockerfile-station-status
-        depends_on:
-          - kafka
-          - zookeeper-seed
-        networks:
-          - streaming-data-internal
-
     station-san-francisco-producer:
         build:
             context: ../CitibikeApiProducer
@@ -96,8 +76,6 @@ services:
             dockerfile: Dockerfile-station-information
         depends_on:
           - kafka
-          - station-information-producer
-          - station-status-producer
           - station-san-francisco-producer
           - hadoop-seed
           - zookeeper-seed
@@ -113,8 +91,6 @@ services:
             dockerfile: Dockerfile-station-status
         depends_on:
           - kafka
-          - station-information-producer
-          - station-status-producer
           - station-san-francisco-producer
           - hadoop-seed
           - zookeeper-seed
@@ -130,8 +106,6 @@ services:
             dockerfile: Dockerfile-station-data-SF
         depends_on:
           - kafka
-          - station-information-producer
-          - station-status-producer
           - station-san-francisco-producer
           - hadoop-seed
           - zookeeper-seed
@@ -147,25 +121,8 @@ services:
         depends_on:
           - zookeeper-seed
           - kafka
-          - station-status-producer
           - station-san-francisco-producer
           - raw-station-status-data-saver
-        volumes:
-          - ~/.ivy2:/root/.ivy2:rw
-        command: ["./wait-for.sh", "zookeeper:2181", "-t", "30"]
-        networks:
-          - streaming-data-internal
-        restart: on-failure
-
-    station-transformer-nyc:
-        build:
-            context: ../StationTransformerNYC
-        depends_on:
-          - zookeeper-seed
-          - hadoop-seed
-          - kafka
-          - station-status-producer
-          - station-information-producer
         volumes:
           - ~/.ivy2:/root/.ivy2:rw
         command: ["./wait-for.sh", "zookeeper:2181", "-t", "30"]
