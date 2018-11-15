@@ -130,8 +130,6 @@ echo "====Raw Data Saver Deployed===="
 
 echo "====Copy Station Consumers Jar to EMR===="
 scp StationConsumer/target/scala-2.11/free2wheelers-station-consumer_2.11-0.0.1.jar emr-master.chicago-fall-2018.training:/tmp/
-
-scp StationTransformerNYC/target/scala-2.11/free2wheelers-station-transformer-nyc_2.11-0.0.1.jar emr-master.chicago-fall-2018.training:/tmp/
 echo "====Station Consumers Jar Copied to EMR===="
 
 echo "====Copy File Checker Jar to EMR===="
@@ -162,8 +160,6 @@ echo "====Old File Checker Killed===="
 echo "====Deploy Station Consumers===="
 
 nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationApp --queue streaming --name StationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-station-consumer_2.11-0.0.1.jar kafka.chicago-fall-2018.training:2181 1>/tmp/station-consumer.log 2>/tmp/station-consumer.error.log &
-
-nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationApp --queue streaming --name StationTransformerNYC --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-station-transformer-nyc_2.11-0.0.1.jar kafka.chicago-fall-2018.training:2181 1>/tmp/station-transformer-nyc.log 2>/tmp/station-transformer-nyc.error.log &
 
 echo "====Station Consumers Deployed===="
 
