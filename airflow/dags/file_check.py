@@ -6,7 +6,7 @@ from airflow.utils.email import send_email
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2018, 11, 14),
+    'start_date': datetime.today().strftime('%Y-%m-%d'),
     'email': ['gchasifa@thoughtworks.com', 'sleblanc@thoughtworks.com'],
     'email_on_failure': False,
     'email_on_retry': False,
