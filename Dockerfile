@@ -37,4 +37,4 @@ COPY setup.sh /root/
 
 CMD ["/bin/bash", "/root/setup.sh"]
 
-Volume ["./apps/CitibikeApiProducer/build/libs", "./apps/StationConsumer/target/scala-2.11", "./apps/StationTransformerNYC/target/scala-2.11", "./apps/RawDataSaver/target/scala-2.11"]
+Volume ["./apps/CitibikeApiProducer/build/libs", "./apps/StationConsumer/target/scala-2.11", "./apps/RawDataSaver/target/scala-2.11"]

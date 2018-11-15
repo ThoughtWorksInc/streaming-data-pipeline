@@ -75,7 +75,7 @@ $zk_command create /free2wheelers/output/dataLocation /tmp/free2wheelers/station
 mkdir -p /tmp/apps/
 
 echo "====Deploy Producers===="
- 
+
 nohup java -jar /apps/CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=station-information --kafka.brokers=$HOST_NAME:29092 1>/tmp/apps/station-information.log 2>/tmp/apps/station-information.error.log &
 
 nohup java -jar /apps/CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=station-san-francisco --kafka.brokers=$HOST_NAME:29092 1>/tmp/apps/station-san-francisco.log 2>/tmp/apps/station-san-francisco.error.log &
@@ -101,8 +101,6 @@ echo "====Raw Data Saver Deployed===="
 echo "====Deploy Station Consumers===="
 
 nohup spark-submit --master spark://$HOST_NAME:7077 --class com.free2wheelers.apps.StationApp --name StationApp --driver-memory 1024M --conf spark.executor.memory=2g --conf spark.cores.max=1 /apps/StationConsumer/target/scala-2.11/free2wheelers-station-consumer-assembly-0.0.1.jar localhost:2181 1>/tmp/apps/station-consumer.log 2>/tmp/apps/station-consumer.error.log &
-
-nohup spark-submit --master spark://$HOST_NAME:7077 --class com.free2wheelers.apps.StationApp --name StationTransformerNYC --driver-memory 1024M --conf spark.executor.memory=2g --conf spark.cores.max=1 /apps/StationTransformerNYC/target/scala-2.11/free2wheelers-station-transformer-nyc-assembly-0.0.1.jar localhost:2181 1>/tmp/apps/station-transformer-nyc.log 2>/tmp/apps/station-transformer-nyc.error.log &
 
 echo "====Station Consumers Deployed===="
  
