@@ -81,7 +81,7 @@ object StationApp {
 
     val version2DF = sfStationDF.union(marseilleStationDF).union(nycV2DF)
 
-    unionStationData(nycStationDF, version2DF, spark)
+    unionStationData(version2DF, spark)
       .writeStream
       .format("overwriteCSV")
       .outputMode("complete")
@@ -93,10 +93,9 @@ object StationApp {
       .awaitTermination()
   }
 
-  def unionStationData(nycStationDF: Dataset[Row], version2DF: Dataset[Row], spark: SparkSession): Dataset[StationStatus] = {
+  def unionStationData(version2DF: Dataset[Row], spark: SparkSession): Dataset[StationStatus] = {
     import spark.implicits._
-    nycStationDF
-      .union(version2DF)
+      version2DF
       .as[StationStatus]
       .groupByKey(row => (row.latitude, row.longitude))
       .reduceGroups((row1, row2) => {

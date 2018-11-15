@@ -14,8 +14,7 @@ class StationAppTest extends FeatureSpec with Matchers {
 
     scenario("Should return timestamp string in last_updated column") {
       val df = List(StationStatus(4, 5, true, true, "2018-11-08T17:43:48.632000Z", "123", "Best SF Bikes", 0, 0)).toDF()
-
-      val result = unionStationData(df, df, spark)
+      val result = unionStationData(df, spark)
 
       result.schema.fields(4).name should be("last_updated")
       result.schema.fields(4).dataType should be(StringType)
@@ -26,9 +25,8 @@ class StationAppTest extends FeatureSpec with Matchers {
     scenario("Should return latest data for a given station based on latitude and longitude") {
       val sampleDataLatest = StationStatus(4, 5, true, true, "2018-11-08T17:43:48.632000Z", "123", "Best SF Bikes", 42.3443, -122.8685)
       val sampleData = StationStatus(4, 5, true, true, "2018-11-08T13:43:48.632000Z", "ajdj747858973897543", "Best SF Bikes", 42.3443, -122.8685)
-      val df1 = List(sampleDataLatest).toDF()
-      val df2 = List(sampleData).toDF()
-      val result = unionStationData(df1, df2, spark)
+      val df = List(sampleData, sampleDataLatest).toDF()
+      val result = unionStationData(df, spark)
 
       result.count() should be(1)
 
@@ -38,9 +36,8 @@ class StationAppTest extends FeatureSpec with Matchers {
     scenario("Should not group when stations share latitude coordinates but not longitude") {
       val sampleDataLatest = StationStatus(4, 5, true, true, "2018-11-08T17:43:48.632000Z", "123", "Best SF Bikes", 42.3443, -122.8685)
       val sampleData = StationStatus(4, 5, true, true, "2018-11-08T13:43:48.632000Z", "ajdj747858973897543", "Best SF Bikes", 42.3443, 23.654)
-      val df1 = List(sampleDataLatest).toDF()
-      val df2 = List(sampleData).toDF()
-      val result = unionStationData(df1, df2, spark)
+      val df = List(sampleData, sampleDataLatest).toDF()
+      val result = unionStationData(df, spark)
 
       result.count() should be(2)
     }
