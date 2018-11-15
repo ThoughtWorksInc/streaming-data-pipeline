@@ -36,17 +36,6 @@ object StationApp {
       .appName("StationConsumer")
       .getOrCreate()
 
-    val nycStationDF = spark.readStream
-      .format("kafka")
-      .option("kafka.bootstrap.servers", stationKafkaBrokers)
-      .option("auto.offset.reset","latest")
-      .option("subscribe", nycStationTopic)
-      .option("startingOffsets", "latest")
-      .option("failOnDataLoss","false")
-      .load()
-      .selectExpr("CAST(value AS STRING) as raw_payload")
-      .transform(nycStationStatusJson2DF(_, spark))
-
     val nycV2DF = spark.readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", stationKafkaBrokers)
