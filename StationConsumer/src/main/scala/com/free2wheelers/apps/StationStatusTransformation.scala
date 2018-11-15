@@ -3,7 +3,6 @@ package com.free2wheelers.apps
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
-import org.apache.spark.sql.catalyst.ScalaReflection
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{udf, _}
 import org.apache.spark.sql.{DataFrame, SparkSession}
@@ -88,15 +87,5 @@ object StationStatusTransformation {
 
   val epochSecondToDatetimeString: Long => String = epochSecond => {
     DateTimeFormatter.ISO_INSTANT.format(Instant.ofEpochSecond(epochSecond))
-  }
-
-  def nycStationStatusJson2DF(jsonDF: DataFrame, spark: SparkSession): DataFrame = {
-    import spark.implicits._
-
-    val epochSecondToString = udf(epochSecondToDatetimeString)
-
-    jsonDF.select(from_json($"raw_payload", ScalaReflection.schemaFor[StationStatus].dataType) as "status")
-      .select($"status.*")
-      .withColumn("last_updated", epochSecondToString($"last_updated"))
   }
 }
