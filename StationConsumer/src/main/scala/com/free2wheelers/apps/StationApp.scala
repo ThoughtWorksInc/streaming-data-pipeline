@@ -2,7 +2,7 @@ package com.free2wheelers.apps
 
 import java.time.Instant
 
-import com.free2wheelers.apps.StationStatusTransformation._
+import com.free2wheelers.apps.StationTransformer._
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.spark.sql.{Dataset, Row, SparkSession}

@@ -1,10 +1,10 @@
 package com.free2wheelers.apps
 
-import com.free2wheelers.apps.StationStatusTransformation.{marseilleStationStatusJson2DF, sfStationStatusJson2DF}
+import com.free2wheelers.apps.StationTransformer.{marseilleStationStatusJson2DF, sfStationStatusJson2DF}
 import org.apache.spark.sql.SparkSession
 import org.scalatest._
 
-class StationStatusTransformationTest extends FeatureSpec with Matchers with GivenWhenThen {
+class StationTransformerTest extends FeatureSpec with Matchers with GivenWhenThen {
 
   feature("Apply station status transformations to data frame") {
     val spark = SparkSession.builder.appName("Test App").master("local").getOrCreate()
