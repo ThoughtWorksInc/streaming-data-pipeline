@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+if [[ -z "${BASTION_IP_ADDRESS}" ]]; then
+    echo "No bastion ip configured, consider setting the BASTION_IP_ADDRESS environment variable (in circle ci also) ."
+    exit 1
+fi
 
 set -e
 
@@ -16,7 +20,7 @@ Host emr-master.bangalore-april-2019.training
 
 Host *.bangalore-april-2019.training
 	ForwardAgent yes
-	ProxyCommand ssh 18.223.142.203 -W %h:%p 2>/dev/null
+	ProxyCommand ssh ${BASTION_IP_ADDRESS} -W %h:%p 2>/dev/null
 	User ec2-user
     StrictHostKeyChecking no
 " >> ~/.ssh/config
