@@ -23,10 +23,10 @@ echo "
 	DynamicForward 6789
     StrictHostKeyChecking no
 
-Host emr-master.${DEPLOYMENT_IDENTIFIER}.training
+Host emr-master.${TRAINING_COHORT}.training
     User hadoop
 
-Host *.${DEPLOYMENT_IDENTIFIER}.training
+Host *.${TRAINING_COHORT}.training
 	ForwardAgent yes
 	ProxyCommand ssh ${BASTION_IP_ADDRESS} -W %h:%p 2>/dev/null
 	User ec2-user
