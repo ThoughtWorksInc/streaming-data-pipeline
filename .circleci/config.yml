@@ -1,135 +1,135 @@
 defaults: &defaults
-    docker:
-        - image: circleci/openjdk:8-jdk
-    working_directory: /home/circleci/project
+  docker:
+  - image: circleci/openjdk:8-jdk
+  working_directory: /home/circleci/project
 
 version: 2
 jobs:
-    build-producer:
-      <<: *defaults
-      steps:
-        - checkout
-        - restore_cache:
-            keys:
-                - java-dependencies-{{ .Branch }}-{{ checksum "./CitibikeApiProducer/build.gradle" }}
-        - run:
-            command: ./sbin/buildProducer.sh
-        - persist_to_workspace:
-            root: /home/circleci/project
-            paths:
-                - CitibikeApiProducer/build/
-        - run:
-            command: ls /home/circleci/project/
-        - save_cache:
-            key: java-dependencies-{{ .Branch }}-{{ checksum "./CitibikeApiProducer/build.gradle" }}
-            paths:
-                - "~/.gradle"
-    build-raw-data-saver:
-      <<: *defaults
-      steps:
-        - checkout
-        - restore_cache:
-          keys:
-          - scala-dependencies-{{ .Branch }}-{{ checksum "./RawDataSaver/build.sbt" }}
-        - run:
-            command: ./sbin/buildRawDataSaver.sh
-        - persist_to_workspace:
-            root: /home/circleci/project
-            paths:
-            - RawDataSaver/target/
-        - run:
-            command: ls /home/circleci/project/
-        - save_cache:
-            key: scala-dependencies-{{ .Branch }}-{{ checksum "./RawDataSaver/build.sbt" }}
-            paths:
-            - "~/.ivy2/cache"
-    build-station-consumer:
-      <<: *defaults
-      steps:
-        - checkout
-        - restore_cache:
-          keys:
-          - scala-dependencies-{{ .Branch }}-{{ checksum "./StationConsumer/build.sbt"}}
-        - run:
-            command: ./sbin/buildStationConsumer.sh
-        - persist_to_workspace:
-            root: /home/circleci/project
-            paths:
-            - StationConsumer/target/
-        - run:
-            command: ls /home/circleci/project/
-        - save_cache:
-            key: scala-dependencies-{{ .Branch }}-{{ checksum "./StationConsumer/build.sbt"}}
-            paths:
-            - "~/.ivy2/cache"
-    build-station-transformer-NYC:
-      <<: *defaults
-      steps:
-        - checkout
-        - restore_cache:
-          keys:
-          - scala-dependencies-{{ .Branch }}-{{ checksum "./StationTransformerNYC/build.sbt"}}
-        - run:
-            command: ./sbin/buildStationTransformer.sh
-        - persist_to_workspace:
-            root: /home/circleci/project
-            paths:
-            - StationTransformerNYC/target/
-        - run:
-            command: ls /home/circleci/project/
-        - save_cache:
-            key: scala-dependencies-{{ .Branch }}-{{ checksum "./StationTransformerNYC/build.sbt"}}
-            paths:
-            - "~/.ivy2/cache"
-    deploy:
-        <<: *defaults
-        steps:
-            - checkout
-            - attach_workspace:
-                at: /home/circleci/project
-            - add_ssh_keys:
-                fingerprints:
-                    - "1e:a8:1c:3e:f8:59:a7:29:d7:43:26:5b:81:ac:20:fe"                
-            - run:
-                command: ./sbin/deploy.sh
+  build-producer:
+    <<: *defaults
+    steps:
+    - checkout
+    - restore_cache:
+        keys:
+        - java-dependencies-{{ .Branch }}-{{ checksum "./CitibikeApiProducer/build.gradle" }}
+    - run:
+        command: ./sbin/buildProducer.sh
+    - persist_to_workspace:
+        root: /home/circleci/project
+        paths:
+        - CitibikeApiProducer/build/
+    - run:
+        command: ls /home/circleci/project/
+    - save_cache:
+        key: java-dependencies-{{ .Branch }}-{{ checksum "./CitibikeApiProducer/build.gradle" }}
+        paths:
+        - "~/.gradle"
+  build-raw-data-saver:
+    <<: *defaults
+    steps:
+    - checkout
+    - restore_cache:
+      keys:
+      - scala-dependencies-{{ .Branch }}-{{ checksum "./RawDataSaver/build.sbt" }}
+    - run:
+        command: ./sbin/buildRawDataSaver.sh
+    - persist_to_workspace:
+        root: /home/circleci/project
+        paths:
+        - RawDataSaver/target/
+    - run:
+        command: ls /home/circleci/project/
+    - save_cache:
+        key: scala-dependencies-{{ .Branch }}-{{ checksum "./RawDataSaver/build.sbt" }}
+        paths:
+        - "~/.ivy2/cache"
+  build-station-consumer:
+    <<: *defaults
+    steps:
+    - checkout
+    - restore_cache:
+      keys:
+      - scala-dependencies-{{ .Branch }}-{{ checksum "./StationConsumer/build.sbt"}}
+    - run:
+        command: ./sbin/buildStationConsumer.sh
+    - persist_to_workspace:
+        root: /home/circleci/project
+        paths:
+        - StationConsumer/target/
+    - run:
+        command: ls /home/circleci/project/
+    - save_cache:
+        key: scala-dependencies-{{ .Branch }}-{{ checksum "./StationConsumer/build.sbt"}}
+        paths:
+        - "~/.ivy2/cache"
+  build-station-transformer-NYC:
+    <<: *defaults
+    steps:
+    - checkout
+    - restore_cache:
+      keys:
+      - scala-dependencies-{{ .Branch }}-{{ checksum "./StationTransformerNYC/build.sbt"}}
+    - run:
+        command: ./sbin/buildStationTransformer.sh
+    - persist_to_workspace:
+        root: /home/circleci/project
+        paths:
+        - StationTransformerNYC/target/
+    - run:
+        command: ls /home/circleci/project/
+    - save_cache:
+        key: scala-dependencies-{{ .Branch }}-{{ checksum "./StationTransformerNYC/build.sbt"}}
+        paths:
+        - "~/.ivy2/cache"
+  deploy:
+    <<: *defaults
+    steps:
+    - checkout
+    - attach_workspace:
+        at: /home/circleci/project
+    - add_ssh_keys:
+        fingerprints:
+        - "1e:a8:1c:3e:f8:59:a7:29:d7:43:26:5b:81:ac:20:fe"
+    - run:
+        command: ./sbin/deploy.sh
 
 workflows:
-    version: 2
-    build_and_deploy:
-        jobs:
-            - build-producer:
-                filters:
-                  branches:
-                    only:
-                    - master
-                    - bangalore-april-2019
-            - build-raw-data-saver:
-                filters:
-                  branches:
-                    only:
-                    - master
-                    - bangalore-april-2019
-            - build-station-consumer:
-                filters:
-                  branches:
-                    only:
-                    - master
-                    - bangalore-april-2019
-            - build-station-transformer-NYC:
-                filters:
-                  branches:
-                    only:
-                    - master
-                    - bangalore-april-2019
+  version: 2
+  build_and_deploy:
+    jobs:
+    - build-producer:
+        filters:
+          branches:
+            only:
+            - master
+            - bangalore-april-2019
+    - build-raw-data-saver:
+        filters:
+          branches:
+            only:
+            - master
+            - bangalore-april-2019
+    - build-station-consumer:
+        filters:
+          branches:
+            only:
+            - master
+            - bangalore-april-2019
+    - build-station-transformer-NYC:
+        filters:
+          branches:
+            only:
+            - master
+            - bangalore-april-2019
 
-            - approve-deploy:
-                type: approval
-                requires: 
-                    - build-producer
-                    - build-raw-data-saver
-                    - build-station-consumer
-                    - build-station-transformer-NYC
-            - deploy:
-                requires:
-                    - approve-deploy
+    - approve-deploy:
+        type: approval
+        requires:
+        - build-producer
+        - build-raw-data-saver
+        - build-station-consumer
+        - build-station-transformer-NYC
+    - deploy:
+        requires:
+        - approve-deploy
 
