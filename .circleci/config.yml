@@ -29,8 +29,8 @@ jobs:
     steps:
     - checkout
     - restore_cache:
-      keys:
-      - scala-dependencies-{{ .Branch }}-{{ checksum "./RawDataSaver/build.sbt" }}
+        keys:
+        - scala-dependencies-{{ .Branch }}-{{ checksum "./RawDataSaver/build.sbt" }}
     - run:
         command: ./sbin/buildRawDataSaver.sh
     - persist_to_workspace:
@@ -48,8 +48,8 @@ jobs:
     steps:
     - checkout
     - restore_cache:
-      keys:
-      - scala-dependencies-{{ .Branch }}-{{ checksum "./StationConsumer/build.sbt"}}
+        keys:
+        - scala-dependencies-{{ .Branch }}-{{ checksum "./StationConsumer/build.sbt"}}
     - run:
         command: ./sbin/buildStationConsumer.sh
     - persist_to_workspace:
@@ -67,8 +67,8 @@ jobs:
     steps:
     - checkout
     - restore_cache:
-      keys:
-      - scala-dependencies-{{ .Branch }}-{{ checksum "./StationTransformerNYC/build.sbt"}}
+        keys:
+        - scala-dependencies-{{ .Branch }}-{{ checksum "./StationTransformerNYC/build.sbt"}}
     - run:
         command: ./sbin/buildStationTransformer.sh
     - persist_to_workspace:
