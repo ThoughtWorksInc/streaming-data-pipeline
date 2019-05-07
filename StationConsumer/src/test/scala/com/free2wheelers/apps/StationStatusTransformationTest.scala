@@ -56,7 +56,7 @@ class StationStatusTransformationTest extends FeatureSpec with Matchers with Giv
       resultDF1.schema.fields(8).dataType.typeName should be("double")
 
       val row1 = resultDF1.head()
-      row1.get(0) should be(19)
+      row1.get(0) should be(18)
       row1.get(1) should be(41)
       row1.get(2) shouldBe true
       row1.get(3) shouldBe true
