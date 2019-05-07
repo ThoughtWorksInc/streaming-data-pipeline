@@ -26,11 +26,11 @@ jobs:
                 - "~/.gradle"
     build-raw-data-saver:
       <<: *defaults
-        steps:
+      steps:
         - checkout
         - restore_cache:
           keys:
-          - scala-dependencies-{{ .Branch }}-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt"}}-{{ checksum "./StationTransformerNYC/build.sbt"}}
+          - scala-dependencies-{{ .Branch }}-{{ checksum "./RawDataSaver/build.sbt" }}
         - run:
             command: ./sbin/buildRawDataSaver.sh
         - persist_to_workspace:
@@ -40,16 +40,16 @@ jobs:
         - run:
             command: ls /home/circleci/project/
         - save_cache:
-            key: scala-dependencies-{{ .Branch }}-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt"}}-{{ checksum "./StationTransformerNYC/build.sbt"}}
+            key: scala-dependencies-{{ .Branch }}-{{ checksum "./RawDataSaver/build.sbt" }}
             paths:
             - "~/.ivy2/cache"
     build-station-consumer:
       <<: *defaults
-        steps:
+      steps:
         - checkout
         - restore_cache:
           keys:
-          - scala-dependencies-{{ .Branch }}-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt"}}-{{ checksum "./StationTransformerNYC/build.sbt"}}
+          - scala-dependencies-{{ .Branch }}-{{ checksum "./StationConsumer/build.sbt"}}
         - run:
             command: ./sbin/buildStationConsumer.sh
         - persist_to_workspace:
@@ -59,16 +59,16 @@ jobs:
         - run:
             command: ls /home/circleci/project/
         - save_cache:
-            key: scala-dependencies-{{ .Branch }}-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt"}}-{{ checksum "./StationTransformerNYC/build.sbt"}}
+            key: scala-dependencies-{{ .Branch }}-{{ checksum "./StationConsumer/build.sbt"}}
             paths:
             - "~/.ivy2/cache"
     build-station-transformer-NYC:
       <<: *defaults
-        steps:
+      steps:
         - checkout
         - restore_cache:
           keys:
-          - scala-dependencies-{{ .Branch }}-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt"}}-{{ checksum "./StationTransformerNYC/build.sbt"}}
+          - scala-dependencies-{{ .Branch }}-{{ checksum "./StationTransformerNYC/build.sbt"}}
         - run:
             command: ./sbin/buildStationTransformer.sh
         - persist_to_workspace:
@@ -78,7 +78,7 @@ jobs:
         - run:
             command: ls /home/circleci/project/
         - save_cache:
-            key: scala-dependencies-{{ .Branch }}-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt"}}-{{ checksum "./StationTransformerNYC/build.sbt"}}
+            key: scala-dependencies-{{ .Branch }}-{{ checksum "./StationTransformerNYC/build.sbt"}}
             paths:
             - "~/.ivy2/cache"
     deploy:
