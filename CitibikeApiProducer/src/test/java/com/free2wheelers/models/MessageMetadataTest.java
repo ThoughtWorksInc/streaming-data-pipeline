@@ -16,10 +16,10 @@ public class MessageMetadataTest {
 
         MessageMetadata metadata = new MessageMetadata(ingestionTime, producerId, messageUUID, size);
 
-        String expected = "{\"producer_id\": \"Producer-id\", " +
+        String expected = String.format("{\"producer_id\": \"Producer-id\", " +
                 "\"size\": 12, " +
                 "\"message_id\": \"123e4567-e89b-12d3-a456-426655440000\", " +
-                "\"ingestion_time\": " + ingestionTime + "}";
+                "\"ingestion_time\": %d}", ingestionTime);
 
         assertEquals(expected, metadata.toString());
     }

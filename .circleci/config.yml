@@ -1,66 +1,135 @@
 defaults: &defaults
-    docker:
-        - image: circleci/openjdk:8-jdk
-    working_directory: /home/circleci/project
+  docker:
+  - image: circleci/openjdk:8-jdk
+  working_directory: /home/circleci/project
 
 version: 2
 jobs:
-    build:
-        <<: *defaults
-        steps:
-            - checkout
-            - restore_cache:
-                keys:
-                    - java-dependencies-{{ checksum "./CitibikeApiProducer/build.gradle" }}
-            - restore_cache:
-                keys:
-                    - scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt"}}-{{ checksum "./FileChecker/build.sbt"}}
-            - run:
-                command: ./sbin/buildAll.sh
-            - persist_to_workspace:
-                root: /home/circleci/project
-                paths:
-                    - CitibikeApiProducer/build/
-                    - RawDataSaver/target/
-                    - StationConsumer/target/
-                    - FileChecker/target/
-            - run:
-                command: ls /home/circleci/project/
-            - save_cache:
-                key: scala-dependencies-{{ checksum "./RawDataSaver/build.sbt" }}-{{ checksum "./StationConsumer/build.sbt"}}-{{ checksum "./FileChecker/build.sbt"}}
-                paths:
-                    - "~/.ivy2/cache"
-            - save_cache:
-                key: java-dependencies-{{ checksum "./CitibikeApiProducer/build.gradle" }}
-                paths:
-                    - "~/.gradle"
-
-    deploy:
-        <<: *defaults
-        steps:
-            - checkout
-            - attach_workspace:
-                at: /home/circleci/project
-            - add_ssh_keys:
-                fingerprints:
-                    - "a1:70:2e:56:c5:3d:12:86:d0:4b:00:af:2c:c1:2a:c7"
-            - run:
-                command: ./sbin/deploy.sh
+  build-producer:
+    <<: *defaults
+    steps:
+    - checkout
+    - restore_cache:
+        keys:
+        - java-dependencies-{{ .Branch }}-{{ checksum "./CitibikeApiProducer/build.gradle" }}
+    - run:
+        command: ./sbin/buildProducer.sh
+    - persist_to_workspace:
+        root: /home/circleci/project
+        paths:
+        - CitibikeApiProducer/build/
+    - run:
+        command: ls /home/circleci/project/
+    - save_cache:
+        key: java-dependencies-{{ .Branch }}-{{ checksum "./CitibikeApiProducer/build.gradle" }}
+        paths:
+        - "~/.gradle"
+  build-raw-data-saver:
+    <<: *defaults
+    steps:
+    - checkout
+    - restore_cache:
+        keys:
+        - scala-dependencies-{{ .Branch }}-{{ checksum "./RawDataSaver/build.sbt" }}
+    - run:
+        command: ./sbin/buildRawDataSaver.sh
+    - persist_to_workspace:
+        root: /home/circleci/project
+        paths:
+        - RawDataSaver/target/
+    - run:
+        command: ls /home/circleci/project/
+    - save_cache:
+        key: scala-dependencies-{{ .Branch }}-{{ checksum "./RawDataSaver/build.sbt" }}
+        paths:
+        - "~/.ivy2/cache"
+  build-station-consumer:
+    <<: *defaults
+    steps:
+    - checkout
+    - restore_cache:
+        keys:
+        - scala-dependencies-{{ .Branch }}-{{ checksum "./StationConsumer/build.sbt"}}
+    - run:
+        command: ./sbin/buildStationConsumer.sh
+    - persist_to_workspace:
+        root: /home/circleci/project
+        paths:
+        - StationConsumer/target/
+    - run:
+        command: ls /home/circleci/project/
+    - save_cache:
+        key: scala-dependencies-{{ .Branch }}-{{ checksum "./StationConsumer/build.sbt"}}
+        paths:
+        - "~/.ivy2/cache"
+  build-file-checker:
+    <<: *defaults
+    steps:
+    - checkout
+    - restore_cache:
+        keys:
+        - scala-dependencies-{{ .Branch }}-{{ checksum "./FileChecker/build.sbt"}}
+    - run:
+        command: ./sbin/buildFileChecker.sh
+    - persist_to_workspace:
+        root: /home/circleci/project
+        paths:
+        - FileChecker/target/
+    - run:
+        command: ls /home/circleci/project/
+    - save_cache:
+        key: scala-dependencies-{{ .Branch }}-{{ checksum "./FileChecker/build.sbt"}}
+        paths:
+        - "~/.ivy2/cache"
+  deploy:
+    <<: *defaults
+    steps:
+    - checkout
+    - attach_workspace:
+        at: /home/circleci/project
+    - add_ssh_keys:
+        fingerprints:
+        - "1e:a8:1c:3e:f8:59:a7:29:d7:43:26:5b:81:ac:20:fe"
+    - run:
+        command: ./sbin/deploy.sh
 
 workflows:
-    version: 2
-    build_and_deploy:
-        jobs:
-            - build:
-                filters:
-                    branches:
-                        only:
-                            - master
-                            - bangalore-april-2019
-            - approve-deploy:
-                type: approval
-                requires:
-                    - build
-            - deploy:
-                requires:
-                    - approve-deploy
+  version: 2
+  build_and_deploy:
+    jobs:
+    - build-producer:
+        filters:
+          branches:
+            only:
+            - master
+            - bangalore-april-2019
+    - build-raw-data-saver:
+        filters:
+          branches:
+            only:
+            - master
+            - bangalore-april-2019
+    - build-station-consumer:
+        filters:
+          branches:
+            only:
+            - master
+            - bangalore-april-2019
+    - build-file-checker:
+        filters:
+          branches:
+            only:
+            - master
+            - bangalore-april-2019
+
+    - approve-deploy:
+        type: approval
+        requires:
+        - build-producer
+        - build-raw-data-saver
+        - build-station-consumer
+        - build-file-checker
+    - deploy:
+        requires:
+        - approve-deploy
+
