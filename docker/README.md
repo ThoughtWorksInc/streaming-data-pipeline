@@ -1,5 +1,6 @@
 # Local environment setup
 
+0. Increase docker daemon available memory to 9 GB from docker ~> preferences ~> advanced ~> memory.
 0. Verify that you don't have Zookeeper or Kafka running locally (ports 9092 and 2181 are free)
 0. Verify that your Docker Daemon is running
 0. Build the application JARs and put them in the correct directories (see `./sbin/buildAndRunLocal.sh` to find out where each file should be copied)
