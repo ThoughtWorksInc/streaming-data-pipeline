@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.test.context.TestPropertySource;
@@ -34,6 +35,12 @@ public class ApiProducerTest {
     @Mock
     private ListenableFuture<SendResult<String, String>> future;
 
+    @Mock
+    HttpEntity<String> response;
+
+    @Mock
+    HttpHeaders httpHeaders;
+
     @Value("${producer.topic}")
     private String testWriteTopic;
 
@@ -52,9 +59,9 @@ public class ApiProducerTest {
         producerId.setAccessible(true);
         producerId.set(apiProducer, testProducerId);
 
-        HttpEntity<String> response = mock(HttpEntity.class, Answers.RETURNS_DEEP_STUBS);
         when(response.getBody()).thenReturn("LargeJsonMessage");
-        when(response.getHeaders().getContentLength()).thenReturn(1234L);
+        when(response.getHeaders()).thenReturn(httpHeaders);
+        when(httpHeaders.getContentLength()).thenReturn(1234L);
         when(metadataGenerator.generateUniqueKey()).thenReturn("123e4567-e89b-12d3-a456-426655440001");
         when(metadataGenerator.getCurrentTimeMillis()).thenReturn(1524237281590L);
         when(kafkaTemplate.send(any(), any(), any())).thenReturn(future);
