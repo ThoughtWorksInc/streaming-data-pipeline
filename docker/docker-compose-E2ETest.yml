@@ -1,0 +1,94 @@
+version: "3"
+services:
+    kafka:
+        image: wurstmeister/kafka:0.10.0.1-2
+        networks:
+          - streaming-data-internal
+        ports:
+          - "9092:9092"
+        environment:
+          - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+          - KAFKA_ADVERTISED_HOST_NAME=kafka
+          - KAFKA_ADVERTISED_PORT=9092
+        depends_on:
+          - zookeeper
+
+    hadoop:
+        image: sequenceiq/hadoop-docker:2.7.0
+        command: "/etc/bootstrap.sh -d"
+        networks:
+          - streaming-data-internal
+        ports:
+          - "50070:50070"
+          - "50075:50075"
+          - "8088:8088"
+          - "8042:8042"
+          - "9000:9000"
+          - "50010:50010"
+
+    hadoop-seed:
+        build:
+           context: ../hdfs
+        networks:
+          - streaming-data-internal
+        depends_on:
+          - hadoop
+        restart: on-failure
+
+    zookeeper:
+        image: zookeeper:3.3.6
+        networks:
+          - streaming-data-internal
+        ports:
+          - "2181:2181"
+
+    zookeeper-seed:
+        build:
+            context: ../zookeeper
+        networks:
+          - streaming-data-internal
+        depends_on:
+          - zookeeper
+
+    station-test-producer:
+        build:
+            context: ../CitibikeApiProducer
+            dockerfile: Dockerfile-station-test
+        depends_on:
+          - kafka
+          - zookeeper-seed
+        networks:
+          - streaming-data-internal
+
+
+    raw-station-data-test-san-francisco-saver:
+        build:
+            context: ../RawDataSaver
+            dockerfile: Dockerfile-station-data-SF
+        depends_on:
+          - kafka
+          - station-test-producer
+          - hadoop-seed
+          - zookeeper-seed
+        volumes:
+          - ~/.ivy2:/root/.ivy2:rw
+        networks:
+          - streaming-data-internal
+        restart: on-failure
+
+    station-consumer:
+        build:
+            context: ../StationConsumer
+        depends_on:
+          - zookeeper-seed
+          - kafka
+          - station-test-producer
+        volumes:
+          - ~/.ivy2:/root/.ivy2:rw
+        command: ["./wait-for.sh", "zookeeper:2181", "-t", "30"]
+        networks:
+          - streaming-data-internal
+        restart: on-failure
+
+networks:
+    streaming-data-internal:
