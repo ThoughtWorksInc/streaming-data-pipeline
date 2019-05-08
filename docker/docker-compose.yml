@@ -80,6 +80,16 @@ services:
         networks:
           - streaming-data-internal
 
+    station-france-producer:
+      build:
+        context: ../CitibikeApiProducer
+        dockerfile: Dockerfile-station-france
+      depends_on:
+        - kafka
+        - zookeeper-seed
+      networks:
+        - streaming-data-internal
+
     raw-station-information-data-saver:
         build:
             context: ../RawDataSaver
