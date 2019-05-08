@@ -23,7 +23,8 @@ mkdir -p /tmp/free2wheelers/rawData/stationSanFrancisco/checkpoints
 mkdir -p /tmp/free2wheelers/rawData/stationSanFrancisco/data
 mkdir -p /tmp/free2wheelers/stationMart/checkpoints
 mkdir -p /tmp/free2wheelers/stationMart/data
-
+mkdir -p /tmp/free2wheelers/rawData/stationFrance/checkpoints
+mkdir -p /tmp/free2wheelers/rawData/stationFrance/data
 
 
 zk_command="zookeeper-shell.sh 127.0.0.1:2181"
@@ -51,6 +52,12 @@ $zk_command create /free2wheelers/stationDataSF/dataLocation /tmp/free2wheelers/
 $zk_command create /free2wheelers/output ''
 $zk_command create /free2wheelers/output/checkpointLocation /tmp/free2wheelers/stationMart/checkpoints
 $zk_command create /free2wheelers/output/dataLocation /tmp/free2wheelers/stationMart/data
+
+$zk_command create /free2wheelers/stationDataFrance ''
+$zk_command create /free2wheelers/stationDataFrance/kafkaBrokers 127.0.0.1:9092
+$zk_command create /free2wheelers/stationDataFrance/topic station_data_france
+$zk_command create /free2wheelers/stationDataFrance/checkpointLocation /tmp/free2wheelers/rawData/stationFrance/checkpoints
+$zk_command create /free2wheelers/stationDataFrance/dataLocation /tmp/free2wheelers/rawData/stationFrance/data
 
 
 tail -f /dev/null

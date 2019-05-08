@@ -141,6 +141,23 @@ services:
           - streaming-data-internal
         restart: on-failure
 
+    raw-station-data-france-saver:
+        build:
+            context: ../RawDataSaver
+            dockerfile: Dockerfile-station-data-France
+        depends_on:
+          - kafka
+          - station-information-producer
+          - station-status-producer
+          - station-san-francisco-producer
+          - hadoop-seed
+          - zookeeper-seed
+        volumes:
+          - ~/.ivy2:/root/.ivy2:rw
+        networks:
+          - streaming-data-internal
+        restart: on-failure
+
     station-consumer:
         build:
             context: ../StationConsumer
