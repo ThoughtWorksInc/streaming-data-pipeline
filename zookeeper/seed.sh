@@ -25,6 +25,13 @@ $zk_command create /free2wheelers/stationDataSF/topic station_data_sf
 $zk_command create /free2wheelers/stationDataSF/checkpointLocation hdfs://$hdfs_server/free2wheelers/rawData/stationDataSF/checkpoints
 $zk_command create /free2wheelers/stationDataSF/dataLocation hdfs://$hdfs_server/free2wheelers/rawData/stationDataSF/data
 
+$zk_command create /free2wheelers/stationDataFrance ''
+$zk_command create /free2wheelers/stationDataFrance/kafkaBrokers $kafka_server
+$zk_command create /free2wheelers/stationDataFrance/topic station_data_france
+$zk_command create /free2wheelers/stationDataFrance/checkpointLocation hdfs://$hdfs_server/free2wheelers/rawData/stationDataFrance/checkpoints
+$zk_command create /free2wheelers/stationDataFrance/dataLocation hdfs://$hdfs_server/free2wheelers/rawData/stationDataFrance/data
+
+
 $zk_command create /free2wheelers/output ''
 $zk_command create /free2wheelers/output/checkpointLocation hdfs://$hdfs_server/free2wheelers/stationMart/checkpoints
 $zk_command create /free2wheelers/output/dataLocation hdfs://$hdfs_server/free2wheelers/stationMart/data

@@ -150,6 +150,7 @@ services:
           - station-status-producer
           - station-san-francisco-producer
           - raw-station-status-data-saver
+          - station-france-producer
         volumes:
           - ~/.ivy2:/root/.ivy2:rw
         command: ["./wait-for.sh", "zookeeper:2181", "-t", "30"]
