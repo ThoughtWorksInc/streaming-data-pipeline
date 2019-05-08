@@ -81,7 +81,7 @@ jobs:
         key: scala-dependencies-{{ .Branch }}-{{ checksum "./StationTransformerNYC/build.sbt"}}
         paths:
         - "~/.ivy2/cache"
-  deployProducer:
+  deploy:
     <<: *defaults
     steps:
     - checkout
@@ -91,40 +91,7 @@ jobs:
         fingerprints:
         - "1e:a8:1c:3e:f8:59:a7:29:d7:43:26:5b:81:ac:20:fe"
     - run:
-        command: ./sbin/deployProducer.sh
-  deployRawDataSaver:
-    <<: *defaults
-    steps:
-    - checkout
-    - attach_workspace:
-        at: /home/circleci/project
-    - add_ssh_keys:
-        fingerprints:
-        - "1e:a8:1c:3e:f8:59:a7:29:d7:43:26:5b:81:ac:20:fe"
-    - run:
-        command: ./sbin/deployRawDataSaver.sh
-  deployStationConsumer:
-    <<: *defaults
-    steps:
-    - checkout
-    - attach_workspace:
-        at: /home/circleci/project
-    - add_ssh_keys:
-        fingerprints:
-        - "1e:a8:1c:3e:f8:59:a7:29:d7:43:26:5b:81:ac:20:fe"
-    - run:
-        command: ./sbin/deployStationConsumer.sh
-  deployStationTransformerNYC:
-    <<: *defaults
-    steps:
-    - checkout
-    - attach_workspace:
-        at: /home/circleci/project
-    - add_ssh_keys:
-        fingerprints:
-        - "1e:a8:1c:3e:f8:59:a7:29:d7:43:26:5b:81:ac:20:fe"
-    - run:
-        command: ./sbin/deployStationTransformerNYC.sh
+        command: ./sbin/deploy.sh
 
 workflows:
   version: 2
@@ -155,33 +122,14 @@ workflows:
             - master
             - bangalore-april-2019
 
-    - approve-producer-deploy:
+    - approve-deploy:
         type: approval
         requires:
         - build-producer
-    - approve-raw-data-saver-deploy:
-        type: approval
-        requires:
         - build-raw-data-saver
-    - approve-station-consumer-deploy:
-        type: approval
-        requires:
         - build-station-consumer
-    - approve-station-transformer-NYC-deploy:
-        type: approval
-        requires:
         - build-station-transformer-NYC
-
-    - deployProducer:
+    - deploy:
         requires:
-        - approve-producer-deploy
-    - deployRawDataSaver:
-        requires:
-        - approve-raw-data-saver-deploy
-    - deployStationConsumer:
-        requires:
-        - approve-station-consumer-deploy
-    - deployStationTransformerNYC:
-        requires:
-        - approve-station-transformer-NYC-deploy
+        - approve-deploy
 
