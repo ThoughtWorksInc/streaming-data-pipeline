@@ -90,5 +90,19 @@ services:
           - streaming-data-internal
         restart: on-failure
 
+
+    station-mart-e2e:
+             build:
+                 context: ../E2ETesting
+                 dockerfile: Dockerfile-E2E-test
+             depends_on:
+               - station-consumer
+             volumes:
+               - ~/.ivy2:/root/.ivy2:rw
+             command: ["./wait-for.sh", "zookeeper:2181", "-t", "30"]
+             networks:
+               - streaming-data-internal
+             restart: on-failure
+
 networks:
     streaming-data-internal:
