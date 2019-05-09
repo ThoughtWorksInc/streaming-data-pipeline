@@ -174,5 +174,17 @@ services:
           - streaming-data-internal
         restart: on-failure
 
+    monitor:
+      build:
+        context: ../Monitoring
+      depends_on:
+        - hadoop
+        - hadoop-seed
+        - station-consumer
+      volumes:
+        - ~/.ivy2:/root/.ivy2:rw
+      networks:
+        - streaming-data-internal
+
 networks:
     streaming-data-internal:
