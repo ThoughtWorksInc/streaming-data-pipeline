@@ -61,7 +61,7 @@ public class ApiProducerTest {
 
         when(response.getBody()).thenReturn("LargeJsonMessage");
         when(response.getHeaders()).thenReturn(httpHeaders);
-        when(httpHeaders.getContentLength()).thenReturn(1234L);
+        when(httpHeaders.getContentLength()).thenReturn(12324L);
         when(metadataGenerator.generateUniqueKey()).thenReturn("123e4567-e89b-12d3-a456-426655440001");
         when(metadataGenerator.getCurrentTimeMillis()).thenReturn(1524237281590L);
         when(kafkaTemplate.send(any(), any(), any())).thenReturn(future);
