@@ -81,17 +81,28 @@ jobs:
         key: scala-dependencies-{{ .Branch }}-{{ checksum "./StationTransformerNYC/build.sbt"}}
         paths:
         - "~/.ivy2/cache"
-  deploy:
+  deploy-test:
     <<: *defaults
     steps:
-    - checkout
-    - attach_workspace:
-        at: /home/circleci/project
-    - add_ssh_keys:
-        fingerprints:
-        - "1e:a8:1c:3e:f8:59:a7:29:d7:43:26:5b:81:ac:20:fe"
-    - run:
-        command: ./sbin/deploy.sh
+      - checkout
+      - attach_workspace:
+          at: /home/circleci/project
+      - add_ssh_keys:
+          fingerprints:
+            - "10:ac:af:c4:ef:ae:f0:69:81:a6:36:20:0f:49:8d:8d"
+      - run:
+          command: ./sbin/deployTest.sh
+  deploy-prod:
+    <<: *defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /home/circleci/project
+      - add_ssh_keys:
+          fingerprints:
+            - "1e:a8:1c:3e:f8:59:a7:29:d7:43:26:5b:81:ac:20:fe"
+      - run:
+          command: ./sbin/deploy.sh
 
 workflows:
   version: 2
@@ -122,9 +133,21 @@ workflows:
             - master
             - bangalore-april-2019
 
+    - deploy-test:
+        requires:
+        - build-producer
+        - build-raw-data-saver
+        - build-station-consumer
+        - build-station-transformer-NYC
+        filters:
+          branches:
+            only:
+            - master
+            - bangalore-april-2019
     - approve-deploy:
         type: approval
         requires:
+        - deploy-test
         - build-producer
         - build-raw-data-saver
         - build-station-consumer
