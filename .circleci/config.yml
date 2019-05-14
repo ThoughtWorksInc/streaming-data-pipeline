@@ -148,11 +148,7 @@ workflows:
         type: approval
         requires:
         - deploy-test
-        - build-producer
-        - build-raw-data-saver
-        - build-station-consumer
-        - build-station-transformer-NYC
-    - deploy:
+    - deploy-prod:
         requires:
         - approve-deploy
 
