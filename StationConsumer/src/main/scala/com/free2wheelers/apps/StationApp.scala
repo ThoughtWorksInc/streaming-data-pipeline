@@ -4,6 +4,7 @@ import com.free2wheelers.apps.StationStatusTransformation._
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.spark.sql.SparkSession
+import org.joda.time.DateTime
 import org.slf4j.LoggerFactory
 
 object StationApp {
@@ -33,10 +34,11 @@ object StationApp {
 
     val spark = SparkSession.builder
       .appName("StationConsumer")
+      .enableHiveSupport()
       .getOrCreate()
     logger.info("Starting Consumer")
     import spark.implicits._
-
+    val consumptionTime = DateTime.now()
     val nycStationDF = spark.readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", stationKafkaBrokers)
@@ -44,7 +46,7 @@ object StationApp {
       .option("startingOffsets", "latest")
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
-      .transform(nycStationStatusJson2DF(_, spark))
+      .transform(nycStationStatusJson2DF(_, spark, consumptionTime))
 
     val sfStationDF = spark.readStream
       .format("kafka")
@@ -53,7 +55,7 @@ object StationApp {
       .option("startingOffsets", "latest")
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
-      .transform(sfStationStatusJson2DF(_, spark))
+      .transform(sfStationStatusJson2DF(_, spark, consumptionTime))
 
     val franceStationDF = spark.readStream
       .format("kafka")
@@ -62,13 +64,30 @@ object StationApp {
       .option("startingOffsets", "latest")
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
-      .transform(franceStationStatusJson2DF(_, spark))
+      .transform(franceStationStatusJson2DF(_, spark, consumptionTime))
 
     logger.info("Consuming...")
 
-    nycStationDF
-      .union(franceStationDF)
-      .union(sfStationDF)
+    def getFileName : String = {
+      val timeNow = DateTime.now
+      s"$outputLocation/year=${timeNow.getYear}/month=${timeNow.getMonthOfYear}/day=${timeNow.getDayOfMonth()}/data_${timeNow.getMillis}/"
+    }
+
+//    val ssc = new StreamingContext(spark.sparkContext, Seconds(30))
+//
+//    ssc.start()
+
+//    nycStationDF
+//      .union(franceStationDF)
+//      .union(sfStationDF)
+
+//    impressionsDF
+//      .write.mode("overwrite")
+//      .partitionBy("country", "year", "month", "day")
+//      .json("s3://output_bucket/stats")
+
+
+      sfStationDF
       .as[StationStatus]
       .groupByKey(r=>r.station_id)
       .reduceGroups((r1,r2)=>if (r1.last_updated > r2.last_updated) r1 else r2)
@@ -80,6 +99,7 @@ object StationApp {
       .option("truncate", false)
       .option("checkpointLocation", checkpointLocation)
       .option("path", outputLocation)
+      //.partitionBy("ingestion_time")
       .start()
       .awaitTermination()
   }
