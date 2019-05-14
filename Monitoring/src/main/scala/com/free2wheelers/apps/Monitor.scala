@@ -1,6 +1,5 @@
 package com.free2wheelers.apps
 
-import com.free2wheelers.apps.FileUtil._
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 
@@ -8,41 +7,52 @@ object Monitor {
 
   def main(args: Array[String]): Unit = {
 
+    val sleepDurationSeconds = 60
     val spark = SparkSession.builder.master("local").appName("Monitoring output").getOrCreate()
-    val directory = "src/main/resources/"
-    val csvPath = getCSVPathFromDirectory(directory)
-    println(csvPath)
-    var latestFileModificationTime = 0.0
-    var lastFileModificationTime = 0.0
+    spark.sparkContext.setLogLevel("ERROR")
+
+    //val directory = "/free2wheelers/stationMart/data"
+    //val csvPath = getCSVPathFromDirectory(directory)
+
+    //var latestFileModificationTime = 0.0
+    //var lastFileModificationTime = 0.0
+
     do {
-      lastFileModificationTime = latestFileModificationTime
 
-      Thread.sleep(10000)
+      try {
 
-      latestFileModificationTime = getLastModifiedFileStatus(spark, csvPath)
+        val csvDF: DataFrame =
+          spark
+            .read
+            .option("inferSchema", false)
+            .option("header", true)
+            .csv("hdfs://hadoop:9000/free2wheelers/stationMart/data")
 
-      val csvDF: DataFrame =
-        spark
-          .read
-          .option("inferSchema", true)
-          .option("header", true)
-          .csv(csvPath)
-      spark.sparkContext.setLogLevel("ERROR")
+        //        latestFileModificationTime = getLastModifiedFileStatus(spark, directory)
+        val isLongitudeOrLatitudeNull: Boolean = MonitorUtils.isLongitudeOrLatitudeNull(csvDF)
 
-      val isLongitudeOrLatitudeNull: Boolean = MonitorUtils.isLongitudeOrLatitudeNull(csvDF)
+        val isStationIdUnique: Boolean = MonitorUtils.isStationIdUnique(csvDF)
 
-      val isStationIdUnique: Boolean = MonitorUtils.isStationIdUnique(csvDF)
+        if (isStationIdUnique) println("\t->duplicate station ids")
+        else println("\t-> no duplicate station ids")
 
-      if (isStationIdUnique) println("duplicate station ids")
-      else println("no duplicate station ids")
+        if (isLongitudeOrLatitudeNull) println("\t->latitude / longitude is null")
+        else println("\t-> latitude / longitude is not null")
 
-      if (isLongitudeOrLatitudeNull) println("latitude / longitude is null")
-      else println("latitude / longitude is not null")
+        //        if (latestFileModificationTime == lastFileModificationTime) println("file not modified")
+        //        else println("file modified")
 
-      if (latestFileModificationTime == lastFileModificationTime) println("file not modified")
-      else println("file modified")
+        //        println("last file time = " + lastFileModificationTime)
+        //        println("latest file time = " + latestFileModificationTime)
 
-      println("sleeping for 10 seconds")
+        //        lastFileModificationTime = latestFileModificationTime
+        Thread.sleep(sleepDurationSeconds * 1000)
+
+        println(s"sleeping for ${sleepDurationSeconds} seconds")
+
+      } catch {
+        case e: Exception => println(e.getMessage)
+      }
 
     } while (true)
 
