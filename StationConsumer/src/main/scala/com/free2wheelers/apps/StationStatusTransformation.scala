@@ -1,33 +1,32 @@
 package com.free2wheelers.apps
 
+import java.sql.Timestamp
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
 import org.apache.spark.sql.catalyst.ScalaReflection
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{udf, _}
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 
 import scala.util.parsing.json.JSON
 
 object StationStatusTransformation {
 
-  val sfToStationStatus: String => Seq[StationStatus] = raw_payload => {
+  val sfToStationStatus: (String, Timestamp) => Seq[StationStatus] = (raw_payload, consumption_time) => {
     val json = JSON.parseFull(raw_payload)
     val payload = json.get.asInstanceOf[Map[String, Any]]("payload")
-    extractSFStationStatus(payload)
+    extractSFStationStatus(payload, consumption_time)
   }
 
-  val franceToStationStatus: String => Seq[StationStatus] = raw_payload => {
+  val franceToStationStatus:  (String, Timestamp) => Seq[StationStatus]  =  (raw_payload, consumption_time)=> {
     val json = JSON.parseFull(raw_payload)
     val payload = json.get.asInstanceOf[Map[String, Any]]("payload")
-    extractFranceStationStatus(payload)
+    extractFranceStationStatus(payload, consumption_time)
   }
 
-  private def extractSFStationStatus(payload: Any) = {
-
+  private def extractSFStationStatus(payload: Any, consumptionTime: Timestamp) = {
     val network: Any = payload.asInstanceOf[Map[String, Any]]("network")
-
     val stations: Any = network.asInstanceOf[Map[String, Any]]("stations")
 
     stations.asInstanceOf[Seq[Map[String, Any]]]
@@ -41,15 +40,14 @@ object StationStatusTransformation {
           x("id").asInstanceOf[String],
           x("name").asInstanceOf[String],
           x("latitude").asInstanceOf[Double],
-          x("longitude").asInstanceOf[Double]
+          x("longitude").asInstanceOf[Double],
+          consumptionTime
         )
       })
   }
 
-  private def extractFranceStationStatus(payload: Any) = {
-
+  private def extractFranceStationStatus(payload: Any, consumptionTime: Timestamp) = {
     val network: Any = payload.asInstanceOf[Map[String, Any]]("network")
-
     val stations: Any = network.asInstanceOf[Map[String, Any]]("stations")
 
     stations.asInstanceOf[Seq[Map[String, Any]]]
@@ -63,33 +61,44 @@ object StationStatusTransformation {
           x("id").asInstanceOf[String],
           x("name").asInstanceOf[String],
           x("latitude").asInstanceOf[Double],
-          x("longitude").asInstanceOf[Double]
+          x("longitude").asInstanceOf[Double],
+          consumptionTime
         )
       })
   }
 
-  def sfStationStatusJson2DF(jsonDF: DataFrame, spark: SparkSession): DataFrame = {
-    val toStatusFn: UserDefinedFunction = udf(sfToStationStatus)
 
+  def sfStationStatusJson2DF(jsonDF: DataFrame, spark: SparkSession, consumptionTime: Column): DataFrame = {
+    val toStatusFn: UserDefinedFunction = udf(sfToStationStatus)
     import spark.implicits._
 
-    jsonDF.select(explode(toStatusFn(jsonDF("raw_payload"))) as "status")
+    val ctJsonDF = jsonDF
+      .withColumn("consumption_time", consumptionTime)
+
+    ctJsonDF
+      .select(explode(toStatusFn(ctJsonDF("raw_payload"), ctJsonDF("consumption_time"))) as "status")
       .select($"status.*")
   }
 
-  def franceStationStatusJson2DF(jsonDF: DataFrame, spark: SparkSession): DataFrame = {
+  def franceStationStatusJson2DF(jsonDF: DataFrame, spark: SparkSession, consumptionTime: Column): DataFrame = {
     val toStatusFn: UserDefinedFunction = udf(franceToStationStatus)
 
     import spark.implicits._
 
-    jsonDF.select(explode(toStatusFn(jsonDF("raw_payload"))) as "status")
+    val ctJsonDF = jsonDF
+      .withColumn("consumption_time", consumptionTime)
+
+    ctJsonDF.select(explode(toStatusFn(ctJsonDF("raw_payload"), ctJsonDF("consumption_time"))) as "status")
       .select($"status.*")
+
   }
 
-  def nycStationStatusJson2DF(jsonDF: DataFrame, spark: SparkSession): DataFrame = {
+  def nycStationStatusJson2DF(jsonDF: DataFrame, spark: SparkSession, consumptionTime: Column): DataFrame = {
     import spark.implicits._
 
-    jsonDF.select(from_json($"raw_payload", ScalaReflection.schemaFor[StationStatus].dataType) as "status")
+    jsonDF
+      .withColumn("consumption_time", consumptionTime)
+      .select(from_json($"raw_payload", ScalaReflection.schemaFor[StationStatus].dataType) as "status")
       .select($"status.*")
   }
 }

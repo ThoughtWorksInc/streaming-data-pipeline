@@ -5,6 +5,7 @@ import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.spark.sql.SparkSession
 import org.slf4j.LoggerFactory
+import org.apache.spark.sql.functions._
 
 object StationApp {
 
@@ -33,9 +34,15 @@ object StationApp {
 
     val spark = SparkSession.builder
       .appName("StationConsumer")
+      .enableHiveSupport()
       .getOrCreate()
+
+    spark.conf.set("spark.sql.session.timeZone", "UTC")
+
     logger.info("Starting Consumer")
+
     import spark.implicits._
+    val consumptionTime = current_timestamp()
 
     val nycStationDF = spark.readStream
       .format("kafka")
@@ -45,7 +52,7 @@ object StationApp {
       .option("failOnDataLoss", false)
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
-      .transform(nycStationStatusJson2DF(_, spark))
+      .transform(nycStationStatusJson2DF(_, spark, consumptionTime))
 
     val sfStationDF = spark.readStream
       .format("kafka")
@@ -55,7 +62,7 @@ object StationApp {
       .option("failOnDataLoss", false)
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
-      .transform(sfStationStatusJson2DF(_, spark))
+      .transform(sfStationStatusJson2DF(_, spark, consumptionTime))
 
     val franceStationDF = spark.readStream
       .format("kafka")
@@ -65,7 +72,7 @@ object StationApp {
       .option("failOnDataLoss", false)
       .load()
       .selectExpr("CAST(value AS STRING) as raw_payload")
-      .transform(franceStationStatusJson2DF(_, spark))
+      .transform(franceStationStatusJson2DF(_, spark, consumptionTime))
 
     logger.info("Consuming...")
 
@@ -77,7 +84,7 @@ object StationApp {
       .reduceGroups((r1,r2)=>if (r1.last_updated > r2.last_updated) r1 else r2)
       .map(_._2)
       .writeStream
-      .format("overwriteCSV")
+      .format("appendCSV")
       .outputMode("complete")
       .option("header", true)
       .option("truncate", false)
