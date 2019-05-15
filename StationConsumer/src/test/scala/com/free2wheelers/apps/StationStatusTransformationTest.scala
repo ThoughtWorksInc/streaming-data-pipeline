@@ -4,6 +4,7 @@ import com.free2wheelers.apps.StationStatusTransformation.nycStationStatusJson2D
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.ScalaReflection
 import org.scalatest._
+import org.apache.spark.sql.functions._
 
 class StationStatusTransformationTest extends FeatureSpec with Matchers with GivenWhenThen {
 
@@ -33,7 +34,7 @@ class StationStatusTransformationTest extends FeatureSpec with Matchers with Giv
 
 
       When("Transformations are applied")
-      val resultDF1 = testDF1.transform(nycStationStatusJson2DF(_, spark))
+      val resultDF1 = testDF1.transform(nycStationStatusJson2DF(_, spark, current_timestamp()))
 
       Then("Useful columns are extracted")
       resultDF1.schema.fields(0).name should be("bikes_available")
