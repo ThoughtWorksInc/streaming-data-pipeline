@@ -76,14 +76,17 @@ object StationApp {
 
     logger.info("Consuming...")
 
-    nycStationDF
+
+    val data_df = nycStationDF
       .union(franceStationDF)
       .union(sfStationDF)
       .as[StationStatus]
-      .groupByKey(r=>r.station_id)
-      .reduceGroups((r1,r2)=>if (r1.last_updated > r2.last_updated) r1 else r2)
+      .groupByKey(r => r.station_id)
+      .reduceGroups((r1, r2) => if (r1.last_updated > r2.last_updated) r1 else r2)
       .map(_._2)
-      .writeStream
+
+
+    data_df.writeStream
       .format("appendCSV")
       .outputMode("complete")
       .option("header", true)
@@ -92,5 +95,11 @@ object StationApp {
       .option("path", outputLocation)
       .start()
       .awaitTermination()
+
+    data_df.write.format("csv")
+      .mode("overwrite")
+      .save("s3a://data-eng-bangalore-april-2019-training-data/2wheeler-station-data/")
+
+
   }
 }

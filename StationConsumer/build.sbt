@@ -1,3 +1,4 @@
+
 val sparkVersion = "2.3.0"
 
 lazy val root = (project in file(".")).
@@ -20,6 +21,9 @@ lazy val root = (project in file(".")).
       "org.apache.spark" %% "spark-sql" % sparkVersion,
       "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion,
       "org.apache.spark" %% "spark-streaming" % sparkVersion,
-      "org.apache.spark" %% "spark-streaming-kafka-0-10" % sparkVersion
-    )
-  )
+      "org.apache.spark" %% "spark-streaming-kafka-0-10" % sparkVersion,
+      "org.apache.hadoop" % "hadoop-aws" % "2.8.5",
+      "com.amazonaws" % "aws-java-sdk" % "1.7.4"
+    
+)
+)
