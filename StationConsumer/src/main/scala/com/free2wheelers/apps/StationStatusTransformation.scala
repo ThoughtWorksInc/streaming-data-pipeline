@@ -9,23 +9,26 @@ import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{udf, _}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.joda.time.DateTime
-import org.apache.spark.sql.functions._
 
 import scala.util.parsing.json.JSON
 
 object StationStatusTransformation {
 
-  val sfToStationStatus: String => Seq[StationStatus] = raw_payload => {
+  val sfToStationStatus: (String, String) => Seq[StationStatus] = (raw_payload, consumption_time) => {
     val json = JSON.parseFull(raw_payload)
+    val ctjson = JSON.parseFull(consumption_time)
+
     val metadata = json.get.asInstanceOf[Map[String, Any]]("metadata")
     val payload = json.get.asInstanceOf[Map[String, Any]]("payload")
-    extractSFStationStatus(payload, metadata)
+    val consumptionTime = ctjson.get.asInstanceOf[Map[String, Timestamp]]("consumption_time")
+    extractSFStationStatus(payload, metadata, consumptionTime)
   }
 
-  val franceToStationStatus: String => Seq[StationStatus] = raw_payload => {
+  val franceToStationStatus:  (String, Timestamp) => Seq[StationStatus]  =  (raw_payload, consumption_time)=> {
     val json = JSON.parseFull(raw_payload)
     val payload = json.get.asInstanceOf[Map[String, Any]]("payload")
-    extractFranceStationStatus(payload)
+    val consumptionTime = json.get.asInstanceOf[Map[String, Timestamp]]("consumption_time")
+    extractFranceStationStatus(payload, consumptionTime)
   }
 
   val getMetadata: String => Metadata = raw_metadata => {
@@ -44,7 +47,7 @@ object StationStatusTransformation {
     )
   }
 
-  private def extractSFStationStatus(payload: Any, metadata: Any) = {
+  private def extractSFStationStatus(payload: Any, metadata: Any, consumptionTime: Timestamp) = {
 
     val network: Any = payload.asInstanceOf[Map[String, Any]]("network")
 
@@ -64,13 +67,12 @@ object StationStatusTransformation {
           x("name").asInstanceOf[String],
           x("latitude").asInstanceOf[Double],
           x("longitude").asInstanceOf[Double],
-          x("consumption_time").asInstanceOf[Timestamp]
-          //ingestionTime
+          consumptionTime
         )
       })
   }
 
-  private def extractFranceStationStatus(payload: Any) = {
+  private def extractFranceStationStatus(payload: Any, consumptionTime: Timestamp) = {
 
     val network: Any = payload.asInstanceOf[Map[String, Any]]("network")
 
@@ -88,7 +90,8 @@ object StationStatusTransformation {
           x("name").asInstanceOf[String],
           x("latitude").asInstanceOf[Double],
           x("longitude").asInstanceOf[Double],
-          x("consumption_time").asInstanceOf[Timestamp]
+          consumptionTime
+//          x("consumption_time").asInstanceOf[Timestamp]
         )
       })
   }
@@ -106,11 +109,11 @@ object StationStatusTransformation {
     val toStatusFn: UserDefinedFunction = udf(sfToStationStatus)
     import spark.implicits._
 
-    jsonDF.printSchema()
+    jsonDF.withColumn("consumption_time", lit(current_timestamp)).printSchema()
 
     jsonDF
       .withColumn("consumption_time", lit(current_timestamp))
-      .select(explode(toStatusFn(jsonDF("raw_payload"))) as "status")
+      .select(explode(toStatusFn(jsonDF("raw_payload"), jsonDF("consumption_time"))) as "status")
       .select($"status.*")
   }
 
@@ -123,7 +126,7 @@ object StationStatusTransformation {
 
     jsonDF
       .withColumn("consumption_time", lit(current_timestamp))
-      .select(explode(toStatusFn(jsonDF("raw_payload"))) as "status")
+      .select(explode(toStatusFn(jsonDF("raw_payload"), jsonDF("consumption_time"))) as "status")
       .select($"status.*")
 
   }
