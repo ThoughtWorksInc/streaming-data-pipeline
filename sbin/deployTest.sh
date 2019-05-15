@@ -75,7 +75,7 @@ echo "====Producers Deployed===="
 
 
 echo "====Configure HDFS paths===="
-scp ./hdfs/seed.sh emr-master.bangalore-april-2019-test.training:/tmp/hdfs-seed.sh
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ./hdfs/seed.sh emr-master.bangalore-april-2019-test.training:/tmp/hdfs-seed.sh
 
 ssh emr-master.bangalore-april-2019-test.training '
 set -e
