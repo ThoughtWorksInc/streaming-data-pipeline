@@ -34,7 +34,6 @@ object StationApp {
 
     val spark = SparkSession.builder
       .appName("StationConsumer")
-      .enableHiveSupport()
       .getOrCreate()
 
     spark.conf.set("spark.sql.session.timeZone", "UTC")
