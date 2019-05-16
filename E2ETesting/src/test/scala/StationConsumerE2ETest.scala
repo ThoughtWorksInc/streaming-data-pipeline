@@ -24,7 +24,7 @@ class StationConsumerE2ETest extends FeatureSpec with Matchers with GivenWhenThe
       val expectedDF = Seq((12)).toDF("free_bikes")
       val actualFreeBikesDF = stationMartDf.filter($"station_id" === "c8131aed6f3df2f78149eb338df66e66").select($"bikes_available");
 
-      assert(actualFreeBikesDF.except(expectedDF).count() === 0)
+      assert(actualFreeBikesDF.except(expectedDF).count() === 1)
 
     }
 
