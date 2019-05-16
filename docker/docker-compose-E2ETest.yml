@@ -60,22 +60,6 @@ services:
         networks:
           - streaming-data-internal
 
-
-    raw-station-data-test-san-francisco-saver:
-        build:
-            context: ../RawDataSaver
-            dockerfile: Dockerfile-station-data-SF
-        depends_on:
-          - kafka
-          - station-test-producer
-          - hadoop-seed
-          - zookeeper-seed
-        volumes:
-          - ~/.ivy2:/root/.ivy2:rw
-        networks:
-          - streaming-data-internal
-        restart: on-failure
-
     station-consumer:
         build:
             context: ../StationConsumer
