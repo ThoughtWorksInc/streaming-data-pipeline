@@ -86,19 +86,20 @@ object StationApp {
       .map(_._2)
 
 
-    data_df.writeStream
-      .format("appendCSV")
-      .outputMode("complete")
-      .option("header", true)
-      .option("truncate", false)
-      .option("checkpointLocation", checkpointLocation)
-      .option("path", outputLocation)
+//    data_df.writeStream
+//      .format("appendCSV")
+//      .outputMode("complete")
+//      .option("header", true)
+//      .option("truncate", false)
+//      .option("checkpointLocation", checkpointLocation)
+//      .option("path", outputLocation)
+//      .start()
+//      .awaitTermination()
+
+     data_df.writeStream.format("appendCSV")
+      .option("path","s3a://data-eng-bangalore-april-2019-training-data/2wheeler-station-data/")
       .start()
       .awaitTermination()
-
-    data_df.write.format("csv")
-      .mode("overwrite")
-      .save("s3a://data-eng-bangalore-april-2019-training-data/2wheeler-station-data/")
 
 
   }
