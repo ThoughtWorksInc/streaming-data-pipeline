@@ -91,7 +91,9 @@ jobs:
           fingerprints:
             - "10:ac:af:c4:ef:ae:f0:69:81:a6:36:20:0f:49:8d:8d"
       - run:
-          command: ./sbin/deployTest.sh
+          command:
+            set -e
+            ./sbin/deployTest.sh
   deploy-prod:
     <<: *defaults
     steps:
