@@ -154,7 +154,6 @@ echo "====Deploy Station Consumers===="
 
 nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationApp --name StationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --queue streaming --conf spark.executor.memory=2g --conf spark.cores.max=1 /tmp/free2wheelers-station-consumer_2.11-0.0.1.jar kafka.bangalore-april-2019.training:2181 1>/tmp/station-consumer.log 2>/tmp/station-consumer.error.log &
 
-nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationApp --name StationTransformerNYC --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --queue streaming --conf spark.executor.memory=2g --conf spark.cores.max=1 /tmp/free2wheelers-station-transformer-nyc_2.11-0.0.1.jar kafka.bangalore-april-2019.training:2181 1>/tmp/station-transformer-nyc.log 2>/tmp/station-transformer-nyc.error.log &
-
+nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationApp --name StationTransformerNYC --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --queue streaming --conf spark.executor.memory=2g --conf spark.cores.max=1 --conf spark.dynamicAllocation.maxExecutors=2 /tmp/free2wheelers-station-transformer-nyc_2.11-0.0.1.jar kafka.bangalore-april-2019.training:2181 1>/tmp/station-transformer-nyc.log 2>/tmp/station-transformer-nyc.error.log &
 echo "====Station Consumers Deployed===="
 '
