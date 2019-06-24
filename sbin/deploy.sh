@@ -94,7 +94,7 @@ echo "====HDFS paths configured==="
 
 
 echo "====Copy Raw Data Saver Jar to EMR===="
-scp RawDataSaver/target/scala-2.11/free2wheelers-raw-data-saver_2.11-0.0.1.jar hadoop@emr-master.twdu1training:/tmp/
+scp RawDataSaver/target/scala-2.11/free2wheelers-raw-data-saver_2.11-0.0.1.jar hadoop@emr-master.twdu1.training:/tmp/
 echo "====Raw Data Saver Jar Copied to EMR===="
 
 scp sbin/go.sh hadoop@emr-master.twdu1.training:/tmp/go.sh
