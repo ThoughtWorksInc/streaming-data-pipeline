@@ -3,7 +3,7 @@
 set -e
 
 echo "====ssh bastion===="
-ssh ec2-user@ec2-18-139-56-171.ap-southeast-1.compute.amazonaws.com
+ssh -o "StrictHostKeyChecking no" ec2-user@ec2-18-139-56-171.ap-southeast-1.compute.amazonaws.com
 hostname
 exit
 echo "====ssh bastion finish===="
