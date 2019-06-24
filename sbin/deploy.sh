@@ -2,12 +2,25 @@
 
 set -e
 
-echo "====ssh bastion===="
-ssh -o "StrictHostKeyChecking no" ec2-user@ec2-18-139-56-171.ap-southeast-1.compute.amazonaws.com'
-set -e
-hostname
-'
-echo "====ssh bastion finish===="
+echo "====Updating SSH Config===="
+
+echo "
+	User ec2-user
+	IdentitiesOnly yes
+	ForwardAgent yes
+	DynamicForward 6789
+    StrictHostKeyChecking no
+Host emr-master.twdu1.training
+    User hadoop
+Host *.twdu1.training
+	ForwardAgent yes
+	ProxyCommand ssh 18.223.142.203 -W %h:%p 2>/dev/null
+	User ec2-user
+    StrictHostKeyChecking no
+" >> ~/.ssh/config
+
+echo "====SSH Config Updated===="
+
 echo "====Insert app config in zookeeper===="
 scp ./zookeeper/seed.sh ec2-user@kafka.twdu1.training:/tmp/zookeeper-seed.sh
 scp ./kafka/seed.sh ec2-user@kafka.twdu1.training:/tmp/kafka-seed.sh
