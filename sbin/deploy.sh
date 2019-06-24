@@ -22,8 +22,16 @@ Host *.twdu1.training
 echo "====SSH Config Updated===="
 
 echo "====Insert app config in zookeeper===="
-scp -o "StrictHostKeyChecking no" ./zookeeper/seed.sh kafka.twdu1.training:/tmp/zookeeper-seed.sh
-
+scp ./zookeeper/seed.sh kafka.twdu1.training:/tmp/zookeeper-seed.sh
+scp ./kafka/seed.sh kafka.twdu1.training:/tmp/kafka-seed.sh
+ssh kafka.twdu1.training '
+set -e
+export hdfs_server="emr-master.twdu1.training:8020"
+export kafka_server="kafka.twdu1.training:9092"
+export zk_command="zookeeper-shell localhost:2181"
+sh /tmp/zookeeper-seed.sh
+sh /tmp/kafka-seed.sh
+'
 echo "====Inserted app config in zookeeper===="
 
 echo "====Copy jar to ingester server===="
