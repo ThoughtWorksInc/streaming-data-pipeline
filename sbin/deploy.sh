@@ -23,15 +23,7 @@ echo "====SSH Config Updated===="
 
 echo "====Insert app config in zookeeper===="
 scp ./zookeeper/seed.sh ec2-user@kafka.twdu1.training:/tmp/zookeeper-seed.sh
-scp ./kafka/seed.sh ec2-user@kafka.twdu1.training:/tmp/kafka-seed.sh
-ssh ec2-user@kafka.twdu1.training '
-set -e
-export hdfs_server="emr-master.twdu1.training:8020"
-export kafka_server="kafka.twdu1.training:9092"
-export zk_command="zookeeper-shell localhost:2181"
-sh /tmp/zookeeper-seed.sh
-sh /tmp/kafka-seed.sh
-'
+
 echo "====Inserted app config in zookeeper===="
 
 echo "====Copy jar to ingester server===="
