@@ -7,16 +7,16 @@ echo "====Updating SSH Config===="
 echo "
 	User ec2-user
 	IdentitiesOnly yes
+    StrictHostKeyChecking no
 	ForwardAgent yes
 	DynamicForward 6789
-    StrictHostKeyChecking no
 Host emr-master.twdu1.training
     User hadoop
 Host *.twdu1.training
+	StrictHostKeyChecking no
 	ForwardAgent yes
 	ProxyCommand ssh 18.139.56.171 -W %h:%p 2>/dev/null
 	User ec2-user
-    StrictHostKeyChecking no
 " >> ~/.ssh/config
 
 echo "====SSH Config Updated===="
