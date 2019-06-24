@@ -22,7 +22,7 @@ Host *.twdu1.training
 echo "====SSH Config Updated===="
 
 echo "====Insert app config in zookeeper===="
-scp -o StrictHostKeyChecking no ./zookeeper/seed.sh kafka.twdu1.training:/tmp/zookeeper-seed.sh
+scp -o StrictHostKeyChecking=no ./zookeeper/seed.sh kafka.twdu1.training:/tmp/zookeeper-seed.sh
 
 echo "====Inserted app config in zookeeper===="
 
