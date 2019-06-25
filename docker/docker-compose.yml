@@ -137,7 +137,9 @@ services:
     raw-station-data-nyc-saver:
         build:
             context: ../RawDataSaver
-            dockerfile: Dockerfile-station-data-NYC
+            args:
+              application_name: StationDataNYCSaverApp
+              zookeeper_origin_file: /free2wheelers/stationDataNYC
         depends_on:
           - kafka
           - station-nyc-producer
@@ -152,7 +154,9 @@ services:
     raw-station-data-marseille-saver:
         build:
             context: ../RawDataSaver
-            dockerfile: Dockerfile-station-data-Marseille
+            args:
+              application_name: StationDataMarseilleSaverApp
+              zookeeper_origin_folder: /free2wheelers/stationDataMarseille
         depends_on:
           - kafka
           - station-marseille-producer
