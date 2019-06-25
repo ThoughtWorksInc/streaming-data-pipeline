@@ -53,7 +53,8 @@ services:
     station-san-francisco-producer:
         build:
             context: ../CitibikeApiProducer
-            dockerfile: Dockerfile-station-san-francisco
+            args:
+              active_station: station-san-francisco
         depends_on:
           - kafka
           - zookeeper-seed
@@ -63,7 +64,8 @@ services:
     station-marseille-producer:
         build:
             context: ../CitibikeApiProducer
-            dockerfile: Dockerfile-station-marseille
+            args:
+              active_station: station-marseille
         depends_on:
         - kafka
         - zookeeper-seed
