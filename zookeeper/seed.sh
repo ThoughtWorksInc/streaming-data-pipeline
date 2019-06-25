@@ -31,6 +31,8 @@ $zk_command create /free2wheelers/stationDataSF/dataLocation hdfs://$hdfs_server
 $zk_command create /free2wheelers/stationDataMarseille ''
 $zk_command create /free2wheelers/stationDataMarseille/kafkaBrokers $kafka_server
 $zk_command create /free2wheelers/stationDataMarseille/topic station_data_marseille
+$zk_command create /free2wheelers/stationDataMarseille/checkpointLocation hdfs://$hdfs_server/free2wheelers/rawData/stationDataMarseille/checkpoints
+$zk_command create /free2wheelers/stationDataMarseille/dataLocation hdfs://$hdfs_server/free2wheelers/rawData/stationDataMarseille/data
 
 $zk_command create /free2wheelers/output ''
 $zk_command create /free2wheelers/output/checkpointLocation hdfs://$hdfs_server/free2wheelers/stationMart/checkpoints
