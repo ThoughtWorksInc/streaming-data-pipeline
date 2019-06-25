@@ -1,4 +1,7 @@
 # streaming-data-pipeline
+
+[![CircleCI](https://circleci.com/gh/ThoughtWorksInc/streaming-data-pipeline.svg?style=svg)](https://circleci.com/gh/ThoughtWorksInc/streaming-data-pipeline)
+
 Streaming pipeline repo for data engineering training program
 
 See producers and consumers set up README in their respective directories
