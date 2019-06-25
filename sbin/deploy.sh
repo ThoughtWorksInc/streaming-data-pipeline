@@ -109,7 +109,7 @@ echo "====Kill Old Raw Data Saver===="
 kill_application "StationStatusSaverApp"
 kill_application "StationInformationSaverApp"
 kill_application "StationDataSFSaverApp"
-kill_application "StationDataFranceSaverApp"
+kill_application "StationDataMarseilleSaverApp"
 
 echo "====Old Raw Data Saver Killed===="
 
@@ -121,7 +121,7 @@ nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers
 
 nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --name StationDataSFSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar kafka.twdu1.training:2181 "/free2wheelers/stationDataSF" 1>/tmp/raw-station-data-sf-saver.log 2>/tmp/raw-station-data-sf-saver.error.log &
 
-nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --name StationDataFranceSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar kafka.twdu1.training:2181 "/free2wheelers/stationDataFrance" 1>/tmp/raw-station-data-france-saver.log 2>/tmp/raw-station-data-france-saver.error.log &
+nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --name StationDataMarseilleSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar kafka.twdu1.training:2181 "/free2wheelers/stationDataMarseille" 1>/tmp/raw-station-data-marseille-saver.log 2>/tmp/raw-station-data-marseille-saver.error.log &
 
 echo "====Raw Data Saver Deployed===="
 '
