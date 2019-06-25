@@ -86,7 +86,9 @@ services:
     raw-station-information-data-saver:
         build:
             context: ../RawDataSaver
-            dockerfile: Dockerfile-station-information
+            args:
+              application_name: StationInformationSaverApp
+              zookeeper_origin_folder: /free2wheelers/stationInformation
         depends_on:
           - kafka
           - station-san-francisco-producer
@@ -101,7 +103,9 @@ services:
     raw-station-status-data-saver:
         build:
             context: ../RawDataSaver
-            dockerfile: Dockerfile-station-status
+            args:
+              application_name: StationStatusSaverApp
+              zookeeper_origin_folder: /free2wheelers/stationStatus
         depends_on:
           - kafka
           - station-san-francisco-producer
@@ -116,7 +120,9 @@ services:
     raw-station-data-san-francisco-saver:
         build:
             context: ../RawDataSaver
-            dockerfile: Dockerfile-station-data-SF
+            args:
+              application_name: StationDataSFSaverApp
+              zookeeper_origin_folder: /free2wheelers/stationDataSF
         depends_on:
           - kafka
           - station-san-francisco-producer
