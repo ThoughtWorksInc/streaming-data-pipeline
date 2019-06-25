@@ -115,6 +115,21 @@ services:
           - streaming-data-internal
         restart: on-failure
 
+    raw-station-data-marseille-saver:
+      build:
+        context: ../RawDataSaver
+        dockerfile: Dockerfile-station-data-Marseille
+      depends_on:
+        - kafka
+        - station-marseille-producer
+        - hadoop-seed
+        - zookeeper-seed
+      volumes:
+        - ~/.ivy2:/root/.ivy2:rw
+      networks:
+        - streaming-data-internal
+      restart: on-failure
+
     station-consumer:
         build:
             context: ../StationConsumer
