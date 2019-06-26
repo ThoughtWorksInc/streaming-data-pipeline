@@ -28,4 +28,5 @@ To check for data:
 - Your docker machine may need at least `CPUs: 2`/`Memory: 4GiB`/`Swap: 512 MiB`; remember to "Apply & Restart"
 - When running the script run `docker stats` for some insights
 - There's a script for stopping: `./sbin/stopAndRemoveLocal.sh`, try stopping and restarting
+- If you're interested in execution logs: `docker logs $CONTAINER_ID`
 
