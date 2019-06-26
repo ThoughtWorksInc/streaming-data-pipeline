@@ -25,6 +25,7 @@ To check for data:
 - Your docker machine may need CPUs: 2/Memory: 4GiB/Swap: 512 MiB; remember to "Apply & Restart"
 - When running the script run `docker stats` for some insights
 - There's a script for stopping: `./sbin/stopAndRemoveLocal.sh`, try stopping and restarting
+- Make sure you don't have a previous instance of Zookeeper, Kafka or Spark running before executing the script (it won't be able to allocate the port)
 
 
 ### A Second Option [Deprecated]:
