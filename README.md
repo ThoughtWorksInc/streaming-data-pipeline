@@ -25,7 +25,7 @@ To check for data:
     4. Tada! We have data! (if you don't -- something went wrong, check "Considerations")
 
 ###Considerations
-- Your docker machine may need CPUs: 2/Memory: 4GiB/Swap: 512 MiB; remember to "Apply & Restart"
+- Your docker machine may need at least `CPUs: 2`/`Memory: 4GiB`/`Swap: 512 MiB`; remember to "Apply & Restart"
 - When running the script run `docker stats` for some insights
 - There's a script for stopping: `./sbin/stopAndRemoveLocal.sh`, try stopping and restarting
 
