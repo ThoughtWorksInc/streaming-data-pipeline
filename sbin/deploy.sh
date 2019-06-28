@@ -89,7 +89,7 @@ echo "====Producers Deployed===="
 echo "====Configure HDFS paths===="
 scp ./hdfs/seed.sh hadoop@emr-master.$ENVIRONMENT.training:/tmp/hdfs-seed.sh
 
-ssh hadoop@emr-master.$ENVIRONMENT.training '
+ssh -o SendEnv=ENVIRONMENT hadoop@emr-master.$ENVIRONMENT.training '
 set -e
 export hdfs_server="emr-master.$ENVIRONMENT.training:8020"
 export hadoop_path="hadoop"
@@ -105,7 +105,7 @@ echo "====Raw Data Saver Jar Copied to EMR===="
 
 scp sbin/go.sh hadoop@emr-master.$ENVIRONMENT.training:/tmp/go.sh
 
-ssh hadoop@emr-master.$ENVIRONMENT.training '
+ssh -o SendEnv=ENVIRONMENT hadoop@emr-master.$ENVIRONMENT.training '
 set -e
 
 source /tmp/go.sh
@@ -144,7 +144,7 @@ echo "====File Checker Jar Copied to EMR===="
 
 scp sbin/go.sh hadoop@emr-master.$ENVIRONMENT.training:/tmp/go.sh
 
-ssh hadoop@emr-master.$ENVIRONMENT.training '
+ssh -o SendEnv=ENVIRONMENT hadoop@emr-master.$ENVIRONMENT.training '
 set -e
 
 source /tmp/go.sh
