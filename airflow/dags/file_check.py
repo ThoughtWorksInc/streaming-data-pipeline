@@ -9,9 +9,6 @@ default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
     'start_date': datetime.today().strftime('%Y-%m-%d'),
-    'email': ['gchasifa@thoughtworks.com'],
-    'email_on_failure': False,
-    'email_on_retry': False,
     'retries': 0,
     'retry_delay': timedelta(minutes=5),
 }
@@ -22,17 +19,17 @@ def notify_email(contextDict, **kwargs):
     """Send custom email alerts."""
 
     # email title.
-    title = "Something went wrong with stationMart in HDFS".format(**contextDict)
+    title = "Validations in 2wheelers data pipeline failed".format(**contextDict)
 
     # email contents
     body = """
     Hi Everyone, <br>
     <br>
-    There's been an error with stationMart in HDFS<br>
+    There's been an error with the final output of the 2wheelers data pipeline<br>
     <br>
     """.format(**contextDict)
 
-    send_email('TWDU-June2019-Participants@thoughtworks.com', title, body)
+    send_email('TWDU-June2019-Participants@thoughtworks.com, cpatel@thoughtworks.com', title, body)
 
 file_check_task = """
 export AWS_DEFAULT_REGION=us-east-2
