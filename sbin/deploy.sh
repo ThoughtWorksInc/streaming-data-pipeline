@@ -3,8 +3,8 @@
 set -e
 
 echo "==========ENV SETUP========="
-ENVIRONMENT=$1
-echo "$ENVIRONMENT"
+COHORT=$1
+echo "$COHORT"
 
 BASTION_PUBLIC_IP=$2
 
@@ -16,9 +16,9 @@ echo "
     StrictHostKeyChecking no
 	ForwardAgent yes
 	DynamicForward 6789
-Host emr-master.$ENVIRONMENT.training
+Host emr-master.$COHORT.training
     User hadoop
-Host *.$ENVIRONMENT.training
+Host *.$COHORT.training
 	StrictHostKeyChecking no
 	ForwardAgent yes
 	ProxyCommand ssh $BASTION_PUBLIC_IP -W %h:%p 2>/dev/null
@@ -28,23 +28,23 @@ Host *.$ENVIRONMENT.training
 echo "====SSH Config Updated===="
 
 echo "====Insert app config in zookeeper===="
-scp ./zookeeper/seed.sh kafka.$ENVIRONMENT.training:/tmp/zookeeper-seed.sh
-scp ./kafka/seed.sh kafka.$ENVIRONMENT.training:/tmp/kafka-seed.sh
-ssh kafka.$ENVIRONMENT.training '
+scp ./zookeeper/seed.sh kafka.$COHORT.training:/tmp/zookeeper-seed.sh
+scp ./kafka/seed.sh kafka.$COHORT.training:/tmp/kafka-seed.sh
+ssh kafka.$COHORT.training bash -c "'
 set -e
-export hdfs_server="emr-master.$ENVIRONMENT.training:8020"
-export kafka_server="kafka.$ENVIRONMENT.training:9092"
+export hdfs_server="emr-master.$COHORT.training:8020"
+export kafka_server="kafka.$COHORT.training:9092"
 export zk_command="zookeeper-shell localhost:2181"
 sh /tmp/zookeeper-seed.sh
 sh /tmp/kafka-seed.sh
-'
+'"
 echo "====Inserted app config in zookeeper===="
 
 echo "====Copy jar to ingester server===="
-scp CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar ec2-user@ingester.$ENVIRONMENT.training:/tmp/
+scp CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar ec2-user@ingester.$COHORT.training:/tmp/
 echo "====Jar copied to ingester server===="
 
-ssh ec2-user@ingester.$ENVIRONMENT.training '
+ssh ec2-user@ingester.$COHORT.training '
 set -e
 
 function kill_process {
@@ -78,20 +78,20 @@ echo "====Runing Producers Killed===="
 
 echo "====Deploy Producers===="
 
-nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=${station_san_francisco} --producer.topic=station_data_sf --kafka.brokers=kafka.$ENVIRONMENT.training:9092 1>/tmp/${station_san_francisco}.log 2>/tmp/${station_san_francisco}.error.log &
-nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=${station_nyc} --producer.topic=station_data_nyc_v2 --kafka.brokers=kafka.$ENVIRONMENT.training:9092 1>/tmp/${station_nyc}.log 2>/tmp/${station_nyc}.error.log &
-nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=${station_marseille} --kafka.brokers=kafka.$ENVIRONMENT.training:9092 1>/tmp/${station_marseille}.log 2>/tmp/${station_marseille}.error.log &
+nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=${station_san_francisco} --producer.topic=station_data_sf --kafka.brokers=kafka.$COHORT.training:9092 1>/tmp/${station_san_francisco}.log 2>/tmp/${station_san_francisco}.error.log &
+nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=${station_nyc} --producer.topic=station_data_nyc_v2 --kafka.brokers=kafka.$COHORT.training:9092 1>/tmp/${station_nyc}.log 2>/tmp/${station_nyc}.error.log &
+nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=${station_marseille} --kafka.brokers=kafka.$COHORT.training:9092 1>/tmp/${station_marseille}.log 2>/tmp/${station_marseille}.error.log &
 
 echo "====Producers Deployed===="
 '
 
 
 echo "====Configure HDFS paths===="
-scp ./hdfs/seed.sh hadoop@emr-master.$ENVIRONMENT.training:/tmp/hdfs-seed.sh
+scp ./hdfs/seed.sh hadoop@emr-master.$COHORT.training:/tmp/hdfs-seed.sh
 
-ssh hadoop@emr-master.$ENVIRONMENT.training bash -c "'
+ssh hadoop@emr-master.$COHORT.training bash -c "'
 set -e
-export hdfs_server="emr-master.$ENVIRONMENT.training:8020"
+export hdfs_server="emr-master.$COHORT.training:8020"
 export hadoop_path="hadoop"
 sh /tmp/hdfs-seed.sh
 '"
@@ -100,12 +100,12 @@ echo "====HDFS paths configured==="
 
 
 echo "====Copy Raw Data Saver Jar to EMR===="
-scp RawDataSaver/target/scala-2.11/free2wheelers-raw-data-saver_2.11-0.0.1.jar hadoop@emr-master.$ENVIRONMENT.training:/tmp/
+scp RawDataSaver/target/scala-2.11/free2wheelers-raw-data-saver_2.11-0.0.1.jar hadoop@emr-master.$COHORT.training:/tmp/
 echo "====Raw Data Saver Jar Copied to EMR===="
 
-scp sbin/go.sh hadoop@emr-master.$ENVIRONMENT.training:/tmp/go.sh
+scp sbin/go.sh hadoop@emr-master.$COHORT.training:/tmp/go.sh
 
-ssh hadoop@emr-master.$ENVIRONMENT.training bash -c "'
+ssh hadoop@emr-master.$COHORT.training bash -c "'
 set -e
 
 source /tmp/go.sh
@@ -122,29 +122,29 @@ echo "====Old Raw Data Saver Killed===="
 
 echo "====Deploy Raw Data Saver===="
 
-nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --queue streaming --name StationStatusSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar kafka.$ENVIRONMENT.training:2181 "/free2wheelers/stationStatus" 1>/tmp/raw-station-status-data-saver.log 2>/tmp/raw-station-status-data-saver.error.log &
+nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --queue streaming --name StationStatusSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar kafka.$COHORT.training:2181 "/free2wheelers/stationStatus" 1>/tmp/raw-station-status-data-saver.log 2>/tmp/raw-station-status-data-saver.error.log &
 
-nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --queue streaming --name StationInformationSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar kafka.$ENVIRONMENT.training:2181 "/free2wheelers/stationInformation" 1>/tmp/raw-station-information-data-saver.log 2>/tmp/raw-station-information-data-saver.error.log &
+nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --queue streaming --name StationInformationSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar kafka.$COHORT.training:2181 "/free2wheelers/stationInformation" 1>/tmp/raw-station-information-data-saver.log 2>/tmp/raw-station-information-data-saver.error.log &
 
-nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --queue streaming --name StationDataSFSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar kafka.$ENVIRONMENT.training:2181 "/free2wheelers/stationDataSF" 1>/tmp/raw-station-data-sf-saver.log 2>/tmp/raw-station-data-sf-saver.error.log &
+nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --queue streaming --name StationDataSFSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar kafka.$COHORT.training:2181 "/free2wheelers/stationDataSF" 1>/tmp/raw-station-data-sf-saver.log 2>/tmp/raw-station-data-sf-saver.error.log &
 
-nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --queue streaming --name StationDataMarseilleSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar kafka.$ENVIRONMENT.training:2181 "/free2wheelers/stationDataMarseille" 1>/tmp/raw-station-data-marseille-saver.log 2>/tmp/raw-station-data-marseille-saver.error.log &
+nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --queue streaming --name StationDataMarseilleSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar kafka.$COHORT.training:2181 "/free2wheelers/stationDataMarseille" 1>/tmp/raw-station-data-marseille-saver.log 2>/tmp/raw-station-data-marseille-saver.error.log &
 
 echo "====Raw Data Saver Deployed===="
 '"
 
 
 echo "====Copy Station Consumers Jar to EMR===="
-scp StationConsumer/target/scala-2.11/free2wheelers-station-consumer_2.11-0.0.1.jar hadoop@emr-master.$ENVIRONMENT.training:/tmp/
+scp StationConsumer/target/scala-2.11/free2wheelers-station-consumer_2.11-0.0.1.jar hadoop@emr-master.$COHORT.training:/tmp/
 echo "====Station Consumers Jar Copied to EMR===="
 
 echo "====Copy File Checker Jar to EMR===="
-scp FileChecker/target/scala-2.11/free2wheelers-file-checker_2.11-0.0.1.jar hadoop@emr-master.$ENVIRONMENT.training:/tmp/
+scp FileChecker/target/scala-2.11/free2wheelers-file-checker_2.11-0.0.1.jar hadoop@emr-master.$COHORT.training:/tmp/
 echo "====File Checker Jar Copied to EMR===="
 
-scp sbin/go.sh hadoop@emr-master.$ENVIRONMENT.training:/tmp/go.sh
+scp sbin/go.sh hadoop@emr-master.$COHORT.training:/tmp/go.sh
 
-ssh hadoop@emr-master.$ENVIRONMENT.training bash -c "'
+ssh hadoop@emr-master.$COHORT.training bash -c "'
 set -e
 
 source /tmp/go.sh
@@ -164,12 +164,12 @@ echo "====Old File Checker Killed===="
 
 echo "====Deploy Station Consumer===="
 
-nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationApp --queue streaming --name StationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-station-consumer_2.11-0.0.1.jar kafka.$ENVIRONMENT.training:2181 1>/tmp/station-consumer.log 2>/tmp/station-consumer.error.log &
+nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationApp --queue streaming --name StationApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0  --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-station-consumer_2.11-0.0.1.jar kafka.$COHORT.training:2181 1>/tmp/station-consumer.log 2>/tmp/station-consumer.error.log &
 
 echo "====Station Consumer Deployed===="
 
 '"
 
 echo "====copy dags to airflow machine===="
-scp -r ./airflow/dags ec2-user@airflow.$ENVIRONMENT.training:~/airflow/
+scp -r ./airflow/dags ec2-user@airflow.$COHORT.training:~/airflow/
 echo "====dags copied to airflow machine===="
