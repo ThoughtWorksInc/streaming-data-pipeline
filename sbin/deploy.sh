@@ -89,12 +89,12 @@ echo "====Producers Deployed===="
 echo "====Configure HDFS paths===="
 scp ./hdfs/seed.sh hadoop@emr-master.$ENVIRONMENT.training:/tmp/hdfs-seed.sh
 
-ssh -o SendEnv=ENVIRONMENT hadoop@emr-master.$ENVIRONMENT.training '
+ssh hadoop@emr-master.$ENVIRONMENT.training bash -c "'
 set -e
 export hdfs_server="emr-master.$ENVIRONMENT.training:8020"
 export hadoop_path="hadoop"
 sh /tmp/hdfs-seed.sh
-'
+'"
 
 echo "====HDFS paths configured==="
 
@@ -105,7 +105,7 @@ echo "====Raw Data Saver Jar Copied to EMR===="
 
 scp sbin/go.sh hadoop@emr-master.$ENVIRONMENT.training:/tmp/go.sh
 
-ssh -o SendEnv=ENVIRONMENT hadoop@emr-master.$ENVIRONMENT.training '
+ssh hadoop@emr-master.$ENVIRONMENT.training bash -c "'
 set -e
 
 source /tmp/go.sh
@@ -131,7 +131,7 @@ nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers
 nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --queue streaming --name StationDataMarseilleSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar kafka.$ENVIRONMENT.training:2181 "/free2wheelers/stationDataMarseille" 1>/tmp/raw-station-data-marseille-saver.log 2>/tmp/raw-station-data-marseille-saver.error.log &
 
 echo "====Raw Data Saver Deployed===="
-'
+'"
 
 
 echo "====Copy Station Consumers Jar to EMR===="
@@ -144,7 +144,7 @@ echo "====File Checker Jar Copied to EMR===="
 
 scp sbin/go.sh hadoop@emr-master.$ENVIRONMENT.training:/tmp/go.sh
 
-ssh -o SendEnv=ENVIRONMENT hadoop@emr-master.$ENVIRONMENT.training '
+ssh hadoop@emr-master.$ENVIRONMENT.training bash -c "'
 set -e
 
 source /tmp/go.sh
@@ -168,7 +168,7 @@ nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers
 
 echo "====Station Consumer Deployed===="
 
-'
+'"
 
 echo "====copy dags to airflow machine===="
 scp -r ./airflow/dags ec2-user@airflow.$ENVIRONMENT.training:~/airflow/
