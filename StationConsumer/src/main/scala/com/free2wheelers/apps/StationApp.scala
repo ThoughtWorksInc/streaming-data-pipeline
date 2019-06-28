@@ -22,7 +22,7 @@ object StationApp {
     val stationKafkaBrokers = new String(zkClient.getData.forPath("/free2wheelers/stationStatus/kafkaBrokers"))
 
     val nycStationTopic = new String(zkClient.getData.watched.forPath("/free2wheelers/stationDataNYC/topic"))
-    val nycV2StationTopic = new String(zkClient.getData.watched.forPath("/free2wheelers/stationDataNYCV2/topic"))
+//    val nycV2StationTopic = new String(zkClient.getData.watched.forPath("/free2wheelers/stationDataNYCV2/topic"))
     val sfStationTopic = new String(zkClient.getData.watched.forPath("/free2wheelers/stationDataSF/topic"))
     val marseilleStationTopic = new String(zkClient.getData.watched.forPath("/free2wheelers/stationDataMarseille/topic"))
 
@@ -36,11 +36,11 @@ object StationApp {
       .appName("StationConsumer")
       .getOrCreate()
 
-    val nycV2DF = spark.readStream
+    val nycDF = spark.readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", stationKafkaBrokers)
       .option("auto.offset.reset","latest")
-      .option("subscribe", nycV2StationTopic)
+      .option("subscribe", nycStationTopic)
       .option("startingOffsets", "latest")
       .option("failOnDataLoss","false")
       .load()
@@ -68,7 +68,7 @@ object StationApp {
       .selectExpr("CAST(value AS STRING) as raw_payload")
       .transform(marseilleStationStatusJson2DF(_, spark))
 
-    val version2DF = sfStationDF.union(marseilleStationDF).union(nycV2DF)
+    val version2DF = sfStationDF.union(marseilleStationDF).union(nycDF)
 
     unionStationData(version2DF, spark)
       .writeStream

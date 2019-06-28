@@ -69,7 +69,7 @@ services:
         depends_on:
         - kafka
         - zookeeper-seed
-        networks:
+      networks:
         - streaming-data-internal
 
     raw-station-information-data-saver:
@@ -82,6 +82,7 @@ services:
           - kafka
           - station-san-francisco-producer
           - hadoop-seed
+          - station-nyc-producer
           - zookeeper-seed
         volumes:
           - ~/.ivy2:/root/.ivy2:rw
@@ -99,6 +100,7 @@ services:
           - kafka
           - station-san-francisco-producer
           - hadoop-seed
+          - station-nyc-producer
           - zookeeper-seed
         volumes:
           - ~/.ivy2:/root/.ivy2:rw
@@ -123,22 +125,23 @@ services:
           - streaming-data-internal
         restart: on-failure
 
-    raw-station-data-marseille-saver:
-        build:
-            context: ../RawDataSaver
-            args:
-              application_name: StationDataMarseilleSaverApp
-              zookeeper_origin_folder: /free2wheelers/stationDataMarseille
-        depends_on:
-          - kafka
-          - station-marseille-producer
-          - hadoop-seed
-          - zookeeper-seed
-        volumes:
-          - ~/.ivy2:/root/.ivy2:rw
-        networks:
-          - streaming-data-internal
-        restart: on-failure
+
+    raw-station-data-nyc-v2-saver:
+      build:
+        context: ../RawDataSaver
+        args:
+          application_name: StationDataNYCV2SaverApp
+          zookeeper_origin_folder: /free2wheelers/stationDataNYCV2
+      depends_on:
+        - kafka
+        - station-nyc-producer
+        - hadoop-seed
+        - zookeeper-seed
+      volumes:
+        - ~/.ivy2:/root/.ivy2:rw
+      networks:
+        - streaming-data-internal
+      restart: on-failure
 
     station-consumer:
         build:

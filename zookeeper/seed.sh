@@ -4,11 +4,14 @@ $zk_command rmr /free2wheelers
 $zk_command create /free2wheelers ''
 
 $zk_command create /free2wheelers/stationDataNYC ''
+$zk_command create /free2wheelers/stationDataSF/kafkaBrokers $kafka_server
 $zk_command create /free2wheelers/stationDataNYC/topic station_data_nyc
 $zk_command create /free2wheelers/stationDataNYC/checkpointLocation hdfs://$hdfs_server/free2wheelers/rawData/stationDataNYC/checkpoints
 
 $zk_command create /free2wheelers/stationDataNYCV2 ''
+$zk_command create /free2wheelers/stationDataSF/kafkaBrokers $kafka_server
 $zk_command create /free2wheelers/stationDataNYCV2/topic station_data_nyc_v2
+$zk_command create /free2wheelers/stationDataNYCV2/checkpointLocation hdfs://$hdfs_server/free2wheelers/rawData/stationDataNYCV2/checkpoints
 
 $zk_command create /free2wheelers/stationInformation ''
 $zk_command create /free2wheelers/stationInformation/kafkaBrokers $kafka_server
