@@ -81,7 +81,18 @@ jobs:
         key: scala-dependencies-{{ .Branch }}-{{ checksum "./FileChecker/build.sbt"}}
         paths:
         - "~/.ivy2/cache"
-  deploy:
+  deploy-to-uat:
+    <<: *defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /home/circleci/project
+      - add_ssh_keys:
+          fingerprints:
+            - "20:06:55:5a:f2:31:72:ad:6b:62:d1:35:3b:58:d2:10"
+      - run:
+          command: ./sbin/deploy-uat.sh
+  deploy-to-prod:
     <<: *defaults
     steps:
     - checkout
@@ -91,7 +102,7 @@ jobs:
         fingerprints:
         - "ce:0b:2b:b0:20:ad:54:ed:a0:7d:f6:8a:06:a4:be:5e"
     - run:
-        command: ./sbin/deploy.sh
+        command: ./sbin/deploy-prod.sh
 
 workflows:
   version: 2
@@ -102,34 +113,35 @@ workflows:
           branches:
             only:
             - master
-            - bangalore-april-2019
     - build-raw-data-saver:
         filters:
           branches:
             only:
             - master
-            - bangalore-april-2019
     - build-station-consumer:
         filters:
           branches:
             only:
             - master
-            - bangalore-april-2019
     - build-file-checker:
         filters:
           branches:
             only:
             - master
-            - bangalore-april-2019
 
-    - approve-deploy:
-        type: approval
+    - deploy-to-uat:
         requires:
         - build-producer
         - build-raw-data-saver
         - build-station-consumer
         - build-file-checker
-    - deploy:
+
+    - approve-deploy-to-prod:
+        type: approval
         requires:
-        - approve-deploy
+        - deploy-to-uat
+
+    - deploy-to-prod:
+        requires:
+        - approve-deploy-to-prod
 
