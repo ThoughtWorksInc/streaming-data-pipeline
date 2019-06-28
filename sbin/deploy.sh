@@ -6,6 +6,8 @@ echo "==========ENV SETUP========="
 ENVIRONMENT=$1
 echo "$ENVIRONMENT"
 
+BASTION_PUBLIC_IP=$2
+
 echo "====Updating SSH Config===="
 
 echo "
@@ -19,7 +21,7 @@ Host emr-master.$ENVIRONMENT.training
 Host *.$ENVIRONMENT.training
 	StrictHostKeyChecking no
 	ForwardAgent yes
-	ProxyCommand ssh 18.139.56.171 -W %h:%p 2>/dev/null
+	ProxyCommand ssh $BASTION_PUBLIC_IP -W %h:%p 2>/dev/null
 	User ec2-user
 " >> ~/.ssh/config
 
