@@ -44,18 +44,18 @@ echo "====Copy jar to ingester server===="
 scp CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar ec2-user@ingester.$COHORT.training:/tmp/
 echo "====Jar copied to ingester server===="
 
-ssh ec2-user@ingester.$COHORT.training '
+ssh ec2-user@ingester.$COHORT.training bash -c "'
 set -e
 
 function kill_process {
-    query=$1
-    pid=`ps aux | grep $query | grep -v "grep" |  awk "{print \\$2}"`
+    query=\$1
+    pid=`ps aux | grep \$query | grep -v "grep" |  awk "{print \\\$2}"`
 
     if [ -z "$pid" ];
     then
-        echo "no ${query} process running"
+        echo "no \$query process running"
     else
-        kill -9 $pid
+        kill -9 \$pid
     fi
 }
 
@@ -68,22 +68,22 @@ station_marseille="station-marseille"
 
 echo "====Kill running producers===="
 
-kill_process ${station_information}
-kill_process ${station_status}
-kill_process ${station_san_francisco}
-kill_process ${station_nyc}
-kill_process ${station_marseille}
+kill_process \${station_information}
+kill_process \${station_status}
+kill_process \${station_san_francisco}
+kill_process \${station_nyc}
+kill_process \${station_marseille}
 
 echo "====Runing Producers Killed===="
 
 echo "====Deploy Producers===="
 
-nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=${station_san_francisco} --producer.topic=station_data_sf --kafka.brokers=kafka.$COHORT.training:9092 1>/tmp/${station_san_francisco}.log 2>/tmp/${station_san_francisco}.error.log &
-nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=${station_nyc} --producer.topic=station_data_nyc_v2 --kafka.brokers=kafka.$COHORT.training:9092 1>/tmp/${station_nyc}.log 2>/tmp/${station_nyc}.error.log &
-nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=${station_marseille} --kafka.brokers=kafka.$COHORT.training:9092 1>/tmp/${station_marseille}.log 2>/tmp/${station_marseille}.error.log &
+nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=\${station_san_francisco} --producer.topic=station_data_sf --kafka.brokers=kafka.$COHORT.training:9092 1>/tmp/\${station_san_francisco}.log 2>/tmp/\${station_san_francisco}.error.log &
+nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=\${station_nyc} --producer.topic=station_data_nyc_v2 --kafka.brokers=kafka.$COHORT.training:9092 1>/tmp/\${station_nyc}.log 2>/tmp/\${station_nyc}.error.log &
+nohup java -jar /tmp/free2wheelers-citibike-apis-producer0.1.0.jar --spring.profiles.active=\${station_marseille} --kafka.brokers=kafka.$COHORT.training:9092 1>/tmp/\${station_marseille}.log 2>/tmp/\${station_marseille}.error.log &
 
 echo "====Producers Deployed===="
-'
+'"
 
 
 echo "====Configure HDFS paths===="
