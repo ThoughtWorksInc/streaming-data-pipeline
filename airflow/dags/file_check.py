@@ -32,10 +32,10 @@ def notify_email(contextDict, **kwargs):
     send_email('TWDU-June2019-Participants@thoughtworks.com, cpatel@thoughtworks.com', title, body)
 
 file_check_task = """
-export AWS_DEFAULT_REGION=us-east-2
-step=$(aws emr add-steps --cluster-id {{ var.json.prod.cluster-id }} --steps Type=SPARK,Name="Test File Check",ActionOnFailure=CONTINUE,Args=[--class,com.free2wheelers.apps.FileChecker,--master,yarn,--deploy-mode,cluster,--queue,monitoring,/tmp/free2wheelers-file-checker_2.11-0.0.1.jar,/free2wheelers/stationMart/data] | python -c 'import json,sys;obj=json.load(sys.stdin);print obj.get("StepIds")[0];')
+export AWS_DEFAULT_REGION={{ var.json.monitoring_file_checker_v1.aws_region }}
+step=$(aws emr add-steps --cluster-id {{ var.json.monitoring_file_checker_v1.cluster_id }} --steps Type=SPARK,Name="Test File Check",ActionOnFailure=CONTINUE,Args=[--class,com.free2wheelers.apps.FileChecker,--master,yarn,--deploy-mode,cluster,--queue,monitoring,/tmp/free2wheelers-file-checker_2.11-0.0.1.jar,/free2wheelers/stationMart/data] | python -c 'import json,sys;obj=json.load(sys.stdin);print obj.get("StepIds")[0];')
 echo '========='$step
-aws emr wait step-complete --cluster-id {{ var.json.prod.cluster-id }} --step-id $step
+aws emr wait step-complete --cluster-id {{ var.json.monitoring_file_checker_v1.cluster_id }} --step-id $step
 """
 
 o1 = BashOperator(
