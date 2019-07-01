@@ -19,7 +19,7 @@ class StationAppTest extends FeatureSpec with Matchers {
       result.schema.fields(4).name should be("last_updated")
       result.schema.fields(4).dataType should be(StringType)
 
-      result.head().last_updated should be("2018-11-08T17:43:48.632000Z")
+      result.head().last_updated should be("2018-11-08T17:43:48")
     }
 
     scenario("Should return latest data for a given station based on latitude and longitude") {
@@ -30,7 +30,7 @@ class StationAppTest extends FeatureSpec with Matchers {
 
       result.count() should be(1)
 
-      result.head().last_updated should be(sampleDataLatest.last_updated)
+      result.head().last_updated should be("2018-11-08T17:43:48")
     }
 
     scenario("Should not group when stations share latitude coordinates but not longitude") {

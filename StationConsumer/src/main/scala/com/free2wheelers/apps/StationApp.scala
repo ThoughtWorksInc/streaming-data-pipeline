@@ -1,6 +1,7 @@
 package com.free2wheelers.apps
 
 import java.time.Instant
+import java.time.format.DateTimeFormatter
 
 import com.free2wheelers.apps.StationTransformer._
 import org.apache.curator.framework.CuratorFrameworkFactory
@@ -93,5 +94,12 @@ object StationApp {
         if (time1.isAfter(time2)) row1 else row2
       })
       .map(_._2)
+      .map(stationInfo => {
+          val originalDateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'")
+          val isoDateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+
+          val parsedLastUpdated = originalDateTimeFormat.parse(stationInfo.last_updated)
+          stationInfo.copy(last_updated = isoDateTimeFormat.format(parsedLastUpdated))
+      }
   }
 }
