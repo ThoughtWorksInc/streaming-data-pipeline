@@ -100,6 +100,6 @@ object StationApp {
 
           val parsedLastUpdated = originalDateTimeFormat.parse(stationInfo.last_updated)
           stationInfo.copy(last_updated = isoDateTimeFormat.format(parsedLastUpdated))
-      }
+      })
   }
 }
