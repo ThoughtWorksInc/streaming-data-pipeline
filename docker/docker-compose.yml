@@ -61,6 +61,17 @@ services:
         networks:
           - streaming-data-internal
 
+    station-new-york-producer:
+      build:
+        context: ../CitibikeApiProducer
+        args:
+          active_station: station-nyc
+      depends_on:
+        - kafka
+        - zookeeper-seed
+      networks:
+        - streaming-data-internal
+
     station-marseille-producer:
         build:
             context: ../CitibikeApiProducer
@@ -122,6 +133,23 @@ services:
         networks:
           - streaming-data-internal
         restart: on-failure
+
+    raw-station-data-new-york-saver:
+      build:
+        context: ../RawDataSaver
+        args:
+          application_name: StationDataNYCSaverApp
+          zookeeper_origin_folder: /free2wheelers/stationDataNYCV2
+      depends_on:
+        - kafka
+        - station-new-york-producer
+        - hadoop-seed
+        - zookeeper-seed
+      volumes:
+        - ~/.ivy2:/root/.ivy2:rw
+      networks:
+        - streaming-data-internal
+      restart: on-failure
 
     raw-station-data-marseille-saver:
         build:
