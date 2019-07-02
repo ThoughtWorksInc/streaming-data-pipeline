@@ -12,59 +12,59 @@ class StationReportValidatorTest extends FeatureSpec with Matchers {
     val stationReportValidator = new StationReportValidator(spark)
 
     feature("should validate station location - Latitude") {
-        scenario("should return Latitude Errors as 0 if all latitudes are correct") {
+        scenario("should return true if all latitudes are correct") {
             val stationDF = Seq((1, 1.0, 1.0), (2, 4.0, 5.0)).toDF(columns: _*)
-            val result = stationReportValidator.validate(stationDF)
-            result("Latitude Errors") should be(0)
+            val result = stationReportValidator.isValid(stationDF)
+            result should equal(true)
         }
 
-        scenario("should return number of Latitude Errors that are incorrect") {
+        scenario("should return false when there are latitude errors") {
             val stationDF = Seq((1, "1.0a", 1.0), (2, "a4.0", 5.0)).toDF(columns: _*)
-            val result = stationReportValidator.validate(stationDF)
-            result("Latitude Errors") should be(2)
+            val result = stationReportValidator.isValid(stationDF)
+            result should equal(false)
         }
     }
 
     feature("should validate station location - Longitude") {
-        scenario("should return Longitude Errors as 0 if all latitudes are correct") {
+        scenario("should return true if longitudes are correct") {
             val stationDF = Seq((1, 1.0, 1.0), (2, 4.0, 5.0)).toDF(columns: _*)
-            val result = stationReportValidator.validate(stationDF)
-            result("Longitude Errors") should be(0)
+            val result = stationReportValidator.isValid(stationDF)
+            result should equal(true)
         }
 
-        scenario("should return number of Longitude Errors that are incorrect") {
+        scenario("should return false when there are latitude errors") {
             val stationDF = Seq((1, 1.0, "1.0a"), (2, 2.0, "9.0")).toDF(columns: _*)
-            val result = stationReportValidator.validate(stationDF)
-            result("Longitude Errors") should be(1)
+            val result = stationReportValidator.isValid(stationDF)
+            result should equal(false)
         }
     }
 
     feature("should validate station id") {
-        scenario("station_id should have 0 Duplicate Errors if all stations are entered correctly") {
+        scenario("should return true when there are 0 Duplicate Errors") {
             val stationDF = Seq((1, 1.0, 1.0), (2, 4.0, 5.0)).toDF(columns: _*)
-            val result = stationReportValidator.validate(stationDF)
-            result("Duplicates Errors") should be(0)
+            val result = stationReportValidator.isValid(stationDF)
+            result should equal(true)
         }
 
-        scenario("should return the number of duplicate stations in the file") {
+        scenario("should return false when there are Duplicate Errors") {
             val stationDF = Seq((1, 1.0, 1.0), (1, 4.0, 5.0)).toDF(columns: _*)
-            val result = stationReportValidator.validate(stationDF)
-            result("Duplicates Errors") should be(1)
+            val result = stationReportValidator.isValid(stationDF)
+            result should equal(false)
         }
     }
 
     feature("should validate if there is data inside the file") {
 
-        scenario("should return true if the file is empty") {
+        scenario("should return false if the file is empty") {
             val stationDF = Seq.empty[(Int, Double, Double)].toDF(columns: _*)
-            val result = stationReportValidator.validate(stationDF)
-            result("Is File Empty") should equal(true)
+            val result = stationReportValidator.isValid(stationDF)
+            result should equal(false)
         }
 
-        scenario("should return false if the file contains data") {
-            val stationDF = Seq((1, 1.0, 1.0), (1, 4.0, 5.0)).toDF(columns: _*)
-            val result = stationReportValidator.validate(stationDF)
-            result("Is File Empty") should equal(false)
+        scenario("should return true if the file contains data") {
+            val stationDF = Seq((1, 1.0, 1.0)).toDF(columns: _*)
+            val result = stationReportValidator.isValid(stationDF)
+            result should equal(true)
         }
 
     }

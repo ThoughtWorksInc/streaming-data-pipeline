@@ -11,11 +11,9 @@ object FileChecker {
 
     val stationReportValidator = new StationReportValidator(spark)
     val fileValidator = new FileValidator()
-
-    val checker = new ValidationEngine(stationReportValidator, fileValidator)
-
     val stationMartDF = spark.read.option("header", "true").csv(outputFile)
 
+    val checker = new ValidationEngine(stationReportValidator, fileValidator)
     checker.checkFile(outputFile, stationMartDF, hdfs)
   }
 }

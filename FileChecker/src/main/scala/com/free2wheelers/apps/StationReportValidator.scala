@@ -3,31 +3,25 @@ package com.free2wheelers.apps
 import org.apache.spark.sql.functions.{col, count}
 import org.apache.spark.sql.{AnalysisException, DataFrame, SparkSession}
 
-sealed class StationReportValidator(spark: SparkSession) {
+class StationReportValidator(spark: SparkSession) {
 
     val LAT_LONG_REGEX = "^-?\\d+\\.\\d+$"
 
     val DUPLICATION_THRESHOLD = 1
 
-    def validate(stationMartDF: DataFrame): Map[String, AnyVal] = {
+    def isValid(stationMartDF: DataFrame): Boolean = {
         try {
             val duplicatedStationCount = check_duplicated_stations(stationMartDF)
             val numberOfInvalidLatitudeStations = check_invalid_latitude(stationMartDF)
             val numberOfInvalidLongitudeStations = check_invalid_longitude(stationMartDF)
             val isEmptyDF = stationMartDF.rdd.isEmpty()
 
-            val result = isEmptyDF ||
-                duplicatedStationCount > 0 ||
-                numberOfInvalidLongitudeStations > 0 ||
-                numberOfInvalidLatitudeStations > 0
+            val isValid = (!isEmptyDF) &&
+                duplicatedStationCount == 0 &&
+                numberOfInvalidLongitudeStations == 0 &&
+                numberOfInvalidLatitudeStations == 0
 
-            Map("Longitude Errors" -> numberOfInvalidLongitudeStations,
-                "Latitude Errors" -> numberOfInvalidLatitudeStations,
-                "Duplicates Errors" -> duplicatedStationCount,
-                "Is File Empty" -> isEmptyDF,
-                "IS_VALID" -> !result
-            )
-
+            isValid
         } catch {
             case analysis_exception: AnalysisException => {
                 analysis_exception.printStackTrace()

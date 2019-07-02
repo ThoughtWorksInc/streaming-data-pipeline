@@ -9,6 +9,7 @@ class FileValidatorTest extends FeatureSpec with Matchers {
 
     feature("validate timestamp of the file") {
         val fileValidator = new FileValidator()
+        val limitInMinutes = 5
         scenario("should return false if file is modified within 5 minutes") {
             val mockFileStatus = mock[FileStatus]
 
@@ -17,9 +18,8 @@ class FileValidatorTest extends FeatureSpec with Matchers {
 
             when(mockFileStatus.getModificationTime).thenReturn(nowMinusThreeMinutes)
 
-            val result = fileValidator.isFileModifiedWithinTimeLimit(mockFileStatus)
-            result("is_delayed") should equal(false)
-            result should not contain key ("delayed_by_ms")
+            val result = fileValidator.isFileModifiedWithinTimeLimit(mockFileStatus, limitInMinutes)
+            result should equal(false)
         }
 
         scenario("should return false if file is modified at exactly 5 minutes") {
@@ -30,9 +30,8 @@ class FileValidatorTest extends FeatureSpec with Matchers {
 
             when(mockFileStatus.getModificationTime).thenReturn(nowMinusFiveMinutes)
 
-            val result = fileValidator.isFileModifiedWithinTimeLimit(mockFileStatus)
-            result("is_delayed") should equal(false)
-            result should not contain key ("delayed_by_ms")
+            val result = fileValidator.isFileModifiedWithinTimeLimit(mockFileStatus, limitInMinutes)
+            result should equal(false)
         }
 
         scenario("should return true if file is modified more than 5 minutes ago") {
@@ -43,9 +42,8 @@ class FileValidatorTest extends FeatureSpec with Matchers {
 
             when(mockFileStatus.getModificationTime).thenReturn(nowMinusSixMinutes)
 
-            val result = fileValidator.isFileModifiedWithinTimeLimit(mockFileStatus)
-            result("is_delayed") should equal(true)
-            result("delayed_by_ms") should equal (sixMinutesInMillis)
+            val result = fileValidator.isFileModifiedWithinTimeLimit(mockFileStatus, limitInMinutes)
+            result should equal(true)
         }
     }
 
