@@ -13,7 +13,7 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
-dag = DAG('monitoring_file_checker_v1', default_args=default_args, schedule_interval='*/10 * * * *')
+dag = DAG('monitoring_file_checker_v1', default_args=default_args, schedule_interval='0 */10 * * * *')
 
 def notify_email(contextDict, **kwargs):
     """Send custom email alerts."""
