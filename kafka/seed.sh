@@ -4,34 +4,16 @@ set -e
 
 environment_type=$1
 
-if [[ "${environment_type}" == "uat" ]]
-then
-    topic_retention_config="--config retention.bytes=94371840 --config retention.ms=86400000"
-else
-    topic_retention_config=""
-fi
-
-topic_config="--replication-factor 1 --partitions 1 --config cleanup.policy=delete ${topic_retention_config}"
-
-
-
 kafka-configs --bootstrap-server localhost:9092 --alter --add-config retention.ms=3600000,cleanup.policy=delete --entity-type brokers --entity-name 0
 
+topics="station_data_information station_data_marseille station_data_nyc station_data_nyc_v2 station_data_sf station_data_status station_data_test station_information station_status"
 
-kafka-topics --zookeeper localhost:2181 --create --if-not-exists ${topic_config} --topic station_data_information
+for topic in ${topics}
+do
+    kafka-topics --zookeeper localhost:2181 --create --if-not-exists --replication-factor 1 --partitions 1 --config cleanup.policy=delete --topic ${topic}
 
-kafka-topics --zookeeper localhost:2181 --create --if-not-exists ${topic_config} --topic station_data_marseille
-
-kafka-topics --zookeeper localhost:2181 --create --if-not-exists ${topic_config} --topic station_data_nyc
-
-kafka-topics --zookeeper localhost:2181 --create --if-not-exists ${topic_config} --topic station_data_nyc_v2
-
-kafka-topics --zookeeper localhost:2181 --create --if-not-exists ${topic_config} --topic station_data_sf
-
-kafka-topics --zookeeper localhost:2181 --create --if-not-exists ${topic_config} --topic station_data_status
-
-kafka-topics --zookeeper localhost:2181 --create --if-not-exists ${topic_config} --topic station_data_test
-
-kafka-topics --zookeeper localhost:2181 --create --if-not-exists ${topic_config} --topic station_information
-
-kafka-topics --zookeeper localhost:2181 --create --if-not-exists ${topic_config} --topic station_status
+    if [[ "${environment_type}" == "uat" ]]
+    then
+        kafka-configs --zookeeper localhost:2181 --alter --add-config retention.bytes=94371840,retention.ms=86400000 --entity-type topics --entity-name ${topic}
+    fi
+done
