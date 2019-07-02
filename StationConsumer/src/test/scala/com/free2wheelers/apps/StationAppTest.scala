@@ -18,8 +18,14 @@ class StationAppTest extends FeatureSpec with Matchers {
 
       result.schema.fields(4).name should be("last_updated")
       result.schema.fields(4).dataType should be(StringType)
+      result.head().last_updated should be("2018-11-08T17:43:48")
+    }
 
-      result.head().last_updated should be("2018-11-08T17:43:48.632000Z")
+    scenario("Should filter timestamps in unexpected formats") {
+      val df = List(StationStatus(4, 5, true, true, "2018-11-08T17:43:48.6Z", "123", "Best SF Bikes", 0, 0)).toDF()
+      val result = unionStationData(df, spark)
+
+      result.count() should be(0)
     }
 
     scenario("Should return latest data for a given station based on latitude and longitude") {
@@ -29,8 +35,7 @@ class StationAppTest extends FeatureSpec with Matchers {
       val result = unionStationData(df, spark)
 
       result.count() should be(1)
-
-      result.head().last_updated should be(sampleDataLatest.last_updated)
+      result.head().last_updated should be("2018-11-08T17:43:48")
     }
 
     scenario("Should not group when stations share latitude coordinates but not longitude") {

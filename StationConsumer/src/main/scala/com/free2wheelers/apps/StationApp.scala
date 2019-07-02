@@ -1,13 +1,17 @@
 package com.free2wheelers.apps
 
 import java.time.Instant
+import java.time.format.{DateTimeFormatter, DateTimeParseException}
 
 import com.free2wheelers.apps.StationTransformer._
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
+import org.apache.log4j.{Level, LogManager, Logger}
 
 object StationApp {
+  var log: Logger = LogManager.getRootLogger
+  log.setLevel(Level.INFO)
 
   def main(args: Array[String]): Unit = {
 
@@ -82,9 +86,25 @@ object StationApp {
       .awaitTermination()
   }
 
+  def parseDateTimeToIsoFormat(stationInfo: StationStatus) = {
+    try {
+      val originalDateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'")
+      val isoDateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+      val parsedLastUpdated = originalDateTimeFormat.parse(stationInfo.last_updated)
+
+      stationInfo.copy(last_updated = isoDateTimeFormat.format(parsedLastUpdated))
+    } catch {
+      case ex: DateTimeParseException => {
+        log.error(s"The date ${stationInfo.last_updated} does not comply with the expected format - yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'")
+        stationInfo.copy(last_updated = "")
+      }
+    }
+
+  }
+
   def unionStationData(version2DF: Dataset[Row], spark: SparkSession): Dataset[StationStatus] = {
     import spark.implicits._
-      version2DF
+    version2DF
       .as[StationStatus]
       .groupByKey(row => (row.latitude, row.longitude))
       .reduceGroups((row1, row2) => {
@@ -93,5 +113,7 @@ object StationApp {
         if (time1.isAfter(time2)) row1 else row2
       })
       .map(_._2)
+      .map(parseDateTimeToIsoFormat)
+      .filter(row => !"".equals(row.last_updated))
   }
 }
