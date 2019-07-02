@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import org.apache.hadoop.fs.{FileStatus, FileSystem, Path}
 
-object FileValidator {
+class FileValidator {
 
     var LIMIT_IN_MINUTES = 5
 

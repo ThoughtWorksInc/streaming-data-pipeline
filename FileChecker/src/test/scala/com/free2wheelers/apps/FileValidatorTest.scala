@@ -8,6 +8,7 @@ import org.scalatest.{FeatureSpec, Matchers}
 class FileValidatorTest extends FeatureSpec with Matchers {
 
     feature("validate timestamp of the file") {
+        val fileValidator = new FileValidator()
         scenario("should return false if file is modified within 5 minutes") {
             val mockFileStatus = mock[FileStatus]
 
@@ -16,7 +17,7 @@ class FileValidatorTest extends FeatureSpec with Matchers {
 
             when(mockFileStatus.getModificationTime).thenReturn(nowMinusThreeMinutes)
 
-            val result = FileValidator.isFileModifiedWithinTimeLimit(mockFileStatus)
+            val result = fileValidator.isFileModifiedWithinTimeLimit(mockFileStatus)
             result("is_delayed") should equal(false)
             result should not contain key ("delayed_by_ms")
         }
@@ -29,7 +30,7 @@ class FileValidatorTest extends FeatureSpec with Matchers {
 
             when(mockFileStatus.getModificationTime).thenReturn(nowMinusFiveMinutes)
 
-            val result = FileValidator.isFileModifiedWithinTimeLimit(mockFileStatus)
+            val result = fileValidator.isFileModifiedWithinTimeLimit(mockFileStatus)
             result("is_delayed") should equal(false)
             result should not contain key ("delayed_by_ms")
         }
@@ -42,7 +43,7 @@ class FileValidatorTest extends FeatureSpec with Matchers {
 
             when(mockFileStatus.getModificationTime).thenReturn(nowMinusSixMinutes)
 
-            val result = FileValidator.isFileModifiedWithinTimeLimit(mockFileStatus)
+            val result = fileValidator.isFileModifiedWithinTimeLimit(mockFileStatus)
             result("is_delayed") should equal(true)
             result("delayed_by_ms") should equal (sixMinutesInMillis)
         }
@@ -51,19 +52,19 @@ class FileValidatorTest extends FeatureSpec with Matchers {
     feature("does file exist") {
         val path = "hdfs://"
         val hdfs = mock[FileSystem]
+        val fileValidator = new FileValidator()
 
         scenario("should not throw exception if file exist "){
             when(hdfs.exists(new Path(path))).thenReturn(true)
 
-            noException should be thrownBy FileValidator.doesFileExist(path,hdfs)
+            noException should be thrownBy fileValidator.doesFileExist(path,hdfs)
         }
 
         scenario("should throw exception if file does not exist") {
             when(hdfs.exists(new Path(path))).thenReturn(false)
 
-            the [RuntimeException] thrownBy FileValidator.doesFileExist(path,hdfs)
+            the [RuntimeException] thrownBy fileValidator.doesFileExist(path,hdfs)
         }
     }
-
 
 }
