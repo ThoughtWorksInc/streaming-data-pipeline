@@ -30,7 +30,7 @@ export hdfs_server="emr-master.twdu1-uat.training:8020"
 export kafka_server="kafka.twdu1-uat.training:9092"
 export zk_command="zookeeper-shell localhost:2181"
 sh /tmp/zookeeper-seed.sh
-sh /tmp/kafka-seed.sh
+sh /tmp/kafka-seed.sh uat
 '
 echo "====Inserted app config in zookeeper===="
 
