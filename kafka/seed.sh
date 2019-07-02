@@ -6,11 +6,10 @@ environment_type=$1
 
 if [[ "${environment_type}" == "uat" ]]
 then
-    topic_retention_config = "--config retention.bytes=94371840 --config retention.ms=86400000"
+    topic_retention_config="--config retention.bytes=94371840 --config retention.ms=86400000"
 else
-    topic_retention_config = ""
+    topic_retention_config=""
 fi
-
 
 topic_config="--replication-factor 1 --partitions 1 --config cleanup.policy=delete ${topic_retention_config}"
 
