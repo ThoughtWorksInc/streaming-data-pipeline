@@ -95,7 +95,9 @@ object StationApp {
       stationInfo.copy(last_updated = isoDateTimeFormat.format(parsedLastUpdated))
     } catch {
       case ex: DateTimeParseException => {
-        log.error(s"The date ${stationInfo.last_updated} does not comply with the expected format - yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'")
+        log.error(s"Station Id: ${stationInfo.station_id} | " +
+          s"The last_updated date ${stationInfo.last_updated} is not in this " +
+          s"format - yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'")
         stationInfo.copy(last_updated = "")
       }
     }

@@ -22,7 +22,8 @@ class StationAppTest extends FeatureSpec with Matchers {
     }
 
     scenario("Should filter timestamps in unexpected formats") {
-      val df = List(StationStatus(4, 5, true, true, "2018-11-08T17:43:48.6Z", "123", "Best SF Bikes", 0, 0)).toDF()
+      val incorrectlyFormatted = "2018-11-08T17:43:48.6Z"
+      val df = List(StationStatus(4, 5, true, true, incorrectlyFormatted, "123", "Best SF Bikes", 0, 0)).toDF()
       val result = unionStationData(df, spark)
 
       result.count() should be(0)
