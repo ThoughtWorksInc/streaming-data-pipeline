@@ -1,6 +1,6 @@
 package com.free2wheelers.apps
 
-import com.free2wheelers.apps.StationTransformer.{marseilleStationStatusJson2DF, sfStationStatusJson2DF}
+import com.free2wheelers.apps.StationTransformer.{transformFromJson2DF}
 import org.apache.spark.sql.SparkSession
 import org.scalatest._
 
@@ -41,7 +41,7 @@ class StationTransformerTest extends FeatureSpec with Matchers with GivenWhenThe
       val testDF1 = Seq(testSanFranciscoStationData).toDF("raw_payload")
 
       When("Transformations are applied")
-      val resultDF1 = testDF1.transform(sfStationStatusJson2DF(_, spark))
+      val resultDF1 = testDF1.transform(transformFromJson2DF(_, spark,Cities.SanFrancisco))
 
       Then("Useful columns are extracted")
       resultDF1.schema.fields(0).name should be("bikes_available")
@@ -105,7 +105,7 @@ class StationTransformerTest extends FeatureSpec with Matchers with GivenWhenThe
           val testDF1 = Seq(testMarseilleData).toDF("raw_payload")
 
           When("Transformations are applied")
-          val resultDF1 = testDF1.transform(marseilleStationStatusJson2DF(_, spark))
+          val resultDF1 = testDF1.transform(transformFromJson2DF(_, spark,Cities.Marseille))
 
           Then("Useful columns are extracted")
           resultDF1.schema.fields(0).name should be("bikes_available")
