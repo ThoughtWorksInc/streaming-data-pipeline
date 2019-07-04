@@ -1,13 +1,13 @@
 package com.free2wheelers.apps
 
-import java.time.{Instant, LocalDateTime, ZoneId}
 import java.time.format.{DateTimeFormatter, DateTimeParseException}
+import java.time.{Instant, LocalDateTime, ZoneId}
 
 import com.free2wheelers.apps.StationTransformer._
-import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
+import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
-import org.apache.spark.sql.{Dataset, Row, SparkSession}
 import org.apache.log4j.{Level, LogManager, Logger}
+import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
 
 object StationApp {
 
@@ -46,37 +46,10 @@ object StationApp {
       .appName("StationConsumer")
       .getOrCreate()
 
-    val nycV2DF = spark.readStream
-      .format("kafka")
-      .option("kafka.bootstrap.servers", stationKafkaBrokers)
-      .option("auto.offset.reset","latest")
-      .option("subscribe", nycV2StationTopic)
-      .option("startingOffsets", "latest")
-      .option("failOnDataLoss","false")
-      .load()
-      .selectExpr("CAST(value AS STRING) as raw_payload")
-      .transform(sfStationStatusJson2DF(_, spark))
 
-    val sfStationDF = spark.readStream
-      .format("kafka")
-      .option("kafka.bootstrap.servers", stationKafkaBrokers)
-      .option("auto.offset.reset","latest")
-      .option("subscribe", sfStationTopic)
-      .option("startingOffsets", "latest")
-      .option("failOnDataLoss","false")
-      .load()
-      .selectExpr("CAST(value AS STRING) as raw_payload")
-      .transform(sfStationStatusJson2DF(_, spark))
-
-    val marseilleStationDF = spark.readStream
-      .format("kafka")
-      .option("kafka.bootstrap.servers", stationKafkaBrokers)
-      .option("subscribe", marseilleStationTopic)
-      .option("startingOffsets", "latest")
-      .option("failOnDataLoss","false")
-      .load()
-      .selectExpr("CAST(value AS STRING) as raw_payload")
-      .transform(marseilleStationStatusJson2DF(_, spark))
+    val nycV2DF = readStream(stationKafkaBrokers, nycV2StationTopic, spark, transformFromJson2DF(_, spark,Cities.Newyork))
+    val sfStationDF = readStream(stationKafkaBrokers, sfStationTopic, spark, transformFromJson2DF(_, spark,Cities.SanFrancisco))
+    val marseilleStationDF = readStream(stationKafkaBrokers, marseilleStationTopic, spark, transformFromJson2DF(_, spark,Cities.Marseille))
 
     val version2DF = sfStationDF.union(marseilleStationDF).union(nycV2DF)
     unionStationData(version2DF, spark)
@@ -89,6 +62,19 @@ object StationApp {
       .option("path", outputLocation)
       .start()
       .awaitTermination()
+  }
+
+  private def readStream(kafkaBrokers: String, kafkaTopic: String, sparkSession: SparkSession, transformationFunction: DataFrame => DataFrame) = {
+    sparkSession.readStream
+      .format("kafka")
+      .option("kafka.bootstrap.servers", kafkaBrokers)
+      .option("auto.offset.reset", "latest")
+      .option("subscribe", kafkaTopic)
+      .option("startingOffsets", "latest")
+      .option("failOnDataLoss", "false")
+      .load()
+      .selectExpr("CAST(value AS STRING) as raw_payload")
+      .transform(transformationFunction)
   }
 
   private def calculateOutputLocation(outputBaseDir: String, currentTimeUtc: LocalDateTime) = {
