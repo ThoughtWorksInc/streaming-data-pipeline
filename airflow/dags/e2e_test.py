@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from airflow.operators.bash_operator import BashOperator
 from airflow import DAG
 from airflow import LoggingMixin
 from airflow.models import Variable
