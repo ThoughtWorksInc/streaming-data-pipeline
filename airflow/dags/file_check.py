@@ -73,7 +73,7 @@ SPARK_STEPS = [
     }
 ]
 
-dag = DAG('monitoring_file_checker_v1', default_args=default_args, schedule_interval='*/10 * * * *', catchup=False)
+dag = DAG('monitoring_file_checker_v1', default_args=default_args, schedule_interval='*/5 * * * *', catchup=False)
 
 add_steps = EmrAddStepsOperator(
     task_id='add_steps',
