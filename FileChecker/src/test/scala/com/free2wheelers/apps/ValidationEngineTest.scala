@@ -21,16 +21,16 @@ class ValidationEngineTest extends FeatureSpec with Matchers {
 
     scenario("No runtime exception is thrown when validation passes") {
       when(hdfs.getFileStatus(new Path(outputFile))).thenReturn(fileStatus)
-      when(fileValidator.isFileModifiedWithinTimeLimit(fileStatus, limitInMinutes)).thenReturn(false)
-      when(stationReportValidator.isValid(stationMartDF)).thenReturn(true)
+      when(fileValidator.isFileOlderThan(fileStatus, limitInMinutes)).thenReturn(false)
+      when(stationReportValidator.isDFValid(stationMartDF)).thenReturn(true)
 
       noException should be thrownBy validationEngine.checkFile(outputFile, stationMartDF, hdfs)
     }
 
     scenario("Runtime exception is thrown when external file timecheck validation does not pass") {
       when(hdfs.getFileStatus(new Path(outputFile))).thenReturn(fileStatus)
-      when(fileValidator.isFileModifiedWithinTimeLimit(fileStatus, limitInMinutes)).thenReturn(true)
-      when(stationReportValidator.isValid(stationMartDF)).thenReturn(true)
+      when(fileValidator.isFileOlderThan(fileStatus, limitInMinutes)).thenReturn(true)
+      when(stationReportValidator.isDFValid(stationMartDF)).thenReturn(true)
 
       the [RuntimeException] thrownBy validationEngine.checkFile(outputFile, stationMartDF, hdfs)
 
@@ -38,8 +38,8 @@ class ValidationEngineTest extends FeatureSpec with Matchers {
 
     scenario("Runtime exception is thrown when content validation does not pass") {
       when(hdfs.getFileStatus(new Path(outputFile))).thenReturn(fileStatus)
-      when(fileValidator.isFileModifiedWithinTimeLimit(fileStatus, limitInMinutes)).thenReturn(false)
-      when(stationReportValidator.isValid(stationMartDF)).thenReturn(false)
+      when(fileValidator.isFileOlderThan(fileStatus, limitInMinutes)).thenReturn(false)
+      when(stationReportValidator.isDFValid(stationMartDF)).thenReturn(false)
 
       the [RuntimeException] thrownBy validationEngine.checkFile(outputFile, stationMartDF, hdfs)
     }

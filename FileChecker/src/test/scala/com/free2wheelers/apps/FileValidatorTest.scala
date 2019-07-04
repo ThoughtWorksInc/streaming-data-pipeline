@@ -18,7 +18,7 @@ class FileValidatorTest extends FeatureSpec with Matchers {
 
             when(mockFileStatus.getModificationTime).thenReturn(nowMinusThreeMinutes)
 
-            val result = fileValidator.isFileModifiedWithinTimeLimit(mockFileStatus, limitInMinutes)
+            val result = fileValidator.isFileOlderThan(mockFileStatus, limitInMinutes)
             result should equal(false)
         }
 
@@ -30,7 +30,7 @@ class FileValidatorTest extends FeatureSpec with Matchers {
 
             when(mockFileStatus.getModificationTime).thenReturn(nowMinusFiveMinutes)
 
-            val result = fileValidator.isFileModifiedWithinTimeLimit(mockFileStatus, limitInMinutes)
+            val result = fileValidator.isFileOlderThan(mockFileStatus, limitInMinutes)
             result should equal(false)
         }
 
@@ -42,7 +42,7 @@ class FileValidatorTest extends FeatureSpec with Matchers {
 
             when(mockFileStatus.getModificationTime).thenReturn(nowMinusSixMinutes)
 
-            val result = fileValidator.isFileModifiedWithinTimeLimit(mockFileStatus, limitInMinutes)
+            val result = fileValidator.isFileOlderThan(mockFileStatus, limitInMinutes)
             result should equal(true)
         }
     }
@@ -55,13 +55,13 @@ class FileValidatorTest extends FeatureSpec with Matchers {
         scenario("should not throw exception if file exist "){
             when(hdfs.exists(new Path(path))).thenReturn(true)
 
-            noException should be thrownBy fileValidator.doesFileExist(path,hdfs)
+            noException should be thrownBy fileValidator.checkFileExist(path,hdfs)
         }
 
         scenario("should throw exception if file does not exist") {
             when(hdfs.exists(new Path(path))).thenReturn(false)
 
-            the [RuntimeException] thrownBy fileValidator.doesFileExist(path,hdfs)
+            the [RuntimeException] thrownBy fileValidator.checkFileExist(path,hdfs)
         }
     }
 
