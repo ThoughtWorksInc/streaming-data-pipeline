@@ -1,19 +1,22 @@
 package com.free2wheelers.apps
 
-import java.time.Instant
+import java.time.{Instant, LocalDateTime, ZoneId}
 import java.time.format.{DateTimeFormatter, DateTimeParseException}
 
 import com.free2wheelers.apps.StationTransformer._
-import org.apache.curator.framework.CuratorFrameworkFactory
+import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
 import org.apache.log4j.{Level, LogManager, Logger}
 
 object StationApp {
+
   var log: Logger = LogManager.getRootLogger
   log.setLevel(Level.INFO)
 
   def main(args: Array[String]): Unit = {
+
+    val currentTimeUtc = LocalDateTime.now(ZoneId.of("UTC"))
 
     val zookeeperConnectionString = if (args.isEmpty) "zookeeper:2181" else args(0)
 
@@ -33,8 +36,11 @@ object StationApp {
     val checkpointLocation = new String(
       zkClient.getData.watched.forPath("/free2wheelers/output/checkpointLocation"))
 
-    val outputLocation = new String(
+
+    val outputBaseDir = new String(
       zkClient.getData.watched.forPath("/free2wheelers/output/dataLocation"))
+
+    val outputLocation = calculateOutputLocation(outputBaseDir, currentTimeUtc)
 
     val spark = SparkSession.builder
       .appName("StationConsumer")
@@ -73,7 +79,6 @@ object StationApp {
       .transform(marseilleStationStatusJson2DF(_, spark))
 
     val version2DF = sfStationDF.union(marseilleStationDF).union(nycV2DF)
-
     unionStationData(version2DF, spark)
       .writeStream
       .format("overwriteCSV")
@@ -84,6 +89,16 @@ object StationApp {
       .option("path", outputLocation)
       .start()
       .awaitTermination()
+  }
+
+  private def calculateOutputLocation(outputBaseDir: String, currentTimeUtc: LocalDateTime) = {
+
+    val secondOfHour = (currentTimeUtc.getMinute * 60) + currentTimeUtc.getSecond
+
+    val outputLocation: String =
+      f"$outputBaseDir/${currentTimeUtc.getYear}/${currentTimeUtc.getMonthValue}/${currentTimeUtc.getDayOfMonth}/${currentTimeUtc.getHour}/$secondOfHour"
+
+    outputLocation
   }
 
   def parseDateTimeToIsoFormat(stationInfo: StationStatus) = {
@@ -101,7 +116,6 @@ object StationApp {
         stationInfo.copy(last_updated = "")
       }
     }
-
   }
 
   def unionStationData(version2DF: Dataset[Row], spark: SparkSession): Dataset[StationStatus] = {
