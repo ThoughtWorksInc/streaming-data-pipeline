@@ -50,14 +50,6 @@ def handle_task_success(contextDict, **kwargs):
     logger.log.info("op=handle_task_success | Published metrics successfully")
 
 
-file_check_task = """
-export AWS_DEFAULT_REGION={{ var.json.monitoring_file_checker_v1.aws_region }}
-step=$(aws emr add-steps --cluster-id {{ var.json.monitoring_file_checker_v1.cluster_id }} --steps Type=SPARK,Name="Test File Check",ActionOnFailure=CONTINUE,Args=[--class,com.free2wheelers.apps.FileChecker,--master,yarn,--deploy-mode,cluster,--queue,monitoring,/tmp/free2wheelers-file-checker_2.11-0.0.1.jar,/free2wheelers/stationMart/data] | python -c 'import json,sys;obj=json.load(sys.stdin);print obj.get("StepIds")[0];')
-echo '========='$step
-aws emr wait step-complete --cluster-id {{ var.json.monitoring_file_checker_v1.cluster_id }} --step-id $step
-"""
-
-
 SPARK_STEPS = [
     {
         'Name': 'File Check',
