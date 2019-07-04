@@ -168,4 +168,5 @@ echo "====Station Consumer Deployed===="
 
 echo "====copy dags to airflow machine===="
 scp -r ./airflow/dags ec2-user@airflow.twdu1-uat.training:~/airflow/
+scp e2e.sh ec2-user@airflow.twdu1-uat.training:~/
 echo "====dags copied to airflow machine===="
