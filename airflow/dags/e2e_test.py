@@ -16,12 +16,12 @@ default_args = {
 
 dag = DAG('e2e_test', default_args=default_args)
 
-env_variables = Variable.get("ENVIRONMENT_VARIABLES", deserialize_json=True)
+env_variables = Variable.get("environment_variables", deserialize_json=True)
 
 cohort = env_variables["cohort"]
 e2e_test_command = """
 export TRAINING_COHORT={cohort} && ~/e2e.sh
-"""
+""".format(cohort=cohort)
 
 t1 = BashOperator(
     task_id='execute_test',
