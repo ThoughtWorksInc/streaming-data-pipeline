@@ -22,9 +22,45 @@ Host *.twdu1-uat.training
 echo "====SSH Config Updated===="
 
 echo "====Create directories for application JARs===="
-ssh ec2-user@ingester.twdu1-uat.training 'mkdir -p /usr/lib/citibike-apps'
-ssh hadoop@emr-master.twdu1-uat.training 'mkdir -p /usr/lib/citibike-apps'
+ssh ec2-user@ingester.twdu1-uat.training '
+sudo mkdir -p /usr/lib/citibike-apps
+sudo chmod 755 /usr/lib/citibike-apps
+'
+
+ssh hadoop@emr-master.twdu1-uat.training '
+sudo mkdir -p /usr/lib/citibike-apps
+sudo chmod 755 /usr/lib/citibike-apps
+'
 echo "====Created directories for application JARs===="
+
+
+echo "====Copy jar to ingester server===="
+scp CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar ec2-user@ingester.twdu1-uat.training:/usr/lib/citibike-apps/
+echo "====Jar copied to ingester server===="
+
+echo "====Copy Raw Data Saver Jar to EMR===="
+scp RawDataSaver/target/scala-2.11/free2wheelers-raw-data-saver_2.11-0.0.1.jar hadoop@emr-master.twdu1-uat.training:/usr/lib/citibike-apps/
+echo "====Raw Data Saver Jar Copied to EMR===="
+
+echo "====Copy Station Consumers Jar to EMR===="
+scp StationConsumer/target/scala-2.11/free2wheelers-station-consumer_2.11-0.0.1.jar hadoop@emr-master.twdu1-uat.training:/usr/lib/citibike-apps/
+echo "====Station Consumers Jar Copied to EMR===="
+
+echo "====Copy File Checker Jar to EMR===="
+scp FileChecker/target/scala-2.11/free2wheelers-file-checker_2.11-0.0.1.jar hadoop@emr-master.twdu1-uat.training:/usr/lib/citibike-apps/
+echo "====File Checker Jar Copied to EMR===="
+
+
+echo "====Give permission to read and execute application JARs===="
+ssh ec2-user@ingester.twdu1-uat.training '
+sudo chmod --recursive 755 /usr/lib/citibike-apps
+'
+
+ssh hadoop@emr-master.twdu1-uat.training '
+sudo chmod --recursive 755 /usr/lib/citibike-apps
+'
+echo "====Gave permission to read and execute application JARs===="
+
 
 echo "====Insert app config in zookeeper===="
 scp ./zookeeper/seed.sh kafka.twdu1-uat.training:/tmp/zookeeper-seed.sh
@@ -39,9 +75,6 @@ sh /tmp/kafka-seed.sh uat
 '
 echo "====Inserted app config in zookeeper===="
 
-echo "====Copy jar to ingester server===="
-scp CitibikeApiProducer/build/libs/free2wheelers-citibike-apis-producer0.1.0.jar ec2-user@ingester.twdu1-uat.training:/usr/lib/citibike-apps/
-echo "====Jar copied to ingester server===="
 
 ssh ec2-user@ingester.twdu1-uat.training '
 set -e
@@ -84,7 +117,6 @@ nohup java -jar /usr/lib/citibike-apps/free2wheelers-citibike-apis-producer0.1.0
 echo "====Producers Deployed===="
 '
 
-
 echo "====Configure HDFS paths===="
 scp ./hdfs/seed.sh hadoop@emr-master.twdu1-uat.training:/tmp/hdfs-seed.sh
 
@@ -96,11 +128,6 @@ sh /tmp/hdfs-seed.sh
 '
 
 echo "====HDFS paths configured==="
-
-
-echo "====Copy Raw Data Saver Jar to EMR===="
-scp RawDataSaver/target/scala-2.11/free2wheelers-raw-data-saver_2.11-0.0.1.jar hadoop@emr-master.twdu1-uat.training:/usr/lib/citibike-apps/
-echo "====Raw Data Saver Jar Copied to EMR===="
 
 scp sbin/go.sh hadoop@emr-master.twdu1-uat.training:/tmp/go.sh
 
@@ -155,15 +182,6 @@ sleep 1m
 
 echo "====Raw Data Saver Deployed===="
 '
-
-
-echo "====Copy Station Consumers Jar to EMR===="
-scp StationConsumer/target/scala-2.11/free2wheelers-station-consumer_2.11-0.0.1.jar hadoop@emr-master.twdu1-uat.training:/usr/lib/citibike-apps/
-echo "====Station Consumers Jar Copied to EMR===="
-
-echo "====Copy File Checker Jar to EMR===="
-scp FileChecker/target/scala-2.11/free2wheelers-file-checker_2.11-0.0.1.jar hadoop@emr-master.twdu1-uat.training:/usr/lib/citibike-apps/
-echo "====File Checker Jar Copied to EMR===="
 
 scp sbin/go.sh hadoop@emr-master.twdu1-uat.training:/tmp/go.sh
 
