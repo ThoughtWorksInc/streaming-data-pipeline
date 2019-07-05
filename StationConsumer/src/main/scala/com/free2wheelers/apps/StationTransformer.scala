@@ -16,6 +16,7 @@ object StationTransformer {
   }
 
   private val transformerMap = Map(
+    Cities.Newyork -> { raw_payload: String => applyTransformation(raw_payload, extractSFStationStatus) },
     Cities.SanFrancisco -> { raw_payload: String => applyTransformation(raw_payload, extractSFStationStatus) },
     Cities.Marseille -> { raw_payload: String => applyTransformation(raw_payload, extractMarseilleStationStatus) }
   )
