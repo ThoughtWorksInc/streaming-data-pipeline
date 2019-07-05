@@ -28,6 +28,8 @@ public class ApiProducer {
 
     private final MetadataGenerator metadataGenerator;
 
+    private String previousBody = "";
+
     @Autowired
     public ApiProducer(KafkaTemplate<String, String> kafkaTemplate, MetadataGenerator metadataGenerator) {
         this.kafkaTemplate = kafkaTemplate;
@@ -36,6 +38,11 @@ public class ApiProducer {
 
     public void sendMessage(final HttpEntity<String> response) {
         String message = response.getBody();
+        if (previousBody.equals(message)) {
+            logger.info("Previous body same, skipped sending message!");
+            return;
+        }
+
         long contentLength = response.getHeaders().getContentLength();
         String messageId = metadataGenerator.generateUniqueKey();
         long ingestionTime = metadataGenerator.getCurrentTimeMillis();
@@ -47,6 +54,7 @@ public class ApiProducer {
 
             @Override
             public void onSuccess(SendResult<String, String> result) {
+                previousBody = message;
                 logger.info("Success sending message");
             }
 
