@@ -189,5 +189,5 @@ echo "====Station Consumer Deployed===="
 '
 
 echo "====copy dags to airflow machine===="
-scp -r ./airflow/dags ec2-user@airflow.twdu1.training:~/airflow/
+scp ./airflow/dags/file_check.py ec2-user@airflow.twdu1.training:~/airflow/
 echo "====dags copied to airflow machine===="
