@@ -6,7 +6,7 @@ import org.apache.spark.sql.{DataFrame}
 
 class ValidationEngine(stationReportValidator: StationReportValidator, fileValidator: FileValidator) {
   val LIMIT_IN_MINUTES = 5
-  def checkFile(outputFile: String, stationMartDF: DataFrame, hdfs: FileSystem) = {
+  def checkFile(outputFile: String, stationMartDF: DataFrame, hdfs: FileSystem) :Unit = {
     val file = hdfs.getFileStatus(new Path(outputFile))
 
     fileValidator.checkFileExist(outputFile, hdfs)
