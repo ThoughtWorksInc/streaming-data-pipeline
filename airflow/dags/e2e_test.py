@@ -14,7 +14,7 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
-dag = DAG('e2e_test', default_args=default_args)
+dag = DAG('e2e_test',default_args=default_args, schedule_interval='0 * * * *', catchup=False)
 
 env_variables = Variable.get("environment_variables", deserialize_json=True)
 
