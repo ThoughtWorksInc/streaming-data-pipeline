@@ -1,5 +1,6 @@
 package com.free2wheelers.services;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -40,10 +41,10 @@ public class ApiProducerTest {
     @Value("${producer.producerId}")
     private String testProducerId;
 
-    @Test
-    public void shouldAddMetadataAndSendMessage() throws NoSuchFieldException, IllegalAccessException {
+    private HttpEntity<String> response;
 
-        //cannot find another way to inject in the test values...
+    @Before
+    public void setUp() throws NoSuchFieldException, IllegalAccessException {
         Field writeTopic = ApiProducer.class.getDeclaredField("writeTopic");
         writeTopic.setAccessible(true);
         writeTopic.set(apiProducer, testWriteTopic);
@@ -52,7 +53,11 @@ public class ApiProducerTest {
         producerId.setAccessible(true);
         producerId.set(apiProducer, testProducerId);
 
-        HttpEntity<String> response = mock(HttpEntity.class, Answers.RETURNS_DEEP_STUBS);
+        response = mock(HttpEntity.class, Answers.RETURNS_DEEP_STUBS);
+    }
+
+    @Test
+    public void shouldAddMetadataAndSendMessage() {
         when(response.getBody()).thenReturn("LargeJsonMessage");
         when(response.getHeaders().getContentLength()).thenReturn(1234L);
         when(metadataGenerator.generateUniqueKey()).thenReturn("123e4567-e89b-12d3-a456-426655440001");
@@ -60,6 +65,28 @@ public class ApiProducerTest {
         when(kafkaTemplate.send(any(), any(), any())).thenReturn(future);
 
         apiProducer.sendMessage(response);
+
+        verify(kafkaTemplate).send(
+                "test_station_status",
+                "123e4567-e89b-12d3-a456-426655440001",
+                "{\"metadata\": {\"producer_id\": \"test_station_status_producer\", " +
+                        "\"size\": 1234, " +
+                        "\"message_id\": \"123e4567-e89b-12d3-a456-426655440001\", " +
+                        "\"ingestion_time\": 1524237281590}, " +
+                        "\"payload\": LargeJsonMessage}"
+        );
+    }
+
+    @Test
+    public void shouldNotSendDataToKafkaWhenBodySame() {
+        when(response.getBody()).thenReturn("LargeJsonMessage");
+        when(response.getHeaders().getContentLength()).thenReturn(1234L);
+        when(metadataGenerator.generateUniqueKey()).thenReturn("123e4567-e89b-12d3-a456-426655440001");
+        when(metadataGenerator.getCurrentTimeMillis()).thenReturn(1524237281590L);
+        when(kafkaTemplate.send(any(), any(), any())).thenReturn(future);
+
+        apiProducer.sendMessage(response);
+
         verify(kafkaTemplate).send(
                 "test_station_status",
                 "123e4567-e89b-12d3-a456-426655440001",
@@ -70,5 +97,43 @@ public class ApiProducerTest {
                         "\"payload\": LargeJsonMessage}"
         );
 
+        apiProducer.sendMessage(response);
+
+        verify(kafkaTemplate, times(0)).send(any(), any());
+    }
+
+    @Test
+    public void shouldSendDataToKafkaWhenBodyDifferent() {
+        when(response.getBody())
+                .thenReturn("LargeJsonMessage")
+                .thenReturn("AnotherLargeJsonMessage");
+        when(response.getHeaders().getContentLength()).thenReturn(1234L);
+        when(metadataGenerator.generateUniqueKey()).thenReturn("123e4567-e89b-12d3-a456-426655440001");
+        when(metadataGenerator.getCurrentTimeMillis()).thenReturn(1524237281590L);
+        when(kafkaTemplate.send(any(), any(), any())).thenReturn(future);
+
+        apiProducer.sendMessage(response);
+
+        verify(kafkaTemplate).send(
+                "test_station_status",
+                "123e4567-e89b-12d3-a456-426655440001",
+                "{\"metadata\": {\"producer_id\": \"test_station_status_producer\", " +
+                        "\"size\": 1234, " +
+                        "\"message_id\": \"123e4567-e89b-12d3-a456-426655440001\", " +
+                        "\"ingestion_time\": 1524237281590}, " +
+                        "\"payload\": LargeJsonMessage}"
+        );
+
+        apiProducer.sendMessage(response);
+
+        verify(kafkaTemplate).send(
+                "test_station_status",
+                "123e4567-e89b-12d3-a456-426655440001",
+                "{\"metadata\": {\"producer_id\": \"test_station_status_producer\", " +
+                        "\"size\": 1234, " +
+                        "\"message_id\": \"123e4567-e89b-12d3-a456-426655440001\", " +
+                        "\"ingestion_time\": 1524237281590}, " +
+                        "\"payload\": LargeJsonMessage}"
+        );
     }
 }
