@@ -66,7 +66,7 @@ SPARK_STEPS = [
                 'cluster',
                 '--queue',
                 'default',
-                '/tmp/free2wheelers-file-checker_2.11-0.0.1.jar',
+                '/usr/lib/citibike-apps/free2wheelers-file-checker_2.11-0.0.1.jar',
                 'hdfs:///free2wheelers/stationMart/data'
             ]
         }
