@@ -58,14 +58,14 @@ SPARK_STEPS = [
             'Jar': 'command-runner.jar',
             'Args': [
                 'spark-submit',
-                '--class',
-                'com.free2wheelers.apps.FileChecker',
                 '--master',
                 'yarn',
                 '--deploy-mode',
                 'cluster',
+                '--class',
+                'com.free2wheelers.apps.FileChecker',
                 '--queue',
-                'default',
+                'monitor',
                 '/usr/lib/citibike-apps/free2wheelers-file-checker_2.11-0.0.1.jar',
                 'hdfs:///free2wheelers/stationMart/data'
             ]
