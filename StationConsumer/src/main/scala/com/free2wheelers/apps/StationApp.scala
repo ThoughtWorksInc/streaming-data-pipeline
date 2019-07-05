@@ -11,7 +11,7 @@ import org.apache.log4j.{Level, LogManager, Logger}
 
 object StationApp {
   var log: Logger = LogManager.getRootLogger
-  log.setLevel(Level.TRACE)
+  log.setLevel(Level.INFO)
 
   def main(args: Array[String]): Unit = {
 
