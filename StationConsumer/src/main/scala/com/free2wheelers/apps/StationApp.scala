@@ -1,22 +1,19 @@
 package com.free2wheelers.apps
 
+import java.time.Instant
 import java.time.format.{DateTimeFormatter, DateTimeParseException}
-import java.time.{Instant, LocalDateTime, ZoneId}
 
 import com.free2wheelers.apps.StationTransformer._
 import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.ExponentialBackoffRetry
+import org.apache.spark.sql.{Dataset, Row, SparkSession}
 import org.apache.log4j.{Level, LogManager, Logger}
-import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
 
 object StationApp {
-
   var log: Logger = LogManager.getRootLogger
   log.setLevel(Level.INFO)
 
   def main(args: Array[String]): Unit = {
-
-    val currentTimeUtc = LocalDateTime.now(ZoneId.of("UTC"))
 
     val zookeeperConnectionString = if (args.isEmpty) "zookeeper:2181" else args(0)
 
@@ -36,22 +33,47 @@ object StationApp {
     val checkpointLocation = new String(
       zkClient.getData.watched.forPath("/free2wheelers/output/checkpointLocation"))
 
-
-    val outputBaseDir = new String(
+    val outputLocation = new String(
       zkClient.getData.watched.forPath("/free2wheelers/output/dataLocation"))
-
-    val outputLocation = calculateOutputLocation(outputBaseDir, currentTimeUtc)
 
     val spark = SparkSession.builder
       .appName("StationConsumer")
       .getOrCreate()
 
+    val nycV2DF = spark.readStream
+      .format("kafka")
+      .option("kafka.bootstrap.servers", stationKafkaBrokers)
+      .option("auto.offset.reset","latest")
+      .option("subscribe", nycV2StationTopic)
+      .option("startingOffsets", "latest")
+      .option("failOnDataLoss","false")
+      .load()
+      .selectExpr("CAST(value AS STRING) as raw_payload")
+      .transform(sfStationStatusJson2DF(_, spark))
 
-    val nycV2DF = readStream(stationKafkaBrokers, nycV2StationTopic, spark, transformFromJson2DF(_, spark,Cities.Newyork))
-    val sfStationDF = readStream(stationKafkaBrokers, sfStationTopic, spark, transformFromJson2DF(_, spark,Cities.SanFrancisco))
-    val marseilleStationDF = readStream(stationKafkaBrokers, marseilleStationTopic, spark, transformFromJson2DF(_, spark,Cities.Marseille))
+    val sfStationDF = spark.readStream
+      .format("kafka")
+      .option("kafka.bootstrap.servers", stationKafkaBrokers)
+      .option("auto.offset.reset","latest")
+      .option("subscribe", sfStationTopic)
+      .option("startingOffsets", "latest")
+      .option("failOnDataLoss","false")
+      .load()
+      .selectExpr("CAST(value AS STRING) as raw_payload")
+      .transform(sfStationStatusJson2DF(_, spark))
+
+    val marseilleStationDF = spark.readStream
+      .format("kafka")
+      .option("kafka.bootstrap.servers", stationKafkaBrokers)
+      .option("subscribe", marseilleStationTopic)
+      .option("startingOffsets", "latest")
+      .option("failOnDataLoss","false")
+      .load()
+      .selectExpr("CAST(value AS STRING) as raw_payload")
+      .transform(marseilleStationStatusJson2DF(_, spark))
 
     val version2DF = sfStationDF.union(marseilleStationDF).union(nycV2DF)
+
     unionStationData(version2DF, spark)
       .writeStream
       .format("overwriteCSV")
@@ -62,29 +84,6 @@ object StationApp {
       .option("path", outputLocation)
       .start()
       .awaitTermination()
-  }
-
-  private def readStream(kafkaBrokers: String, kafkaTopic: String, sparkSession: SparkSession, transformationFunction: DataFrame => DataFrame) = {
-    sparkSession.readStream
-      .format("kafka")
-      .option("kafka.bootstrap.servers", kafkaBrokers)
-      .option("auto.offset.reset", "latest")
-      .option("subscribe", kafkaTopic)
-      .option("startingOffsets", "latest")
-      .option("failOnDataLoss", "false")
-      .load()
-      .selectExpr("CAST(value AS STRING) as raw_payload")
-      .transform(transformationFunction)
-  }
-
-  private def calculateOutputLocation(outputBaseDir: String, currentTimeUtc: LocalDateTime) = {
-
-    val secondOfHour = (currentTimeUtc.getMinute * 60) + currentTimeUtc.getSecond
-
-    val outputLocation: String =
-      f"$outputBaseDir/${currentTimeUtc.getYear}/${currentTimeUtc.getMonthValue}/${currentTimeUtc.getDayOfMonth}/${currentTimeUtc.getHour}/$secondOfHour"
-
-    outputLocation
   }
 
   def parseDateTimeToIsoFormat(stationInfo: StationStatus) = {
@@ -102,6 +101,7 @@ object StationApp {
         stationInfo.copy(last_updated = "")
       }
     }
+
   }
 
   def unionStationData(version2DF: Dataset[Row], spark: SparkSession): Dataset[StationStatus] = {
