@@ -16,6 +16,7 @@ object FileChecker {
     val checker = new ValidationEngine(stationReportValidator, fileValidator)
     checker.checkFile(outputFile, stationMartDF, hdfs)
 
-    spark.stop
+    hdfs.close
+    spark.close
   }
 }
