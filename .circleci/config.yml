@@ -139,19 +139,23 @@ workflows:
           branches:
             only:
             - master
+
     - deploy-to-uat:
         requires:
         - build-producer
         - build-raw-data-saver
         - build-station-consumer
         - build-file-checker
+
     - e2e-test:
         requires:
         - deploy-to-uat
+
     - approve-deploy-to-prod:
         type: approval
         requires:
         - deploy-to-uat
+
     - deploy-to-prod:
         requires:
         - approve-deploy-to-prod
