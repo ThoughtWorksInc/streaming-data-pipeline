@@ -102,7 +102,7 @@ jobs:
           fingerprints:
             - "20:06:55:5a:f2:31:72:ad:6b:62:d1:35:3b:58:d2:10"
       - run:
-          command: export TRAINING_COHORT=twdu1-uat && ./e2e.sh
+          command: chmod +x e2e.sh && export TRAINING_COHORT=twdu1-uat && ./e2e.sh
   deploy-to-prod:
     <<: *defaults
     steps:
