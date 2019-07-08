@@ -114,10 +114,6 @@ jobs:
         - "ce:0b:2b:b0:20:ad:54:ed:a0:7d:f6:8a:06:a4:be:5e"
     - run:
         command: ./sbin/deploy-prod.sh
-  dummy:
-    <<: *defaults
-    steps:
-      - run: echo "A first hello"
 
 workflows:
   version: 2
@@ -144,7 +140,7 @@ workflows:
             only:
             - master
 
-    - dummy:
+    - deploy-to-uat:
         requires:
         - build-producer
         - build-raw-data-saver
@@ -153,7 +149,7 @@ workflows:
 
     - e2e-test:
         requires:
-        - dummy
+        - deploy-to-uat
 
     - approve-deploy-to-prod:
         type: approval
