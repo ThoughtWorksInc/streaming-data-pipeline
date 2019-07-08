@@ -140,12 +140,12 @@ workflows:
             only:
             - master
 
-    - deploy-to-uat:
-        requires:
-        - build-producer
-        - build-raw-data-saver
-        - build-station-consumer
-        - build-file-checker
+   # - deploy-to-uat:
+   #     requires:
+   #     - build-producer
+   #     - build-raw-data-saver
+   #     - build-station-consumer
+   #     - build-file-checker
 
     - e2e-test:
         requires:
