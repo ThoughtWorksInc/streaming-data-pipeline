@@ -154,7 +154,7 @@ workflows:
     - approve-deploy-to-prod:
         type: approval
         requires:
-        - deploy-to-uat
+        - e2e-test
 
     - deploy-to-prod:
         requires:
