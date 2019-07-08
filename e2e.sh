@@ -31,7 +31,7 @@ function getFileInformation (){
         echo "Is not possible get the timestamp from the CSV"
         exit 1
     fi
-    epoch
+    echo ${epoch}
 }
 
 function publishMessage(){
