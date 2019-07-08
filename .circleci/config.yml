@@ -92,6 +92,17 @@ jobs:
             - "20:06:55:5a:f2:31:72:ad:6b:62:d1:35:3b:58:d2:10"
       - run:
           command: ./sbin/deploy-uat.sh
+  e2e-test:
+    <<: *defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /home/circleci/project
+      - add_ssh_keys:
+          fingerprints:
+            - "20:06:55:5a:f2:31:72:ad:6b:62:d1:35:3b:58:d2:10"
+      - run:
+          command: export TRAINING_COHORT=twdu1-uat && ./e2e.sh
   deploy-to-prod:
     <<: *defaults
     steps:
@@ -128,19 +139,18 @@ workflows:
           branches:
             only:
             - master
-
     - deploy-to-uat:
         requires:
         - build-producer
         - build-raw-data-saver
         - build-station-consumer
         - build-file-checker
-
+    - e2e-test:
+        - deploy-to-uat
     - approve-deploy-to-prod:
         type: approval
         requires:
         - deploy-to-uat
-
     - deploy-to-prod:
         requires:
         - approve-deploy-to-prod
