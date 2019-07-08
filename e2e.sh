@@ -1,4 +1,20 @@
 #!/usr/bin/env bash
+echo "====Updating SSH Config===="
+
+echo "
+	User ec2-user
+	IdentitiesOnly yes
+    StrictHostKeyChecking no
+	ForwardAgent yes
+	DynamicForward 6789
+Host emr-master.twdu1-uat.training
+    User hadoop
+Host *.twdu1-uat.training
+	StrictHostKeyChecking no
+	ForwardAgent yes
+	ProxyCommand ssh 18.139.38.127 -W %h:%p 2>/dev/null
+	User ec2-user
+" >> ~/.ssh/config
 
 TIME_TO_WAIT_FOR_PROCESS=120
 STATION_TOPIC=station_data_marseille
@@ -97,7 +113,7 @@ echo "PREVIOUS EPOCH: ${previous_epoch}"
 
 if [[ ${actual_epoch} > ${previous_epoch} ]]
 then
-    echo "Actual timestamp is greater than previous timestamp; record has been updated"    
+    echo "Actual timestamp is greater than previous timestamp; record has been updated"
     echo "Everything is Awesome"
 else
     echo "Previous record is ${previous_record}"
