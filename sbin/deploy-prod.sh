@@ -106,8 +106,8 @@ source /tmp/go.sh
 
 echo "====Kill Old Raw Data Saver===="
 
-kill_application "StationStatusSaverApp"
-kill_application "StationInformationSaverApp"
+#kill_application "StationStatusSaverApp"
+#kill_application "StationInformationSaverApp"
 kill_application "StationDataSFSaverApp"
 kill_application "StationDataNYCSaverApp"
 kill_application "StationDataMarseilleSaverApp"
@@ -118,17 +118,17 @@ echo "====Deploy Raw Data Saver===="
 
 zookeeper_connection_string="kafka.twdu1.training:2181"
 
-nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --queue streaming --name StationStatusSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar ${zookeeper_connection_string} "/free2wheelers/stationStatus" 1>/tmp/raw-station-status-data-saver.log 2>/tmp/raw-station-status-data-saver.error.log &
-
-# Sleep between two spark-submit executions to prevent the following error: org.xml.sax.SAXParseException; systemId: file:/home/hadoop/.ivy2/cache/org.apache.spark-spark-submit-parent-default.xml; lineNumber: 1; columnNumber: 1; Premature end of file
-# This workaround can be removed when Spark is upgraded to 2.3.1+
-sleep 1m
-
-nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --queue streaming --name StationInformationSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar ${zookeeper_connection_string} "/free2wheelers/stationInformation" 1>/tmp/raw-station-information-data-saver.log 2>/tmp/raw-station-information-data-saver.error.log &
-
-# Sleep between two spark-submit executions to prevent the following error: org.xml.sax.SAXParseException; systemId: file:/home/hadoop/.ivy2/cache/org.apache.spark-spark-submit-parent-default.xml; lineNumber: 1; columnNumber: 1; Premature end of file
-# This workaround can be removed when Spark is upgraded to 2.3.1+
-sleep 1m
+#nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --queue streaming --name StationStatusSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar ${zookeeper_connection_string} "/free2wheelers/stationStatus" 1>/tmp/raw-station-status-data-saver.log 2>/tmp/raw-station-status-data-saver.error.log &
+#
+## Sleep between two spark-submit executions to prevent the following error: org.xml.sax.SAXParseException; systemId: file:/home/hadoop/.ivy2/cache/org.apache.spark-spark-submit-parent-default.xml; lineNumber: 1; columnNumber: 1; Premature end of file
+## This workaround can be removed when Spark is upgraded to 2.3.1+
+#sleep 1m
+#
+#nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --queue streaming --name StationInformationSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar ${zookeeper_connection_string} "/free2wheelers/stationInformation" 1>/tmp/raw-station-information-data-saver.log 2>/tmp/raw-station-information-data-saver.error.log &
+#
+## Sleep between two spark-submit executions to prevent the following error: org.xml.sax.SAXParseException; systemId: file:/home/hadoop/.ivy2/cache/org.apache.spark-spark-submit-parent-default.xml; lineNumber: 1; columnNumber: 1; Premature end of file
+## This workaround can be removed when Spark is upgraded to 2.3.1+
+#sleep 1m
 
 nohup spark-submit --master yarn --deploy-mode cluster --class com.free2wheelers.apps.StationLocationApp --queue streaming --name StationDataSFSaverApp --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0 --driver-memory 500M --conf spark.executor.memory=1g --conf spark.cores.max=1 /tmp/free2wheelers-raw-data-saver_2.11-0.0.1.jar ${zookeeper_connection_string} "/free2wheelers/stationDataSF" 1>/tmp/raw-station-data-sf-saver.log 2>/tmp/raw-station-data-sf-saver.error.log &
 
