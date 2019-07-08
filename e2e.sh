@@ -31,7 +31,7 @@ function getFileInformation (){
         echo "Is not possible get the timestamp from the CSV"
         exit 1
     fi
-    return epoch
+    echo ${epoch}
 }
 
 function publishMessage(){
@@ -82,8 +82,7 @@ echo ""
 
 echo "-----------------------------"
 echo "Retrieving Previous Timestamp"
-getFileInformation
-previous_epoch=$?
+previous_epoch=$(getFileInformation)
 echo "-----------------------------"
 echo ""
 
@@ -104,8 +103,7 @@ echo ""
 
 echo "-----------------------------"
 echo "Retrieving Actual Timestamp"
-getFileInformation
-actual_epoch=$?
+actual_epoch=$(getFileInformation)
 echo "-----------------------------"
 echo ""
 echo "ACTUAL EPOCH: ${actual_epoch}"
