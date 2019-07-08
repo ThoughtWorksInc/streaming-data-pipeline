@@ -105,19 +105,19 @@ echo ""
 echo "-----------------------------"
 echo "Retrieving Actual Timestamp"
 getFileInformation
-actual_record=$?
+actual_epoch=$?
 echo "-----------------------------"
 echo ""
 echo "ACTUAL EPOCH: ${actual_epoch}"
 echo "PREVIOUS EPOCH: ${previous_epoch}"
 
-if [[ ${actual_epoch} > ${previous_epoch} ]]
+if [[ "$actual_epoch" -gt "$previous_epoch" ]]
 then
     echo "Actual timestamp is greater than previous timestamp; record has been updated"
     echo "Everything is Awesome"
 else
-    echo "Previous record is ${previous_record}"
-    echo "Actual record is ${actual_record}"
+    echo "Previous record is ${previous_epoch}"
+    echo "Actual record is ${actual_epoch}"
     echo "Shit's on fire"
     exit 1
 fi
