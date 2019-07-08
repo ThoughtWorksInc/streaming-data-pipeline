@@ -146,6 +146,7 @@ workflows:
         - build-station-consumer
         - build-file-checker
     - e2e-test:
+        requires:
         - deploy-to-uat
     - approve-deploy-to-prod:
         type: approval
