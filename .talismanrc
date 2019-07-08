@@ -1,0 +1,7 @@
+fileignoreconfig:
+- filename: visualization/production.twb
+  checksum: 4d0e2cc7705ed6439cba726f0e9701fc9f7864c133a2a0d71cc670b9f2e3e948
+  ignore_detectors: []
+- filename: visualization/uat.twb
+  checksum: a3c6d5b73a58d68fdd78e1119298a7984a053606dd044f5149e20ce222275551
+  ignore_detectors: []
