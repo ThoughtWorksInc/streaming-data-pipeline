@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-
+TIME_TO_WAIT_FOR_PROCESS=120
 function getFileInformation (){
     local record
     record=$(ssh -oStrictHostKeyChecking=no -tt emr-master.$TRAINING_COHORT.training 'hadoop fs -cat /free2wheelers/stationMart/data/part*.csv | grep SyntheticBikeStation')
@@ -25,7 +25,7 @@ ssh -oStrictHostKeyChecking=no -tt kafka.$TRAINING_COHORT.training <<'endOfKafka
 endOfKafkaCommands
     if [[ $? -ne 0 ]]; then
         echo "Is not possible publish in Kafka"
-        #exit 1
+        exit 1
     fi
 }
 
@@ -40,8 +40,8 @@ function validateVariables(){
 }
 
 function waitForCompleteProcess(){
-    echo "Waiting $time_to_sleep seconds for streaming work to be done"
-    sleep 120
+    echo "Waiting ${TIME_TO_WAIT_FOR_PROCESS} seconds for streaming work to be done"
+    sleep ${TIME_TO_WAIT_FOR_PROCESS}
 }
 
 echo "-----------------------------"
@@ -91,8 +91,8 @@ getFileInformation
 actual_record=$?
 echo "-----------------------------"
 echo ""
-echo "ACTUAL EPOCH: $actual_epoch"
-echo "PREVIOUS EPOCH: $previous_epoch"
+echo "ACTUAL EPOCH: ${actual_epoch}"
+echo "PREVIOUS EPOCH: ${previous_epoch}"
 
 if [[ ${actual_epoch} > ${previous_epoch} ]]
 then
