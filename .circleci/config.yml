@@ -120,7 +120,7 @@ workflows:
   hourly_workflow:
     triggers:
       - schedule:
-          cron: "*/10 * * * *"
+          cron: "30 * * * *"
           filters:
             branches:
               only:
