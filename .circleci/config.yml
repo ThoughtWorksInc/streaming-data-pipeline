@@ -117,6 +117,16 @@ jobs:
 
 workflows:
   version: 2
+  hourly-workflow:
+    triggers:
+      - schedule:
+          cron: "*/10 * * * *"
+          filters:
+            branches:
+              only:
+                - master
+      jobs:
+        - e2e-test
   build_and_deploy:
     jobs:
     - build-producer:
