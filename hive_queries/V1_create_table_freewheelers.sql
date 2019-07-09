@@ -1,4 +1,4 @@
-create external table freewheelers
+create external table test_tableau
 (
     bikes_available INT,
     docks_available INT,
@@ -14,4 +14,4 @@ create external table freewheelers
         fields terminated by ','
     location '/free2wheelers/stationMart/data/'
     tblproperties ("skip.header.line.count"="1");
-ALTER TABLE freewheelers SET SERDEPROPERTIES ("timestamp.formats"="yyyy-MM-dd'T'HH:mm:ss");
+ALTER TABLE test_tableau SET SERDEPROPERTIES ("timestamp.formats"="yyyy-MM-dd'T'HH:mm:ss");
