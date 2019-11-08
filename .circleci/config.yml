@@ -43,7 +43,7 @@ jobs:
                 at: /home/circleci/project
             - add_ssh_keys:
                 fingerprints:
-                    - "a1:70:2e:56:c5:3d:12:86:d0:4b:00:af:2c:c1:2a:c7"                
+                    - "15:2b:9c:ea:86:93:f5:13:3c:6f:d6:79:6e:a0:58:b9:bd:3f:4e:10"
             - run:
                 command: ./sbin/deploy.sh
 
